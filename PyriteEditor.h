@@ -30,7 +30,10 @@ public slots:
 	void AddTransform();
 	void AddCollision();
 	void AddTrigger();
+	void RunGame();
+
 	void LoadSelectedObject();
+
 
 	void AddActionBox(Action action = Action::Move, std::string key = "", float speed = NULL, Direction direction = Direction::Forward, bool newAction = true);
 	void RemoveActionBoxes();

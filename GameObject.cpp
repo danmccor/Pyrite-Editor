@@ -3,8 +3,27 @@
 
 GameObject::GameObject(WindowFramework* window, std::string modelLocation)
 {
+	static int i = 0;
+	id = i;
 	this->window = window;
 	this->ModelLocation = modelLocation;
+	i++;
+}
+
+bool GameObject::operator==(const GameObject& rhs)
+{
+	if (id == rhs.id) {
+		return true;
+	}
+	return false;
+}
+
+bool GameObject::operator!=(const GameObject& rhs)
+{
+	if (id == rhs.id) {
+		return false;
+	}
+	return true;
 }
 
 void GameObject::LoadModel(PandaFramework* framework)
@@ -14,7 +33,7 @@ void GameObject::LoadModel(PandaFramework* framework)
 	PT(BoundingSphere) boundingSphere = DCAST(BoundingSphere, Model.get_bounds());
 	PT(CollisionSphere) gameObject_Solid = new CollisionSphere(boundingSphere->get_center(), boundingSphere->get_radius());
 
-	static int i = 0;
+	/*static int i = 0;
 	std::ostringstream tag;
 	tag << i;
 	PT(CollisionNode) gameObject_Node = new CollisionNode("Sphere");
@@ -22,9 +41,10 @@ void GameObject::LoadModel(PandaFramework* framework)
 	gameObject_Node->set_into_collide_mask(BitMask32::bit(1));
 	gameObject_Node->set_tag("Object", tag.str());
 	gameObject_nodePath = Model.attach_new_node(gameObject_Node);
-	i++;
+	i++;*/
 	//gameObject_nodePath.show();
-
+	AddCollision();
+	SetCollisionType(CollisionType::Box);
 }
 
 void GameObject::SetPosition(float x, float y, float z)
@@ -128,6 +148,25 @@ bool GameObject::HasTransform()
 
 void GameObject::AddCollision()
 {
+	collision = new Collision(&Model);
+}
+
+bool GameObject::HasCollision()
+{
+	if (collision != nullptr) {
+		return true;
+	}
+	return false;
+}
+
+void GameObject::SetCollisionType(CollisionType type)
+{
+	collision->SetCollision(type);
+	
+}
+
+void GameObject::RunCollision(GameObject gameObject)
+{
 }
 
 void GameObject::AddTrigger()
@@ -141,8 +180,6 @@ void GameObject::AddTransformAction(Action action, std::string key, float speed,
 
 void GameObject::ChangeTransformAction(int id, Action action, std::string key, float speed, Direction direction)
 {
-
-
 	transform->GetAction(id).action = action;
 	transform->GetAction(id).Key = key;
 	transform->GetAction(id).Speed = speed;

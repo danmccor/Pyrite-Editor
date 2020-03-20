@@ -31,7 +31,6 @@ int main(int argc, char* argv[])
 		a.processEvents();
 		//Check for keyboard and mouse inputs
 		pandaEngine.MouseCollider();
-		pandaEngine.runLoop();
 		pyriteEditor.SetObjectProperties(pandaEngine.GetSelectedObject());
 		pyriteEditor.UpdateComponents();
 		if (!pyriteEditor.IsEditing()) {

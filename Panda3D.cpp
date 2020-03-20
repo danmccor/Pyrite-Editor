@@ -78,6 +78,7 @@ void Panda3D::runLoop()
 {
     for (int i = 0; i < gameObjects.size(); i++) {
         gameObjects[i].Run();
+        CheckObjectCollisions();
     }   
     //window->loop_animations(0);
 }
@@ -179,6 +180,12 @@ void Panda3D::MouseCollider()
   
 }
 
+void Panda3D::AddCollider(NodePath collider)
+{
+    cTrav.add_collider(collider, cHandler);
+}
+
+
 void Panda3D::createObject(std::string modelLocation)
 {
     GameObject gameObject(window, modelLocation);
@@ -189,6 +196,27 @@ void Panda3D::createObject(std::string modelLocation)
 GameObject* Panda3D::GetSelectedObject()
 {
     return selectedObject;
+}
+
+void Panda3D::CheckObjectCollisions()
+{
+    static bool firstLoop = true;
+    if (firstLoop)
+    {
+        for (int i = 0; i < gameObjects.size(); i++) {
+            if (gameObjects[i].HasCollision()) {
+                cTrav.add_collider(gameObjects[i].GetModelNodePath(), cHandler);
+            }
+        }
+    }
+
+    for(int i = 0; i < gameObjects.size(); i++){
+        cTrav.traverse(gameObjects[i].GetModelNodePath());
+        if (cHandler->get_num_entries() > 0) {
+            std::string OutputString = "There has been a collision from GameObject: " + std::to_string(gameObjects[i].id);
+            OutputDebugStringA(OutputString.c_str());
+        }
+    }
 }
 
  void Panda3D::MoveCameraForward(const Event* theEvent, void* data)

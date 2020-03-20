@@ -20,9 +20,11 @@ public:
 	void CameraMovement();
 	void MouseCollider();
 
+	void AddCollider(NodePath collider);
+
 	void createObject(std::string modelLocation);
 	GameObject* GetSelectedObject();
-
+	void CheckObjectCollisions();
 
 	WindowFramework* GetWindow() { return window; };
 	PandaFramework framework;

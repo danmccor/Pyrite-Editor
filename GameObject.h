@@ -8,12 +8,19 @@
 #include "boundingBox.h"
 #include "stringStream.h"
 #include "Transform.h"
+#include "Collision.h"
 
 class GameObject
 {
 public:
 	GameObject() {};
 	GameObject(WindowFramework* window, std::string modelLocation);
+
+	int id;
+
+	bool operator==(const GameObject& rhs);
+	bool operator!=(const GameObject& rhs);
+
 	void LoadModel(PandaFramework* framework);
 
 	void ChangePosition(float x, float y, float z);
@@ -38,23 +45,29 @@ public:
 
 	void AddTransform();
 	bool HasTransform();
-
-	void AddCollision();
-	void AddTrigger();
-
 	void AddTransformAction(Action action, std::string key, float speed, Direction direction);
 	void ChangeTransformAction(int id, Action action, std::string key, float speed, Direction direction);
 	TransformAction& GetTransformAction(int id);
 	int GetNumberOfActions() { return transform->GetNumberOfActions(); };
+
+	void AddCollision();
+	bool HasCollision();
+	void SetCollisionType(CollisionType type);
+	void RunCollision(GameObject gameObject);
+
+	void AddTrigger();
+
+	int testID = 1;
 private:
 	std::string ModelLocation;
-	WindowFramework* window;
+	WindowFramework* window = nullptr;
 	NodePath Model;
 
 	bool highlighted = false;
 
 	NodePath gameObject_nodePath;
 	Transform* transform = nullptr;
+	Collision* collision = nullptr;
 };
 
 

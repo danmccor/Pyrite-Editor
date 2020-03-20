@@ -14,7 +14,9 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 		}
 		TransformBox->hide();
 	}
-	
+	QAction* action = findChild<QAction*>("actionRun_Program");
+	connect(action, SIGNAL(triggered()), this, SLOT(RunGame()));
+
 	////Create menu for button
 	AddComponent* menu = new AddComponent(ui.pushButton, this);
 
@@ -71,16 +73,22 @@ void PyriteEditor::AddTrigger()
 	findChild<QWidget*>("ComponentWidget")->layout()->addItem(Button);
 }
 
+void PyriteEditor::RunGame()
+{
+	isEditing = false;
+}
+
 void PyriteEditor::LoadSelectedObject()
 {
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	QWidget* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("CollisionBox");
 	if (selectedObject == nullptr && oneTimeSelect) {
 		if (TransformBox != nullptr) {
 			RemoveActionBoxes();
 			TransformBox->hide();
 		}
 
-		QWidget* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("CollisionBox");
+		
 		if (CollisionBox != nullptr) {
 			CollisionBox->hide();
 		}
@@ -97,6 +105,9 @@ void PyriteEditor::LoadSelectedObject()
 			TransformBox->hide();
 		}
 		//IF OBJECT HAS COLLISION
+		if (selectedObject->HasCollision()) {
+			CollisionBox->show();
+		}
 	}
 }
 
