@@ -27,8 +27,8 @@ public:
 
 	void ToggleHighlight();
 
-	NodePath getColNodePath();
-	NodePath GetModelNodePath();
+	NodePath& GetColNodePath();
+	NodePath& GetModelNodePath();
 
 	void SetPosition(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
@@ -53,6 +53,8 @@ public:
 	void AddCollision();
 	bool HasCollision();
 	void SetCollisionType(CollisionType type);
+	CollisionType* GetCollisionType();
+	void ChangeCollisionType(CollisionType type);
 	void RunCollision(GameObject gameObject);
 
 	void AddTrigger();
@@ -62,6 +64,7 @@ private:
 	std::string ModelLocation;
 	WindowFramework* window = nullptr;
 	NodePath Model;
+	NodePath CollisionNodePath;
 
 	bool highlighted = false;
 

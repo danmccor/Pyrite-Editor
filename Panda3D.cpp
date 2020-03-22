@@ -26,6 +26,7 @@ bool Panda3D::init(size_t hwnd, int argc, char* argv[], int width, int height, i
     yupAxis.hide();
 
     cHandler = new CollisionHandlerQueue();
+    cPusher = new CollisionHandlerPusher();
 
     collisionRay_Node = new CollisionNode("mouseRay");
     collisionRay_NodePath = camera.attach_new_node(collisionRay_Node);
@@ -205,18 +206,21 @@ void Panda3D::CheckObjectCollisions()
     {
         for (int i = 0; i < gameObjects.size(); i++) {
             if (gameObjects[i].HasCollision()) {
-                cTrav.add_collider(gameObjects[i].GetModelNodePath(), cHandler);
+                std::string output = "Adding GameObject " + std::to_string(gameObjects[i].id) + " to Traverser\n";
+                OutputDebugStringA(output.c_str());
+
+                cPusher->add_collider(gameObjects[i].GetColNodePath(), gameObjects[i].GetModelNodePath());
+                cTrav.add_collider(gameObjects[i].GetColNodePath(), cPusher);
             }
         }
+        firstLoop = false;
     }
 
-    for(int i = 0; i < gameObjects.size(); i++){
-        cTrav.traverse(gameObjects[i].GetModelNodePath());
+    /*for(int i = 0; i < gameObjects.size(); i++){
+        cTrav.traverse(gameObjects[i].GetColNodePath());
         if (cHandler->get_num_entries() > 0) {
-            std::string OutputString = "There has been a collision from GameObject: " + std::to_string(gameObjects[i].id);
-            OutputDebugStringA(OutputString.c_str());
         }
-    }
+    }*/
 }
 
  void Panda3D::MoveCameraForward(const Event* theEvent, void* data)

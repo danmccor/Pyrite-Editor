@@ -46,13 +46,18 @@ public slots:
 	void UpdateComponents();
 
 private:
+
+	int lastCollisionType = 1;
+
 	Ui::PyriteEngineClass ui;
 	bool isEditing = true;
 	QVBoxLayout* boxLayout;
 	QWidget* widget;
 	GameObject* selectedObject;
 	bool oneTimeSelect = true;
+
+
 	Q_ENUM(Direction);
 	Q_ENUM(Action);
-
+	Q_ENUM(CollisionType);
 };

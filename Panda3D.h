@@ -5,6 +5,7 @@
 #include "collisionNode.h"
 #include "collisionTraverser.h"
 #include "collisionHandlerQueue.h"
+#include "collisionHandlerPusher.h"
 #include "notifyCategory.h"
 #include "mouseButton.h"
 #include "lvector3.h"
@@ -40,10 +41,13 @@ private:
 	PT(CollisionRay) collisionRay;
 	CollisionTraverser cTrav = CollisionTraverser("cTrav");
 	PT(CollisionHandlerQueue) cHandler;
+	PT(CollisionHandlerPusher) cPusher;
 	CollisionNode* collisionRay_Node;
 	NodePath collisionRay_NodePath;
 	NodePath yupAxis;
 	GameObject* selectedObject;
+
+
 
 	void MoveCameraForward(const Event* theEvent, void* data);
 	void MoveCameraBackward();

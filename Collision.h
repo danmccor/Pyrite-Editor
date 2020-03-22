@@ -19,13 +19,21 @@ enum class CollisionType {
 class Collision
 {
 public:
-	Collision(NodePath* Model) { this->Model = Model; };
-	void SetCollision(CollisionType collision);
+	Collision(NodePath* Model);
+	NodePath SetCollision(CollisionType collision);
 	bool CheckCollision();
+	NodePath ChangeCollision(CollisionType collision);
+	CollisionType* GetCollisionType();
 
 	CollisionType* currentCollisionType = nullptr;
 	NodePath* Model;
 	NodePath gameObject_nodePath;
+	PT(CollisionNode) gameObject_Node;
+	PT(BoundingSphere) boundingSphere;
+	PT(CollisionSphere) gameObject_SolidSphere;
+	PT(CollisionBox) gameObject_SolidBox;
+
+
 };
 
 

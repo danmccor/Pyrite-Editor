@@ -30,6 +30,13 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	QAction* addTrigger = menu->addAction("Add Trigger");
 	connect(addTrigger, SIGNAL(triggered()), this, SLOT(AddTrigger()));
 
+	QGroupBox* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("CollisionBox");
+	QComboBox* CollisionType = CollisionBox->findChild<QComboBox*>("CollisionType");
+	CollisionType->addItem("Box", QVariant::fromValue(CollisionType::Box));
+	CollisionType->addItem("Sphere", QVariant::fromValue(CollisionType::Sphere));
+	CollisionType->addItem("Polygon", QVariant::fromValue(CollisionType::Polygon));
+	std::string Output = "Is it Crashing here? \n";
+	OutputDebugStringA(Output.c_str());
 	//attach menu to button
 	ui.pushButton->setMenu(menu);
 }
@@ -50,14 +57,14 @@ void PyriteEditor::AddTransform() {
 //Add collision box to Component Window
 void PyriteEditor::AddCollision()
 {
-	QGroupBox* newBox = new QGroupBox(findChild<QWidget*>("ComponentWidget"));
-	newBox->setTitle("Collision");
-	newBox->setObjectName("CollisionBox");
-	QLayoutItem* Spacer = findChild<QWidget*>("ComponentWidget")->layout()->takeAt(findChild<QWidget*>("ComponentWidget")->layout()->count() - 2);
-	QLayoutItem* Button = findChild<QWidget*>("ComponentWidget")->layout()->takeAt(findChild<QWidget*>("ComponentWidget")->layout()->count() - 1);
-	findChild<QWidget*>("ComponentWidget")->layout()->addWidget(newBox);
-	findChild<QWidget*>("ComponentWidget")->layout()->addItem(Spacer);
-	findChild<QWidget*>("ComponentWidget")->layout()->addItem(Button);
+	if (selectedObject != nullptr && !selectedObject->HasCollision()) {
+		QGroupBox* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("CollisionBox");
+		if (CollisionBox != nullptr) {
+			CollisionBox->show();
+		}
+		selectedObject->AddCollision();
+		selectedObject->SetCollisionType(CollisionType::Box);
+	}
 }
 
 
@@ -107,6 +114,9 @@ void PyriteEditor::LoadSelectedObject()
 		//IF OBJECT HAS COLLISION
 		if (selectedObject->HasCollision()) {
 			CollisionBox->show();
+		}
+		else {
+			CollisionBox->hide();
 		}
 	}
 }
@@ -186,9 +196,7 @@ void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Dir
 	TransformBox->layout()->addWidget(widget);
 	TransformBox->layout()->addItem(Button);
 	if (newAction) {
-
 		selectedObject->AddTransformAction(Action(actionBox->currentData().toInt()), lineEditBox->text().toStdString(), speedBox->value(), Direction(directionBox->currentData().toInt()));
-		qDebug() << "If new Action statement, lineEditBox->Text: " << lineEditBox->text();
 	}
 }
 
@@ -248,15 +256,15 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 			LoadSelectedObject();
 		}
 		else {
-			selectedObject->SetPosition(findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->value(), 
-										findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosY")->value(),
-										findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosZ")->value());
+			selectedObject->SetPosition((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->value(), 
+										(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosY")->value(),
+										(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosZ")->value());
 
-			selectedObject->SetRotation(findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotX")->value(),
-										findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotY")->value(),
-										findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotZ")->value());
+			selectedObject->SetRotation((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotX")->value(),
+										(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotY")->value(),
+										(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotZ")->value());
 
-			selectedObject->SetScale(findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("Size")->value());
+			selectedObject->SetScale((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("Size")->value());
 		}
 	}
 	else {
@@ -290,8 +298,18 @@ void PyriteEditor::UpdateComponents()
 			widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
 			Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
 		);
-		qDebug() << "Update Components for loop KeyBox->Text: " << widgets[i]->findChild<QLineEdit*>("KeyBox")->text();
 	}
+	if (selectedObject != nullptr) {
+		QWidget* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("CollisionBox");
+		QComboBox* CollisionTypeBox = CollisionBox->findChild<QComboBox*>("CollisionType");
+		if (selectedObject->HasCollision()) {
+			if (lastCollisionType != CollisionTypeBox->currentData().toInt()) {
+				selectedObject->ChangeCollisionType(CollisionType(CollisionTypeBox->currentData().toInt()));
+				lastCollisionType = CollisionTypeBox->currentData().toInt();
+			}
+		}
+	}
+
 }
 
 

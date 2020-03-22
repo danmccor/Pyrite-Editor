@@ -33,7 +33,7 @@ void GameObject::LoadModel(PandaFramework* framework)
 	PT(BoundingSphere) boundingSphere = DCAST(BoundingSphere, Model.get_bounds());
 	PT(CollisionSphere) gameObject_Solid = new CollisionSphere(boundingSphere->get_center(), boundingSphere->get_radius());
 
-	/*static int i = 0;
+	static int i = 0;
 	std::ostringstream tag;
 	tag << i;
 	PT(CollisionNode) gameObject_Node = new CollisionNode("Sphere");
@@ -41,10 +41,9 @@ void GameObject::LoadModel(PandaFramework* framework)
 	gameObject_Node->set_into_collide_mask(BitMask32::bit(1));
 	gameObject_Node->set_tag("Object", tag.str());
 	gameObject_nodePath = Model.attach_new_node(gameObject_Node);
-	i++;*/
-	//gameObject_nodePath.show();
-	AddCollision();
-	SetCollisionType(CollisionType::Box);
+	i++;
+	gameObject_nodePath.show();
+	//Model.set_collide_mask(BitMask32::bit(1));
 }
 
 void GameObject::SetPosition(float x, float y, float z)
@@ -79,12 +78,12 @@ void GameObject::ToggleHighlight()
 	}
 }
 
-NodePath GameObject::getColNodePath()
+NodePath& GameObject::GetColNodePath()
 {
-	return gameObject_nodePath;
+	return CollisionNodePath;
 }
 
-NodePath GameObject::GetModelNodePath()
+NodePath& GameObject::GetModelNodePath()
 {
 	return Model;
 }
@@ -161,8 +160,19 @@ bool GameObject::HasCollision()
 
 void GameObject::SetCollisionType(CollisionType type)
 {
-	collision->SetCollision(type);
+	CollisionNodePath = collision->SetCollision(type);
 	
+}
+
+CollisionType* GameObject::GetCollisionType()
+{
+	return collision->GetCollisionType();
+}
+
+void GameObject::ChangeCollisionType(CollisionType type)
+{
+	CollisionNodePath = collision->ChangeCollision(type);
+	CollisionNodePath.set_pos(Model.get_pos());
 }
 
 void GameObject::RunCollision(GameObject gameObject)
