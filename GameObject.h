@@ -53,7 +53,7 @@ public:
 	void AddCollision();
 	bool HasCollision();
 	void SetCollisionType(CollisionType type);
-	CollisionType* GetCollisionType();
+	CollisionType GetCollisionType();
 	void ChangeCollisionType(CollisionType type);
 	void RunCollision(GameObject gameObject);
 

@@ -114,6 +114,8 @@ void PyriteEditor::LoadSelectedObject()
 		//IF OBJECT HAS COLLISION
 		if (selectedObject->HasCollision()) {
 			CollisionBox->show();
+			CollisionType col = selectedObject->GetCollisionType();
+			CollisionBox->findChild<QComboBox*>("CollisionType")->setCurrentIndex(QVariant::fromValue(col).toInt());
 		}
 		else {
 			CollisionBox->hide();

@@ -51,8 +51,16 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>Scene</string>
     </property>
+    <widget class="QMenu" name="menuAdd_Trigger">
+     <property name="title">
+      <string>Add Trigger</string>
+     </property>
+     <addaction name="actionSquare"/>
+    </widget>
+    <addaction name="actionAdd_Object"/>
+    <addaction name="menuAdd_Trigger"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -507,6 +515,16 @@
   <action name="actionRun_Program">
    <property name="text">
     <string>Run Program</string>
+   </property>
+  </action>
+  <action name="actionAdd_Object">
+   <property name="text">
+    <string>Add Object</string>
+   </property>
+  </action>
+  <action name="actionSquare">
+   <property name="text">
+    <string>Square</string>
    </property>
   </action>
   <zorder>Assets</zorder>

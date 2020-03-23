@@ -13,7 +13,7 @@
 
 
 enum class CollisionType {
-	Sphere = 0, Box = 1, Polygon = 2
+	 Box = 0, Sphere = 1, Polygon = 2
 };
 
 class Collision
@@ -21,11 +21,11 @@ class Collision
 public:
 	Collision(NodePath* Model);
 	NodePath SetCollision(CollisionType collision);
-	bool CheckCollision();
 	NodePath ChangeCollision(CollisionType collision);
-	CollisionType* GetCollisionType();
+	CollisionType GetCollisionType();
 
-	CollisionType* currentCollisionType = nullptr;
+private:
+	CollisionType currentCollisionType;
 	NodePath* Model;
 	NodePath gameObject_nodePath;
 	PT(CollisionNode) gameObject_Node;

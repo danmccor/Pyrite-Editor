@@ -97,6 +97,7 @@
     <ClCompile Include="Panda3D.cpp" />
     <ClCompile Include="PyriteEditor.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="Trigger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="PyriteEditor.h" />
@@ -117,6 +118,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Panda3D.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="Trigger.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

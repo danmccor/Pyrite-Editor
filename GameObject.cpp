@@ -164,7 +164,7 @@ void GameObject::SetCollisionType(CollisionType type)
 	
 }
 
-CollisionType* GameObject::GetCollisionType()
+CollisionType GameObject::GetCollisionType()
 {
 	return collision->GetCollisionType();
 }
@@ -172,7 +172,6 @@ CollisionType* GameObject::GetCollisionType()
 void GameObject::ChangeCollisionType(CollisionType type)
 {
 	CollisionNodePath = collision->ChangeCollision(type);
-	CollisionNodePath.set_pos(Model.get_pos());
 }
 
 void GameObject::RunCollision(GameObject gameObject)
