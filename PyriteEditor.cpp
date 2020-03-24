@@ -6,6 +6,8 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 {
 	//Set up the ui 
 	ui.setupUi(this);
+
+
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	if (TransformBox != nullptr) {
 		QPushButton* Button = TransformBox->findChild<QPushButton*>("AddMovement");

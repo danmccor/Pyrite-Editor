@@ -57,6 +57,7 @@ private:
 	bool oneTimeSelect = true;
 
 
+
 	Q_ENUM(Direction);
 	Q_ENUM(Action);
 	Q_ENUM(CollisionType);

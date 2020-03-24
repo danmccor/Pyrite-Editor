@@ -1,13 +1,25 @@
 #include "GameObject.h"
 #include <ostream>
 
+int GameObject::objectCount = 0;
+
 GameObject::GameObject(WindowFramework* window, std::string modelLocation)
-{
-	static int i = 0;
-	id = i;
+{;
+	id = objectCount;
 	this->window = window;
 	this->ModelLocation = modelLocation;
-	i++;
+	objectCount++;
+
+	trigger = new Trigger();
+}
+
+GameObject::GameObject(WindowFramework* window, TriggerType triggerType)
+{
+	id = objectCount;
+	objectCount++;
+	this->window = window;
+	trigger = new Trigger(window->get_render(), triggerType);
+	LoadTriggerBox();
 }
 
 bool GameObject::operator==(const GameObject& rhs)
@@ -17,7 +29,6 @@ bool GameObject::operator==(const GameObject& rhs)
 	}
 	return false;
 }
-
 bool GameObject::operator!=(const GameObject& rhs)
 {
 	if (id == rhs.id) {
@@ -30,9 +41,20 @@ void GameObject::LoadModel(PandaFramework* framework)
 {
 	Model = window->load_model(framework->get_models(), ModelLocation);
 	Model.reparent_to(window->get_render());
+	AttachEditorCollider();
+}
+
+void GameObject::LoadTriggerBox()
+{
+	Model = trigger->GetNodePath();
+	CollisionNodePath = trigger->GetNodePath();
+	AttachEditorCollider();
+}
+
+void GameObject::AttachEditorCollider()
+{
 	PT(BoundingSphere) boundingSphere = DCAST(BoundingSphere, Model.get_bounds());
 	PT(CollisionSphere) gameObject_Solid = new CollisionSphere(boundingSphere->get_center(), boundingSphere->get_radius());
-
 	static int i = 0;
 	std::ostringstream tag;
 	tag << i;
@@ -42,25 +64,21 @@ void GameObject::LoadModel(PandaFramework* framework)
 	gameObject_Node->set_tag("Object", tag.str());
 	gameObject_nodePath = Model.attach_new_node(gameObject_Node);
 	i++;
-	gameObject_nodePath.show();
-	//Model.set_collide_mask(BitMask32::bit(1));
+	//gameObject_nodePath.show();
 }
 
 void GameObject::SetPosition(float x, float y, float z)
 {
 	Model.set_pos(x, y, z);
 }
-
 void GameObject::SetRotation(float x, float y, float z)
 {
 	Model.set_hpr(x, y, z);
 }
-
 void GameObject::SetScale(float scale)
 {
 	Model.set_scale(scale, scale, scale);
 }
-
 void GameObject::ChangePosition(float x, float y, float z)
 {
 	Model.set_pos(Model.get_pos().get_x() + x, Model.get_pos().get_y() + y, Model.get_pos().get_z() + z);
@@ -82,7 +100,6 @@ NodePath& GameObject::GetColNodePath()
 {
 	return CollisionNodePath;
 }
-
 NodePath& GameObject::GetModelNodePath()
 {
 	return Model;
@@ -90,35 +107,28 @@ NodePath& GameObject::GetModelNodePath()
 
 float GameObject::GetPositionX()
 {
-	// TODO: insert return statement here
 	return Model.get_pos().get_x();
 }
-
 float GameObject::GetPositionY()
 {
 	return Model.get_pos().get_y();
 }
-
 float GameObject::GetPositionZ()
 {
 	return Model.get_pos().get_z();
 }
-
 float GameObject::GetRotationX()
 {
 	return Model.get_h();
 }
-
 float GameObject::GetRotationY()
 {
 	return Model.get_p();
 }
-
 float GameObject::GetRotationZ()
 {
 	return Model.get_r();
 }
-
 float GameObject::GetScale()
 {
 	return Model.get_scale().get_x();
@@ -132,11 +142,11 @@ void GameObject::Run()
 	}
 }
 
+
 void GameObject::AddTransform()
 {
 	transform = new Transform();
 }
-
 bool GameObject::HasTransform()
 {
 	if (transform != nullptr) {
@@ -145,11 +155,11 @@ bool GameObject::HasTransform()
 	return false;
 }
 
+
 void GameObject::AddCollision()
 {
 	collision = new Collision(&Model);
 }
-
 bool GameObject::HasCollision()
 {
 	if (collision != nullptr) {
@@ -157,36 +167,37 @@ bool GameObject::HasCollision()
 	}
 	return false;
 }
-
 void GameObject::SetCollisionType(CollisionType type)
 {
 	CollisionNodePath = collision->SetCollision(type);
-	
 }
-
 CollisionType GameObject::GetCollisionType()
 {
 	return collision->GetCollisionType();
 }
-
 void GameObject::ChangeCollisionType(CollisionType type)
 {
 	CollisionNodePath = collision->ChangeCollision(type);
 }
 
-void GameObject::RunCollision(GameObject gameObject)
-{
-}
 
 void GameObject::AddTrigger()
 {
+
+}
+
+bool GameObject::HasTrigger()
+{
+	if (trigger != nullptr) {
+		return true;
+	}
+	return false;
 }
 
 void GameObject::AddTransformAction(Action action, std::string key, float speed, Direction direction)
 {
 	transform->AddAction(action, speed, direction, key);
 }
-
 void GameObject::ChangeTransformAction(int id, Action action, std::string key, float speed, Direction direction)
 {
 	transform->GetAction(id).action = action;
@@ -195,10 +206,8 @@ void GameObject::ChangeTransformAction(int id, Action action, std::string key, f
 	transform->GetAction(id).direction = direction;
 	
 }
-
 TransformAction& GameObject::GetTransformAction(int id)
 {
 	 return transform->GetAction(id);
-	// TODO: insert return statement here
 }
 

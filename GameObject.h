@@ -9,12 +9,16 @@
 #include "stringStream.h"
 #include "Transform.h"
 #include "Collision.h"
+#include "Trigger.h"
 
 class GameObject
 {
 public:
 	GameObject() {};
 	GameObject(WindowFramework* window, std::string modelLocation);
+	GameObject(WindowFramework* window, TriggerType triggerType);
+
+	static int objectCount;
 
 	int id;
 
@@ -22,6 +26,8 @@ public:
 	bool operator!=(const GameObject& rhs);
 
 	void LoadModel(PandaFramework* framework);
+	void LoadTriggerBox();
+	void AttachEditorCollider();
 
 	void ChangePosition(float x, float y, float z);
 
@@ -55,11 +61,10 @@ public:
 	void SetCollisionType(CollisionType type);
 	CollisionType GetCollisionType();
 	void ChangeCollisionType(CollisionType type);
-	void RunCollision(GameObject gameObject);
 
 	void AddTrigger();
+	bool HasTrigger();
 
-	int testID = 1;
 private:
 	std::string ModelLocation;
 	WindowFramework* window = nullptr;
@@ -71,6 +76,7 @@ private:
 	NodePath gameObject_nodePath;
 	Transform* transform = nullptr;
 	Collision* collision = nullptr;
+	Trigger* trigger = nullptr;
 };
 
 

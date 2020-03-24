@@ -14,8 +14,6 @@ class Panda3D
 {
 public:
 	bool init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY);
-	void EnableKeyboard();
-	void displayScene();
 	void closePanda3D();
 	void runLoop();
 	void CameraMovement();
@@ -26,6 +24,9 @@ public:
 	void createObject(std::string modelLocation);
 	GameObject* GetSelectedObject();
 	void CheckObjectCollisions();
+	void CheckObjectTriggers();
+
+	void AddWorldTrigger();
 
 	WindowFramework* GetWindow() { return window; };
 	PandaFramework framework;
@@ -40,18 +41,12 @@ private:
 	PT(MouseWatcher) mouseWatcher;
 	PT(CollisionRay) collisionRay;
 	CollisionTraverser cTrav = CollisionTraverser("cTrav");
+	CollisionTraverser cTriggerTrav = CollisionTraverser("cTrigTrav");
 	PT(CollisionHandlerQueue) cHandler;
 	PT(CollisionHandlerPusher) cPusher;
 	CollisionNode* collisionRay_Node;
 	NodePath collisionRay_NodePath;
 	NodePath yupAxis;
 	GameObject* selectedObject;
-
-
-
-	void MoveCameraForward(const Event* theEvent, void* data);
-	void MoveCameraBackward();
-	void MoveCameraRight();
-	void MoveCameraLeft();
 };
 

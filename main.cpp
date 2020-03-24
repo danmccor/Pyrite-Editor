@@ -20,8 +20,6 @@ int main(int argc, char* argv[])
 
 	//Initialise Panda3D and show scene
 	pandaEngine.init((size_t)qw->winId(), argc, argv, qw->size().width(), qw->size().height(), qw->pos().x(), qw->pos().y());
-	//Display panda3D scene
-	pandaEngine.displayScene();
 
 	//Create thread
 	Thread* mainloop = Thread::get_current_thread();

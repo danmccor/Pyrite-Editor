@@ -37,37 +37,12 @@ bool Panda3D::init(size_t hwnd, int argc, char* argv[], int width, int height, i
     cTrav.add_collider(collisionRay_NodePath, cHandler);
     NodePath render = window->get_render();
     cTrav.show_collisions(render);
-    
+
+    AddWorldTrigger();
 
     return true;
 }
 
-void Panda3D::EnableKeyboard()
-{
-    //framework.define_key("w", "w-repeat", MoveCameraForward, (void*) 0);
-}
-
-void Panda3D::displayScene()
-{
-    //NodePath scene = window->load_model(framework.get_models(), "models/environment");
-    //// Reparent the model to render.
-    //scene.reparent_to(window->get_render());
-    ////Apply scale and position transforms to the model.
-    //scene.set_scale(0.25f, 0.25f, 0.25f);
-    //scene.set_pos(-8, 42, 0);
-    
-    //GameObject gameobject(window, "models/panda-model");
-    //gameobject.LoadModel(&framework);
-    //gameObjects.push_back(gameobject);
-    
-
-
-    /*NodePath pandaActor = window->load_model(framework.get_models(), "models/panda-model");
-    pandaActor.set_scale(0.005);
-    pandaActor.reparent_to(window->get_render());
-    window->load_model(pandaActor, "models/panda-walk4");*/
-
-}
 
 void Panda3D::closePanda3D()
 {
@@ -80,6 +55,7 @@ void Panda3D::runLoop()
     for (int i = 0; i < gameObjects.size(); i++) {
         gameObjects[i].Run();
         CheckObjectCollisions();
+        CheckObjectTriggers();
     }   
     //window->loop_animations(0);
 }
@@ -107,8 +83,7 @@ void Panda3D::MouseCollider()
     }
 
     LPoint2 mpos = mouseWatcher->get_mouse();
-    
-    //cannot test
+
     collisionRay->set_from_lens(window->get_camera(0), mpos);
     cTrav.traverse(window->get_render());
     if (cHandler->get_num_entries() > 0) {
@@ -129,11 +104,8 @@ void Panda3D::MouseCollider()
             if (selectedObject != nullptr) {
                 selectedObject->ToggleHighlight();
             }
-            
             yupAxis.hide();
             selectedObject = nullptr;
-            
-
         }
     }
 
@@ -206,24 +178,59 @@ void Panda3D::CheckObjectCollisions()
     {
         for (int i = 0; i < gameObjects.size(); i++) {
             if (gameObjects[i].HasCollision()) {
-                std::string output = "Adding GameObject " + std::to_string(gameObjects[i].id) + " to Traverser\n";
-                OutputDebugStringA(output.c_str());
-
                 cPusher->add_collider(gameObjects[i].GetColNodePath(), gameObjects[i].GetModelNodePath());
                 cTrav.add_collider(gameObjects[i].GetColNodePath(), cPusher);
             }
         }
         firstLoop = false;
     }
-
-    /*for(int i = 0; i < gameObjects.size(); i++){
-        cTrav.traverse(gameObjects[i].GetColNodePath());
-        if (cHandler->get_num_entries() > 0) {
-        }
-    }*/
 }
 
- void Panda3D::MoveCameraForward(const Event* theEvent, void* data)
+void Panda3D::CheckObjectTriggers()
 {
-    OutputDebugStringW(L"Move Forward");
+    //static bool triggersAdded = false;
+    //if (!triggersAdded) {
+    //    for (int i = 0; i < gameObjects.size(); i++) {
+    //        cTriggerTrav.add_collider(gameObjects[i].GetColNodePath(), cHandler);
+    //    }
+    //    triggersAdded = true;
+    //}
+    //for (int i = 0; i < gameObjects.size(); i++) {
+    //    if (gameObjects[i].HasTrigger()) {
+    //        cTriggerTrav.traverse(gameObjects[i].GetColNodePath());
+    //        if (cHandler->get_num_entries() > 0) {
+    //            std::string Output = "The Trigger Box has been Touched by an Object with a Collider \n";
+    //            OutputDebugStringA(Output.c_str());
+
+    //            //ADDING TO THE TRAVERSER MAKES IT A FROM OBJECT. THIS MAY BE BETTER TO LEAVE AS JUST A COLLISION NODE HOWEVER THE OBJECT ITSELF NEEDS TO BE FOUND
+    //        }
+    //    }
+    //}
+
+    static bool colObjsAdded = false;
+    if (!colObjsAdded) {
+        for (int i = 0; i < gameObjects.size(); i++) {
+            cTriggerTrav.add_collider(gameObjects[i].GetColNodePath(), cHandler);
+        }
+        colObjsAdded = true;
+    }
+
+    for (int i = 0; i < gameObjects.size(); i++) {
+        if (gameObjects[i].HasCollision()) {
+            cTriggerTrav.traverse(gameObjects[i].GetColNodePath());
+            if (cHandler->get_num_entries() > 0) {
+                std::string Output = "The Trigger Box has been Touched by an Object with a Collider \n";
+                OutputDebugStringA(Output.c_str());
+            }
+        }
+    }
+
+
 }
+
+void Panda3D::AddWorldTrigger()
+{
+    GameObject triggerBox(window, TriggerType::Box);
+    gameObjects.push_back(triggerBox);
+}
+
