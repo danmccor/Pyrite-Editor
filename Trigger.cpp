@@ -1,8 +1,31 @@
 #include "Trigger.h"
 
-Trigger::Trigger()
-{
+int Trigger::testId = 0;
 
+Trigger::Trigger(NodePath Model, NodePath collider)
+{
+	//TriggerObject = collider.copy_to(TriggerObject);
+	PT(CollisionNode) gameObject_Node;
+	PT(CollisionBox) gameObject_SolidBox;
+
+	LPoint3 min, max;
+	Model.calc_tight_bounds(min, max);
+	gameObject_SolidBox = new CollisionBox(min, max);
+	gameObject_Node = new CollisionNode("CollisionType");
+	gameObject_Node->set_collide_mask(BitMask32::bit(3));
+	gameObject_Node->add_solid(gameObject_SolidBox);
+	TriggerObject = Model.attach_new_node(gameObject_Node);
+
+
+	//std::string Output = "Gets Here \n";
+	//OutputDebugStringA(Output.c_str());
+	////TriggerObject.set_collide_mask
+	////TriggerObject.node()->set_into_collide_mask(BitMask32::bit(3));
+	//Output = "Crashes Here? \n";
+	//OutputDebugStringA(Output.c_str());
+
+	TriggerObject.reparent_to(Model);
+	TriggerObject.show();
 }
 
 Trigger::Trigger(NodePath render, TriggerType trigger)
@@ -13,7 +36,7 @@ Trigger::Trigger(NodePath render, TriggerType trigger)
 		PT(CollisionSphere) sphere = new CollisionSphere(0, 0, 0, 1);
 		PT(CollisionNode) triggerCollider = new CollisionNode("TriggerCollider");
 		triggerCollider->add_solid(sphere);
-		triggerCollider->set_into_collide_mask(BitMask32::bit(2));
+		triggerCollider->set_into_collide_mask(BitMask32::bit(3));
 		TriggerObject = render.attach_new_node(triggerCollider);
 		//TriggerObject.set_collide_mask(BitMask32::bit(2));
 		TriggerObject.show();
@@ -24,8 +47,7 @@ Trigger::Trigger(NodePath render, TriggerType trigger)
 		PT(CollisionBox) box = new CollisionBox(LPoint3(0, 0, 0), 1, 1, 1);
 		PT(CollisionNode) triggerCollider = new CollisionNode("TriggerCollider");
 		triggerCollider->add_solid(box);
-		triggerCollider->set_collide_mask(0);
-		triggerCollider->set_into_collide_mask(BitMask32::bit(2));
+		triggerCollider->set_collide_mask(BitMask32::bit(3));
 		TriggerObject = render.attach_new_node(triggerCollider);
 		//TriggerObject.set_collide_mask(BitMask32::bit(2));
 		TriggerObject.show();
@@ -34,7 +56,14 @@ Trigger::Trigger(NodePath render, TriggerType trigger)
 	}
 }
 
-NodePath Trigger::GetNodePath()
+NodePath& Trigger::GetNodePath()
 {
+	std::string Output = "Test ID = " + std::to_string(testId) + "\n";
+	OutputDebugStringA(Output.c_str());
 	return TriggerObject;
+}
+
+int Trigger::GetTestID()
+{
+	return TriggerObject.get_collide_mask().get_num_on_bits();
 }

@@ -8,11 +8,14 @@ enum class TriggerType {
 class Trigger : public Components
 {
 public: 
-	Trigger();
+	Trigger() {};
+	Trigger(NodePath Model, NodePath collider);
 	Trigger(NodePath render, TriggerType trigger);
-	NodePath GetNodePath();
+	NodePath& GetNodePath();
+	int GetTestID();
 
 private:
 	NodePath TriggerObject;
+	static int testId;
 };
 

@@ -9,8 +9,6 @@ GameObject::GameObject(WindowFramework* window, std::string modelLocation)
 	this->window = window;
 	this->ModelLocation = modelLocation;
 	objectCount++;
-
-	trigger = new Trigger();
 }
 
 GameObject::GameObject(WindowFramework* window, TriggerType triggerType)
@@ -18,8 +16,11 @@ GameObject::GameObject(WindowFramework* window, TriggerType triggerType)
 	id = objectCount;
 	objectCount++;
 	this->window = window;
-	trigger = new Trigger(window->get_render(), triggerType);
+	trigger = new Trigger();
+	AddTriggerInteractor();
 	LoadTriggerBox();
+	
+	
 }
 
 bool GameObject::operator==(const GameObject& rhs)
@@ -42,12 +43,16 @@ void GameObject::LoadModel(PandaFramework* framework)
 	Model = window->load_model(framework->get_models(), ModelLocation);
 	Model.reparent_to(window->get_render());
 	AttachEditorCollider();
+	AddTriggerInteractor();
 }
 
 void GameObject::LoadTriggerBox()
 {
-	Model = trigger->GetNodePath();
-	CollisionNodePath = trigger->GetNodePath();
+	Model = TriggerNodePath;
+	CollisionNodePath = TriggerNodePath;
+
+	Model.reparent_to(window->get_render());
+
 	AttachEditorCollider();
 }
 
@@ -67,6 +72,11 @@ void GameObject::AttachEditorCollider()
 	//gameObject_nodePath.show();
 }
 
+void GameObject::SetObjectName(std::string name)
+{
+	ObjectName = name;
+}
+
 void GameObject::SetPosition(float x, float y, float z)
 {
 	Model.set_pos(x, y, z);
@@ -78,6 +88,10 @@ void GameObject::SetRotation(float x, float y, float z)
 void GameObject::SetScale(float scale)
 {
 	Model.set_scale(scale, scale, scale);
+}
+std::string GameObject::GetObjectName()
+{
+	return ObjectName;
 }
 void GameObject::ChangePosition(float x, float y, float z)
 {
@@ -94,6 +108,11 @@ void GameObject::ToggleHighlight()
 		gameObject_nodePath.show();
 		highlighted = true;
 	}
+}
+
+NodePath& GameObject::GetTriggerNodePath()
+{
+	return TriggerNodePath;
 }
 
 NodePath& GameObject::GetColNodePath()
@@ -170,6 +189,9 @@ bool GameObject::HasCollision()
 void GameObject::SetCollisionType(CollisionType type)
 {
 	CollisionNodePath = collision->SetCollision(type);
+
+	/*trigger = new Trigger(Model, CollisionNodePath);
+	TriggerNodePath = trigger->GetNodePath();*/
 }
 CollisionType GameObject::GetCollisionType()
 {
@@ -186,12 +208,46 @@ void GameObject::AddTrigger()
 
 }
 
+void GameObject::AddTriggerInteractor()
+{
+	PT(CollisionNode) gameObject_Node;
+	PT(CollisionBox) gameObject_SolidBox;
+
+	LPoint3 min, max;
+	Model.calc_tight_bounds(min, max);
+	if (max == LPoint3(0, 0, 0)) {
+		max = LPoint3(1, 1, 1);
+	}
+	static int i = 0;
+	std::ostringstream tag;
+	tag << i;
+	gameObject_SolidBox = new CollisionBox(min,max);
+	gameObject_Node = new CollisionNode("TriggerInteract");
+	gameObject_Node->set_tag("TriggerBox", tag.str());
+	gameObject_Node->set_collide_mask(BitMask32::bit(3));
+	gameObject_Node->add_solid(gameObject_SolidBox);
+	TriggerNodePath = Model.attach_new_node(gameObject_Node);
+	TriggerNodePath.reparent_to(Model);
+	TriggerNodePath.show();
+	i++;
+}
+
 bool GameObject::HasTrigger()
 {
 	if (trigger != nullptr) {
 		return true;
 	}
 	return false;
+}
+
+void GameObject::RunTrigger()
+{
+	//trigger->Run();
+}
+
+int GameObject::GetBit()
+{
+	return trigger->GetTestID();
 }
 
 void GameObject::AddTransformAction(Action action, std::string key, float speed, Direction direction)

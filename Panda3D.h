@@ -31,6 +31,8 @@ public:
 	WindowFramework* GetWindow() { return window; };
 	PandaFramework framework;
 
+	std::vector<GameObject> GetVectorOfGameObjects();
+
 private:
 	WindowFramework* window;
 	WindowProperties properties;
@@ -43,6 +45,7 @@ private:
 	CollisionTraverser cTrav = CollisionTraverser("cTrav");
 	CollisionTraverser cTriggerTrav = CollisionTraverser("cTrigTrav");
 	PT(CollisionHandlerQueue) cHandler;
+	PT(CollisionHandlerQueue) cTravHandler;
 	PT(CollisionHandlerPusher) cPusher;
 	CollisionNode* collisionRay_Node;
 	NodePath collisionRay_NodePath;

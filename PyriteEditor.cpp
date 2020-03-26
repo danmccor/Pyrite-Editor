@@ -7,7 +7,6 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	//Set up the ui 
 	ui.setupUi(this);
 
-
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	if (TransformBox != nullptr) {
 		QPushButton* Button = TransformBox->findChild<QPushButton*>("AddMovement");
@@ -37,8 +36,9 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	CollisionType->addItem("Box", QVariant::fromValue(CollisionType::Box));
 	CollisionType->addItem("Sphere", QVariant::fromValue(CollisionType::Sphere));
 	CollisionType->addItem("Polygon", QVariant::fromValue(CollisionType::Polygon));
-	std::string Output = "Is it Crashing here? \n";
-	OutputDebugStringA(Output.c_str());
+
+	
+
 	//attach menu to button
 	ui.pushButton->setMenu(menu);
 }
@@ -91,15 +91,17 @@ void PyriteEditor::LoadSelectedObject()
 {
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	QWidget* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("CollisionBox");
+	QWidget* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TriggerBox");
 	if (selectedObject == nullptr && oneTimeSelect) {
 		if (TransformBox != nullptr) {
 			RemoveActionBoxes();
 			TransformBox->hide();
 		}
-
-		
 		if (CollisionBox != nullptr) {
 			CollisionBox->hide();
+		}
+		if (TriggerBox != nullptr) {
+			TriggerBox->hide();
 		}
 		oneTimeSelect = false;
 	}
@@ -121,6 +123,12 @@ void PyriteEditor::LoadSelectedObject()
 		}
 		else {
 			CollisionBox->hide();
+		}
+		if (selectedObject->HasTrigger()) {
+			TriggerBox->show();
+		}
+		else {
+			TriggerBox->hide();
 		}
 	}
 }
@@ -240,6 +248,8 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 {
 	if (gameObject != nullptr) {
 		if (gameObject != selectedObject) {
+			this->findChild<QGroupBox*>("ObjectProps")->findChild<QLineEdit*>("ObjectName")->setReadOnly(false);
+			this->findChild<QGroupBox*>("ObjectProps")->findChild<QLineEdit*>("ObjectName")->setText(QString::fromStdString(gameObject->GetObjectName()));
 			this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->setReadOnly(false);
 			this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->setValue(gameObject->GetPositionX());
 			this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosY")->setReadOnly(false);
@@ -260,6 +270,7 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 			LoadSelectedObject();
 		}
 		else {
+			selectedObject->SetObjectName(findChild<QGroupBox*>("ObjectProps")->findChild<QLineEdit*>("ObjectName")->text().toStdString());
 			selectedObject->SetPosition((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->value(), 
 										(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosY")->value(),
 										(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosZ")->value());
@@ -273,6 +284,8 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 	}
 	else {
 		selectedObject = nullptr;
+		this->findChild<QGroupBox*>("ObjectProps")->findChild<QLineEdit*>("ObjectName")->setText("");
+		this->findChild<QGroupBox*>("ObjectProps")->findChild<QLineEdit*>("ObjectName")->setReadOnly(true);
 		this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->setValue(0);
 		this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->setReadOnly(true);
 		this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosY")->setValue(0);
@@ -313,7 +326,14 @@ void PyriteEditor::UpdateComponents()
 			}
 		}
 	}
-
+	else {
+		QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+		QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
+		ConnectedObjectBox->clear();
+		for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
+			ConnectedObjectBox->addItem(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i].GetObjectName()), i);
+		}
+	}
 }
 
 

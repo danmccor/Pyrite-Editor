@@ -29,9 +29,10 @@ private:
 	NodePath* Model;
 	NodePath gameObject_nodePath;
 	PT(CollisionNode) gameObject_Node;
+	PT(CollisionBox) gameObject_SolidBox;
 	PT(BoundingSphere) boundingSphere;
 	PT(CollisionSphere) gameObject_SolidSphere;
-	PT(CollisionBox) gameObject_SolidBox;
+	
 
 
 };

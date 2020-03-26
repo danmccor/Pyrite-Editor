@@ -33,12 +33,15 @@ public:
 
 	void ToggleHighlight();
 
+	NodePath& GetTriggerNodePath();
 	NodePath& GetColNodePath();
 	NodePath& GetModelNodePath();
 
+	void SetObjectName(std::string name);
 	void SetPosition(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
 	void SetScale(float scale);
+	std::string GetObjectName();
 	float GetPositionX();
 	float GetPositionY();
 	float GetPositionZ();
@@ -63,13 +66,17 @@ public:
 	void ChangeCollisionType(CollisionType type);
 
 	void AddTrigger();
+	void AddTriggerInteractor();
 	bool HasTrigger();
+	void RunTrigger();
+	int GetBit();
 
 private:
 	std::string ModelLocation;
 	WindowFramework* window = nullptr;
 	NodePath Model;
 	NodePath CollisionNodePath;
+	NodePath TriggerNodePath;
 
 	bool highlighted = false;
 
@@ -77,6 +84,8 @@ private:
 	Transform* transform = nullptr;
 	Collision* collision = nullptr;
 	Trigger* trigger = nullptr;
+
+	std::string ObjectName = "";
 };
 
 

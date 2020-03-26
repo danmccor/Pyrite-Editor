@@ -48,6 +48,7 @@ public slots:
 private:
 
 	int lastCollisionType = 1;
+	int lastAmountOfObjects = 0;
 
 	Ui::PyriteEngineClass ui;
 	bool isEditing = true;
