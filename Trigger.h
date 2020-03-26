@@ -3,7 +3,14 @@
 enum class TriggerType {
 	Box = 1, Sphere = 2
 };
-
+class TriggerActions {
+public:
+	int connectedObjectID;
+	int transformActionID;
+	int newDirection;
+	int newAction;
+	float newSpeed;
+};
 
 class Trigger : public Components
 {
@@ -12,10 +19,12 @@ public:
 	Trigger(NodePath Model, NodePath collider);
 	Trigger(NodePath render, TriggerType trigger);
 	NodePath& GetNodePath();
-	int GetTestID();
+	void AddNewAction(int objectID, int actionId, int direction, int action, float speed);
+
+
 
 private:
 	NodePath TriggerObject;
-	static int testId;
+	std::vector<TriggerActions> TriggerActionsList;
 };
 

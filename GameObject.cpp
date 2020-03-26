@@ -161,7 +161,6 @@ void GameObject::Run()
 	}
 }
 
-
 void GameObject::AddTransform()
 {
 	transform = new Transform();
@@ -173,7 +172,6 @@ bool GameObject::HasTransform()
 	}
 	return false;
 }
-
 
 void GameObject::AddCollision()
 {
@@ -240,14 +238,14 @@ bool GameObject::HasTrigger()
 	return false;
 }
 
+void GameObject::StoreTriggerActions(int gameObjectID, int actionId, int direction, int action, float speed)
+{
+	trigger->AddNewAction(gameObjectID, actionId, direction, action, speed);
+}
+
 void GameObject::RunTrigger()
 {
 	//trigger->Run();
-}
-
-int GameObject::GetBit()
-{
-	return trigger->GetTestID();
 }
 
 void GameObject::AddTransformAction(Action action, std::string key, float speed, Direction direction)
@@ -264,6 +262,5 @@ void GameObject::ChangeTransformAction(int id, Action action, std::string key, f
 }
 TransformAction& GameObject::GetTransformAction(int id)
 {
-	 return transform->GetAction(id);
+	return transform->GetAction(id);
 }
-

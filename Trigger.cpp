@@ -1,6 +1,5 @@
 #include "Trigger.h"
 
-int Trigger::testId = 0;
 
 Trigger::Trigger(NodePath Model, NodePath collider)
 {
@@ -58,12 +57,17 @@ Trigger::Trigger(NodePath render, TriggerType trigger)
 
 NodePath& Trigger::GetNodePath()
 {
-	std::string Output = "Test ID = " + std::to_string(testId) + "\n";
-	OutputDebugStringA(Output.c_str());
 	return TriggerObject;
 }
 
-int Trigger::GetTestID()
+void Trigger::AddNewAction(int objectID, int actionId, int direction, int action, float speed)
 {
-	return TriggerObject.get_collide_mask().get_num_on_bits();
+	TriggerActions triggerAction; 
+	triggerAction.connectedObjectID = objectID;
+	triggerAction.transformActionID = actionId;
+	triggerAction.newAction = action;
+	triggerAction.newDirection = direction;
+	triggerAction.newSpeed = speed;
+	TriggerActionsList.push_back(triggerAction);
 }
+

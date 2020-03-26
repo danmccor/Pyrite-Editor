@@ -68,8 +68,8 @@ public:
 	void AddTrigger();
 	void AddTriggerInteractor();
 	bool HasTrigger();
+	void StoreTriggerActions(int gameObjectID, int actionId, int direction, int action, float speed);
 	void RunTrigger();
-	int GetBit();
 
 private:
 	std::string ModelLocation;

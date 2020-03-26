@@ -45,6 +45,8 @@ public slots:
 	void SetObjectProperties(GameObject* gameObject);
 	void UpdateComponents();
 
+	void AddTriggerAction();
+
 private:
 
 	int lastCollisionType = 1;

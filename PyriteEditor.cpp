@@ -37,7 +37,9 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	CollisionType->addItem("Sphere", QVariant::fromValue(CollisionType::Sphere));
 	CollisionType->addItem("Polygon", QVariant::fromValue(CollisionType::Polygon));
 
-	
+	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QPushButton* AddTriggerButton = TriggerBox->findChild<QPushButton*>("AddTriggerAction");
+	connect(AddTriggerButton, SIGNAL(clicked()), this, SLOT(AddTriggerAction()));
 
 	//attach menu to button
 	ui.pushButton->setMenu(menu);
@@ -53,7 +55,6 @@ void PyriteEditor::AddTransform() {
 		}
 		selectedObject->AddTransform();
 	}
-	
 }
 
 //Add collision box to Component Window
@@ -126,6 +127,7 @@ void PyriteEditor::LoadSelectedObject()
 		}
 		if (selectedObject->HasTrigger()) {
 			TriggerBox->show();
+			
 		}
 		else {
 			TriggerBox->hide();
@@ -234,7 +236,6 @@ void PyriteEditor::LoadActionBoxes()
 
 void PyriteEditor::SetObjectProperties(float posX, float posY, float posZ, float rotX, float rotY, float rotZ, float scale)
 {
-	
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosX")->setValue(posX);
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosY")->setValue(posY);
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("PosZ")->setValue(posZ);
@@ -306,6 +307,8 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 
 void PyriteEditor::UpdateComponents()
 {
+	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
 	for (int i = 0; i < widgets.count(); i++) {
@@ -327,31 +330,68 @@ void PyriteEditor::UpdateComponents()
 		}
 	}
 	else {
-		QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
-		QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 		ConnectedObjectBox->clear();
+		ConnectedObjectBox->addItem("", NULL);
 		for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
 			ConnectedObjectBox->addItem(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i].GetObjectName()), i);
 		}
 	}
 }
 
+void PyriteEditor::AddTriggerAction()
+{
+	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
+	std::string Output = "Running this \n";
+	OutputDebugStringA(Output.c_str());
+	if (ConnectedObjectBox->currentIndex() != 0) {
+		GameObject connectedObject = pandaEngine.GetVectorOfGameObjects()[ConnectedObjectBox->currentData().toInt()];
 
+		QWidget* widget = new QWidget(TriggerBox);
+		widget->setObjectName("TriggerChangeBox");
+		QHBoxLayout* layout = new QHBoxLayout(widget);
+		QSize maximumsize = widget->size();
 
+		QLabel* changeLabel = new QLabel();
+		changeLabel->setText("Change:");
+		layout->addWidget(changeLabel);
 
+		QComboBox* changeBox = new QComboBox();
+		changeBox->addItem("", NULL);
+		layout->addWidget(changeBox);
 
-//Create a new vertical box layout 
-	//QVBoxLayout* layout = new QVBoxLayout(ui.Components);
-	//
-	////Create widget to overlay dock widget
-	//QWidget* widget = new QWidget(ui.Components);
-	////apply layout to widget
+		QLabel* toLabel = new QLabel();
+		toLabel->setText("to:");
+		layout->addWidget(toLabel);
 
+		QComboBox* directionBox = new QComboBox();
+		directionBox->addItem("", NULL);
+		directionBox->addItem("Forward", QVariant::fromValue(Direction::Forward));
+		directionBox->addItem("Backward", QVariant::fromValue(Direction::Backward));
+		directionBox->addItem("Left", QVariant::fromValue(Direction::Left));
+		directionBox->addItem("Right", QVariant::fromValue(Direction::Right));
+		directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
+		directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
+		layout->addWidget(directionBox);
 
-	//widget->setLayout(layout);
-
-	////Set widget to dock
-	//ui.Components->setWidget(widget);
-	//ui.Components->widget()->layout()->addWidget(this->findChild<QWidget*>("ObjectProps"));
-	////Add button to widget
-	//ui.Components->widget()->layout()->addWidget(ui.pushButton);
+		if (connectedObject.HasTransform()) {
+			for (int i = 0; i < connectedObject.GetNumberOfActions(); i++) {
+				std::ostringstream tag;
+				tag << i + 1;
+				std::string name;
+				Output = "Inside For Loop \n";
+				OutputDebugStringA(Output.c_str());
+				if (connectedObject.GetTransformAction(i).action == Action::Move) {
+					name = tag.str() + ". Move";
+					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Move));
+				}
+				if (connectedObject.GetTransformAction(i).action == Action::Rotate) {
+					name = tag.str() + ". Rotate";
+					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Rotate));
+				}
+			}
+		}
+		widget->setLayout(layout);
+		TriggerBox->layout()->addWidget(widget);
+	}
+}
