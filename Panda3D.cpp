@@ -40,7 +40,7 @@ bool Panda3D::init(size_t hwnd, int argc, char* argv[], int width, int height, i
     NodePath render = window->get_render();
     cTrav.show_collisions(render);
 
-    AddWorldTrigger();
+    
 
     return true;
 }
@@ -202,44 +202,22 @@ void Panda3D::CheckObjectTriggers()
     cTriggerTrav.traverse(window->get_render());
     if (cTravHandler->get_num_entries() > 0) {
         int i = atoi(cTravHandler->get_entry(0)->get_from_node()->get_tag("TriggerBox").c_str());
-        gameObjects[i].RunTrigger();
-    }
-
-    //for (int i = 0; i < gameObjects.size(); i++) {
-    //    if (gameObjects[i].HasTrigger()) {
-    //       std::string Output = "Object " + std::to_string(i) + " has Trigger with a bit number of: " + std::to_string(gameObjects[i].GetBit()) + " \n";
-    //        OutputDebugStringA(Output.c_str());
-    //        cTriggerTrav.traverse(gameObjects[i].GetTriggerNodePath());
-    //        if (cTravHandler->get_num_entries() > 0) {
-    //            std::string Output = "The Trigger Box has been Touched by an Object with a Collider \n";
-    //            OutputDebugStringA(Output.c_str());
-
-    //            //ADDING TO THE TRAVERSER MAKES IT A FROM OBJECT. THIS MAY BE BETTER TO LEAVE AS JUST A COLLISION NODE HOWEVER THE OBJECT ITSELF NEEDS TO BE FOUND
-    //        }
-    //    }
-    //}
-
-   /* static bool colObjsAdded = false;
-    if (!colObjsAdded) {
-        for (int i = 0; i < gameObjects.size(); i++) {
-            if (gameObjects[i].HasTrigger()) {
-                cTriggerTrav.add_collider(gameObjects[i].GetTriggerNodePath(), cHandler);
-            }
+        std::string Output = "Beginning Loop \n";
+        OutputDebugStringA(Output.c_str());
+        for (int j = 0; j < gameObjects[i].GetNumberOfTriggerActions(); j++) {
+            Output = "Get Trigger action for object \n";
+            OutputDebugStringA(Output.c_str());
+            TriggerActions triggerActions = gameObjects[i].GetTriggerAction(j);
+            Output = "Connected Object: " + std::to_string(triggerActions.connectedObjectID) + " \n";
+            OutputDebugStringA(Output.c_str());
+            gameObjects[triggerActions.connectedObjectID].ChangeTransformAction(
+                triggerActions.actionID,
+                Action(triggerActions.newAction),
+                gameObjects[triggerActions.connectedObjectID].GetTransformAction(triggerActions.actionID).Key,
+                gameObjects[triggerActions.connectedObjectID].GetTransformAction(triggerActions.actionID).Speed,
+                Direction(triggerActions.newDirection));
         }
-        colObjsAdded = true;
     }
-
-    for (int i = 0; i < gameObjects.size(); i++) {
-        if (gameObjects[i].HasTrigger()) {
-            cTriggerTrav.traverse(gameObjects[i].GetTriggerNodePath());
-            if (cHandler->get_num_entries() > 0) {
-                std::string Output = "The Trigger Box has been Touched by an Object with a Collider \n";
-                OutputDebugStringA(Output.c_str());
-            }
-        }
-    }*/
-
-
 }
 
 void Panda3D::AddWorldTrigger()

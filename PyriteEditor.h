@@ -34,7 +34,6 @@ public slots:
 
 	void LoadSelectedObject();
 
-
 	void AddActionBox(Action action = Action::Move, std::string key = "", float speed = NULL, Direction direction = Direction::Forward, bool newAction = true);
 	void RemoveActionBoxes();
 	void LoadActionBoxes();
@@ -45,7 +44,11 @@ public slots:
 	void SetObjectProperties(GameObject* gameObject);
 	void UpdateComponents();
 
-	void AddTriggerAction();
+	void AddTriggerAction(int id = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
+	void LoadTriggerBoxes();
+	void RemoveTriggerBoxes();
+
+	void AddWorldTrigger();
 
 private:
 

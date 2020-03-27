@@ -1,6 +1,4 @@
 #include "Trigger.h"
-
-
 Trigger::Trigger(NodePath Model, NodePath collider)
 {
 	//TriggerObject = collider.copy_to(TriggerObject);
@@ -60,14 +58,22 @@ NodePath& Trigger::GetNodePath()
 	return TriggerObject;
 }
 
-void Trigger::AddNewAction(int objectID, int actionId, int direction, int action, float speed)
+void Trigger::AddNewAction(int objectID, int direction, int action, int actionID)
 {
 	TriggerActions triggerAction; 
+
 	triggerAction.connectedObjectID = objectID;
-	triggerAction.transformActionID = actionId;
 	triggerAction.newAction = action;
 	triggerAction.newDirection = direction;
-	triggerAction.newSpeed = speed;
+	triggerAction.actionID = actionID;
+
 	TriggerActionsList.push_back(triggerAction);
+}
+
+TriggerActions& Trigger::GetTriggerAction(int i)
+{
+	if (i >= 0 && i < TriggerActionsList.size()) {
+		return TriggerActionsList[i];
+	}
 }
 

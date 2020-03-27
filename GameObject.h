@@ -68,7 +68,10 @@ public:
 	void AddTrigger();
 	void AddTriggerInteractor();
 	bool HasTrigger();
-	void StoreTriggerActions(int gameObjectID, int actionId, int direction, int action, float speed);
+	void StoreTriggerActions(int gameObjectID, int direction, int action, int actionID);
+	void ChangeTriggerAction(int id, int selectedObjectID, int direction, int action, int actionID);
+	int GetNumberOfTriggerActions() { return trigger->GetNumberOfTriggerActions(); };
+	TriggerActions& GetTriggerAction(int i);
 	void RunTrigger();
 
 private:

@@ -238,13 +238,29 @@ bool GameObject::HasTrigger()
 	return false;
 }
 
-void GameObject::StoreTriggerActions(int gameObjectID, int actionId, int direction, int action, float speed)
+void GameObject::StoreTriggerActions(int gameObjectID, int direction, int action, int actionID)
 {
-	trigger->AddNewAction(gameObjectID, actionId, direction, action, speed);
+	trigger->AddNewAction(gameObjectID, direction, action, actionID);
+}
+
+void GameObject::ChangeTriggerAction(int id, int selectedObjectID, int direction, int action, int actionID)
+{
+	trigger->GetTriggerAction(id).connectedObjectID = selectedObjectID;
+	trigger->GetTriggerAction(id).newAction = action;
+	trigger->GetTriggerAction(id).newDirection = direction;
+	trigger->GetTriggerAction(id).actionID = actionID;
+}
+
+TriggerActions& GameObject::GetTriggerAction(int i)
+{
+	return trigger->GetTriggerAction(i);
+	// TODO: insert return statement here
 }
 
 void GameObject::RunTrigger()
 {
+
+
 	//trigger->Run();
 }
 
