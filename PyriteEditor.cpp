@@ -84,14 +84,6 @@ void PyriteEditor::AddTrigger()
 		}
 		selectedObject->AddTrigger();
 	}
-
-	/*QGroupBox* newBox = new QGroupBox(findChild<QWidget*>("ComponentWidget"));
-	newBox->setTitle("Trigger");
-	QLayoutItem* Spacer = findChild<QWidget*>("ComponentWidget")->layout()->takeAt(findChild<QWidget*>("ComponentWidget")->layout()->count() - 2);
-	QLayoutItem* Button = findChild<QWidget*>("ComponentWidget")->layout()->takeAt(findChild<QWidget*>("ComponentWidget")->layout()->count() - 1);
-	findChild<QWidget*>("ComponentWidget")->layout()->addWidget(newBox);
-	findChild<QWidget*>("ComponentWidget")->layout()->addItem(Spacer);
-	findChild<QWidget*>("ComponentWidget")->layout()->addItem(Button);*/
 }
 
 void PyriteEditor::RunGame()
@@ -335,21 +327,13 @@ void PyriteEditor::UpdateComponents()
 	}
 	QWidgetList trigWidgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	for (int i = 0; i < trigWidgets.count(); i++) {
-		//std::string Output = "Found Change Box: " + std::to_string(i) + "\n";
-		//OutputDebugStringA(Output.c_str());
-		//std::string Output = "Current Index: " + std::to_string(ConnectedObjectBox->currentIndex()) + " i: " + std::to_string(i) + " DirectionBox int: " + std::to_string(trigWidgets[i]->findChild<QComboBox*>("DirectionBox")->currentData().toInt()) + " ChangeBox: " + std::to_string(trigWidgets[i]->findChild<QComboBox*>("ChangeBox")->currentIndex()) + "\n";
-		//OutputDebugStringA(Output.c_str());
-		std::string Output = "Current Index: " + std::to_string(trigWidgets[i]->findChild<QComboBox*>("ChangeBox")->currentIndex()) + "\n";
-		OutputDebugStringA(Output.c_str());
 		selectedObject->ChangeTriggerAction(
 			i,
-			ConnectedObjectBox->currentIndex()-1,
+			ConnectedObjectBox->currentIndex(),
 			trigWidgets[i]->findChild<QComboBox*>("DirectionBox")->currentData().toInt(),
 			trigWidgets[i]->findChild<QComboBox*>("ChangeBox")->currentData().toInt(),
 			trigWidgets[i]->findChild<QComboBox*>("ChangeBox")->currentIndex()
 		);
-		Output = "Gets to here \n";
-		OutputDebugStringA(Output.c_str());
 	}
 
 	if (selectedObject != nullptr) {
@@ -364,7 +348,6 @@ void PyriteEditor::UpdateComponents()
 	}
 	else {
 		ConnectedObjectBox->clear();
-		ConnectedObjectBox->addItem("", NULL);
 		for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
 			ConnectedObjectBox->addItem(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i].GetObjectName()), i);
 		}
@@ -375,86 +358,60 @@ void PyriteEditor::AddTriggerAction(int id, int selectedObjectID, Action action,
 {
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	if (ConnectedObjectBox->currentIndex() != 0 || selectedObjectID != 0) {
-		GameObject connectedObject = pandaEngine.GetVectorOfGameObjects()[ConnectedObjectBox->currentData().toInt()];
+	GameObject connectedObject = pandaEngine.GetVectorOfGameObjects()[ConnectedObjectBox->currentData().toInt()];
 
-		std::string Output = "Gets to Here! 1 \n";
-		OutputDebugStringA(Output.c_str());
+	QWidget* widget = new QWidget(TriggerBox);
+	widget->setObjectName("TriggerChangeBox");
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	QSize maximumsize = widget->size();
 
-		QWidget* widget = new QWidget(TriggerBox);
-		widget->setObjectName("TriggerChangeBox");
-		QHBoxLayout* layout = new QHBoxLayout(widget);
-		QSize maximumsize = widget->size();
+	QLabel* changeLabel = new QLabel();
+	changeLabel->setText("Change:");
+	layout->addWidget(changeLabel);
 
-		Output = "Gets to Here! 2 \n";
-		OutputDebugStringA(Output.c_str());
+	QComboBox* changeBox = new QComboBox();
+	changeBox->setObjectName("ChangeBox");
+	layout->addWidget(changeBox);
 
-		QLabel* changeLabel = new QLabel();
-		changeLabel->setText("Change:");
-		layout->addWidget(changeLabel);
+	QLabel* toLabel = new QLabel();
+	toLabel->setText("to:");
+	layout->addWidget(toLabel);
 
-		Output = "Gets to Here! 3 \n";
-		OutputDebugStringA(Output.c_str());
+	QComboBox* directionBox = new QComboBox();
+	directionBox->setObjectName("DirectionBox");
+	directionBox->addItem("Forward", QVariant::fromValue(Direction::Forward));
+	directionBox->addItem("Backward", QVariant::fromValue(Direction::Backward));
+	directionBox->addItem("Left", QVariant::fromValue(Direction::Left));
+	directionBox->addItem("Right", QVariant::fromValue(Direction::Right));
+	directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
+	directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
+	layout->addWidget(directionBox);
 
-		QComboBox* changeBox = new QComboBox();
-		changeBox->setObjectName("ChangeBox");
-		layout->addWidget(changeBox);
-
-		Output = "Gets to Here! 4 \n";
-		OutputDebugStringA(Output.c_str());
-
-		QLabel* toLabel = new QLabel();
-		toLabel->setText("to:");
-		layout->addWidget(toLabel);
-
-		Output = "Gets to Here! 5 \n";
-		OutputDebugStringA(Output.c_str());
-
-		QComboBox* directionBox = new QComboBox();
-		directionBox->setObjectName("DirectionBox");
-		directionBox->addItem("Forward", QVariant::fromValue(Direction::Forward));
-		directionBox->addItem("Backward", QVariant::fromValue(Direction::Backward));
-		directionBox->addItem("Left", QVariant::fromValue(Direction::Left));
-		directionBox->addItem("Right", QVariant::fromValue(Direction::Right));
-		directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
-		directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
-		layout->addWidget(directionBox);
-
-		Output = "Gets to Here! 6 \n";
-		OutputDebugStringA(Output.c_str());
-
-		if (connectedObject.HasTransform()) {
-			for (int i = 0; i < connectedObject.GetNumberOfActions(); i++) {
-				Output = "Gets to Here! 7 \n";
-				OutputDebugStringA(Output.c_str());
-				std::ostringstream tag;
-				tag << i + 1;
-				std::string name;
-				if (connectedObject.GetTransformAction(i).action == Action::Move) {
-					name = tag.str() + ". Move";
-					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Move));
-				}
-				if (connectedObject.GetTransformAction(i).action == Action::Rotate) {
-					name = tag.str() + ". Rotate";
-					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Rotate));
-				}
+	if (connectedObject.HasTransform()) {
+		for (int i = 0; i < connectedObject.GetNumberOfActions(); i++) {
+			std::ostringstream tag;
+			tag << i + 1;
+			std::string name;
+			if (connectedObject.GetTransformAction(i).action == Action::Move) {
+				name = tag.str() + ". Move";
+				changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Move));
+			}
+			if (connectedObject.GetTransformAction(i).action == Action::Rotate) {
+				name = tag.str() + ". Rotate";
+				changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Rotate));
 			}
 		}
-		directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
-		changeBox->setCurrentIndex(id);
+	}
 
-		widget->setLayout(layout);
-		TriggerBox->layout()->addWidget(widget);
-		if (newAction) {
-			Output = "Gets to Here! 8 \n";
-			OutputDebugStringA(Output.c_str());
-			selectedObject->StoreTriggerActions(connectedObject.objectCount, directionBox->currentData().toInt(), changeBox->currentData().toInt(), changeBox->currentIndex());
-			Output = "but not Here! 9 \n";
-			OutputDebugStringA(Output.c_str());
-		}
-		else {
-			ConnectedObjectBox->setCurrentIndex(selectedObjectID);
-		}
+	directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
+	changeBox->setCurrentIndex(id);
+	widget->setLayout(layout);
+	TriggerBox->layout()->addWidget(widget);
+	if (newAction) {
+		selectedObject->StoreTriggerActions(connectedObject.id, directionBox->currentData().toInt(), changeBox->currentData().toInt(), changeBox->currentIndex());
+	}
+	else {
+		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
 	}
 }
 

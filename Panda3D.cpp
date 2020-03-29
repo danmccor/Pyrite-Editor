@@ -202,20 +202,20 @@ void Panda3D::CheckObjectTriggers()
     cTriggerTrav.traverse(window->get_render());
     if (cTravHandler->get_num_entries() > 0) {
         int i = atoi(cTravHandler->get_entry(0)->get_from_node()->get_tag("TriggerBox").c_str());
-        std::string Output = "Beginning Loop \n";
-        OutputDebugStringA(Output.c_str());
         for (int j = 0; j < gameObjects[i].GetNumberOfTriggerActions(); j++) {
-            Output = "Get Trigger action for object \n";
+            std::string Output = "GameObject objectCount: " + std::to_string(gameObjects[i].objectCount) + " GameObject ID: " + std::to_string(gameObjects[i].id) + "\n";
             OutputDebugStringA(Output.c_str());
             TriggerActions triggerActions = gameObjects[i].GetTriggerAction(j);
-            Output = "Connected Object: " + std::to_string(triggerActions.connectedObjectID) + " \n";
-            OutputDebugStringA(Output.c_str());
+            
             gameObjects[triggerActions.connectedObjectID].ChangeTransformAction(
                 triggerActions.actionID,
                 Action(triggerActions.newAction),
                 gameObjects[triggerActions.connectedObjectID].GetTransformAction(triggerActions.actionID).Key,
                 gameObjects[triggerActions.connectedObjectID].GetTransformAction(triggerActions.actionID).Speed,
-                Direction(triggerActions.newDirection));
+                Direction(triggerActions.newDirection)
+            );
+
+
         }
     }
 }

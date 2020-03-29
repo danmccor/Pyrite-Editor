@@ -80,7 +80,7 @@ private:
 	NodePath Model;
 	NodePath CollisionNodePath;
 	NodePath TriggerNodePath;
-
+	PandaNode* triggerBox;
 	bool highlighted = false;
 
 	NodePath gameObject_nodePath;

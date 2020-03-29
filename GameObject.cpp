@@ -8,6 +8,7 @@ GameObject::GameObject(WindowFramework* window, std::string modelLocation)
 	id = objectCount;
 	this->window = window;
 	this->ModelLocation = modelLocation;
+	ObjectName = modelLocation;
 	objectCount++;
 }
 
@@ -16,6 +17,7 @@ GameObject::GameObject(WindowFramework* window, TriggerType triggerType)
 	id = objectCount;
 	objectCount++;
 	this->window = window;
+	ObjectName = "Trigger Box";
 	trigger = new Trigger();
 	AddTriggerInteractor();
 	LoadTriggerBox();
@@ -175,7 +177,10 @@ bool GameObject::HasTransform()
 
 void GameObject::AddCollision()
 {
+	Model.set_pos(0, 0, 0);
+	TriggerNodePath.detach_node();
 	collision = new Collision(&Model);
+	Model.attach_new_node(TriggerNodePath.node());
 }
 bool GameObject::HasCollision()
 {
@@ -186,7 +191,9 @@ bool GameObject::HasCollision()
 }
 void GameObject::SetCollisionType(CollisionType type)
 {
+
 	CollisionNodePath = collision->SetCollision(type);
+	//Model.set_pos(tmp);
 
 	/*trigger = new Trigger(Model, CollisionNodePath);
 	TriggerNodePath = trigger->GetNodePath();*/
@@ -203,7 +210,7 @@ void GameObject::ChangeCollisionType(CollisionType type)
 
 void GameObject::AddTrigger()
 {
-
+	trigger = new Trigger();
 }
 
 void GameObject::AddTriggerInteractor()
