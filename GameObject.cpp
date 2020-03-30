@@ -95,6 +95,10 @@ std::string GameObject::GetObjectName()
 {
 	return ObjectName;
 }
+std::string GameObject::GetFileLocation()
+{
+	return ModelLocation;
+}
 void GameObject::ChangePosition(float x, float y, float z)
 {
 	Model.set_pos(Model.get_pos().get_x() + x, Model.get_pos().get_y() + y, Model.get_pos().get_z() + z);
@@ -233,7 +237,7 @@ void GameObject::AddTriggerInteractor()
 	gameObject_Node->add_solid(gameObject_SolidBox);
 	TriggerNodePath = Model.attach_new_node(gameObject_Node);
 	TriggerNodePath.reparent_to(Model);
-	TriggerNodePath.show();
+	TriggerNodePath.show_bounds();
 	i++;
 }
 

@@ -21,6 +21,9 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	QAction* addWorldTrigger = findChild<QAction*>("actionSquare");
 	connect(addWorldTrigger, SIGNAL(triggered()), this, SLOT(AddWorldTrigger()));
 
+	QAction* saveAction = findChild<QAction*>("actionSave");
+	connect(saveAction, SIGNAL(triggered()), this, SLOT(Save()));
+
 	////Create menu for button
 	AddComponent* menu = new AddComponent(ui.pushButton, this);
 
@@ -43,6 +46,7 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
 	QPushButton* AddTriggerButton = TriggerBox->findChild<QPushButton*>("AddTriggerAction");
 	connect(AddTriggerButton, SIGNAL(clicked()), this, SLOT(AddTriggerAction()));
+
 
 	//attach menu to button
 	ui.pushButton->setMenu(menu);
@@ -439,4 +443,72 @@ void PyriteEditor::AddWorldTrigger()
 {
 	pandaEngine.AddWorldTrigger();
 }
+
+void PyriteEditor::Save()
+{
+
+	QJsonArray GameObjectArray;
+	for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
+		QJsonObject gameObject;
+		gameObject["ObjectID"] = pandaEngine.GetVectorOfGameObjects()[i].id;
+		gameObject["ObjectName"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i].GetObjectName());
+		gameObject["FileLocation"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i].GetFileLocation());
+		gameObject["PositionX"] = pandaEngine.GetVectorOfGameObjects()[i].GetPositionX();
+		gameObject["PositionY"] = pandaEngine.GetVectorOfGameObjects()[i].GetPositionY();
+		gameObject["PositionZ"] = pandaEngine.GetVectorOfGameObjects()[i].GetPositionZ();
+		gameObject["RotationX"] = pandaEngine.GetVectorOfGameObjects()[i].GetRotationX();
+		gameObject["RotationY"] = pandaEngine.GetVectorOfGameObjects()[i].GetRotationY();
+		gameObject["RotationZ"] = pandaEngine.GetVectorOfGameObjects()[i].GetRotationZ();
+		gameObject["Scale"] = pandaEngine.GetVectorOfGameObjects()[i].GetScale();
+
+
+		gameObject["HasTransform"] = pandaEngine.GetVectorOfGameObjects()[i].HasTransform();
+		if (pandaEngine.GetVectorOfGameObjects()[i].HasTransform()) {
+			QJsonArray ObjectTranforms;
+			for (int j = 0; j < pandaEngine.GetVectorOfGameObjects()[i].GetNumberOfActions(); j++) {
+				QJsonObject transformObjects;
+				transformObjects["Action"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i].GetTransformAction(j).action).toInt();
+				transformObjects["Direction"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i].GetTransformAction(j).direction).toInt();
+				transformObjects["Speed"] = pandaEngine.GetVectorOfGameObjects()[i].GetTransformAction(j).Speed;
+				transformObjects["Key"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i].GetTransformAction(j).Key);
+				ObjectTranforms.append(transformObjects);
+			}
+			gameObject["Transforms"] = ObjectTranforms;
+		}
+
+		gameObject["HasCollision"] = pandaEngine.GetVectorOfGameObjects()[i].HasCollision();
+		if (pandaEngine.GetVectorOfGameObjects()[i].HasCollision()) {
+			gameObject["CollisionType"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i].GetCollisionType()).toInt();
+		}
+
+		gameObject["HasTrigger"] = pandaEngine.GetVectorOfGameObjects()[i].HasTrigger();
+		if (pandaEngine.GetVectorOfGameObjects()[i].HasTrigger()) {
+			QJsonArray ObjectTriggers;
+			for (int j = 0; j < pandaEngine.GetVectorOfGameObjects()[i].GetNumberOfTriggerActions(); j++) {
+				QJsonObject triggerAction;
+				triggerAction["ActionID"] = pandaEngine.GetVectorOfGameObjects()[i].GetTriggerAction(j).actionID;
+				triggerAction["ConnectedObjectID"] = pandaEngine.GetVectorOfGameObjects()[i].GetTriggerAction(j).connectedObjectID;
+				triggerAction["newAction"] = pandaEngine.GetVectorOfGameObjects()[i].GetTriggerAction(j).newAction;
+				triggerAction["newDirection"] = pandaEngine.GetVectorOfGameObjects()[i].GetTriggerAction(j).newDirection;
+				ObjectTriggers.append(triggerAction);
+			}
+			gameObject["Triggers"] = ObjectTriggers;
+		}
+		GameObjectArray.append(gameObject);
+	}
+	ProjectSave["GameObjects"] = GameObjectArray;
+
+	QFile saveFile(QStringLiteral("Project.pyr"));
+	if (!saveFile.open(QIODevice::WriteOnly)) {
+		qWarning("Couldn't open save file.");
+	}
+
+	QJsonDocument saveDoc(ProjectSave);
+	saveFile.write(saveDoc.toJson());
+}
+
+void PyriteEditor::Load()
+{
+}
+
 

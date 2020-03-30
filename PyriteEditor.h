@@ -12,11 +12,13 @@
 #include <QtWidgets/qsizepolicy.h>
 #include <QtWidgets/qcombobox.h>
 
+
 #include <QtCore/qcoreapplication.h>
 #include "ui_PyriteEditor.h"
 #include "Panda3D.h"
 #include "GameObject.h"
 #include "AddAction.h"
+#include <qjsonobject.h>
 
 extern Panda3D pandaEngine;
 
@@ -50,6 +52,9 @@ public slots:
 
 	void AddWorldTrigger();
 
+	void Save();
+	void Load();
+
 private:
 
 	int lastCollisionType = 1;
@@ -61,6 +66,7 @@ private:
 	QWidget* widget;
 	GameObject* selectedObject;
 	bool oneTimeSelect = true;
+	QJsonObject ProjectSave;
 
 
 

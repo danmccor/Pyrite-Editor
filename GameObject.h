@@ -42,6 +42,7 @@ public:
 	void SetRotation(float x, float y, float z);
 	void SetScale(float scale);
 	std::string GetObjectName();
+	std::string GetFileLocation();
 	float GetPositionX();
 	float GetPositionY();
 	float GetPositionZ();
