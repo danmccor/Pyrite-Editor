@@ -231,3 +231,8 @@ std::vector<GameObject> Panda3D::GetVectorOfGameObjects()
     return gameObjects;
 }
 
+void Panda3D::addGameObject(GameObject object)
+{
+    gameObjects.push_back(object);
+}
+

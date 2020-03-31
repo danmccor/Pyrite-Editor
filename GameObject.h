@@ -38,6 +38,7 @@ public:
 	NodePath& GetModelNodePath();
 
 	void SetObjectName(std::string name);
+	void SetFileLocation(std::string location);
 	void SetPosition(float x, float y, float z);
 	void SetRotation(float x, float y, float z);
 	void SetScale(float scale);

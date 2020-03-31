@@ -11,14 +11,15 @@
 #include <QtWidgets/QLineEdit.h>
 #include <QtWidgets/qsizepolicy.h>
 #include <QtWidgets/qcombobox.h>
-
+#include <qjsonobject.h>
+#include <qfiledialog.h>
 
 #include <QtCore/qcoreapplication.h>
 #include "ui_PyriteEditor.h"
 #include "Panda3D.h"
 #include "GameObject.h"
 #include "AddAction.h"
-#include <qjsonobject.h>
+
 
 extern Panda3D pandaEngine;
 
@@ -28,6 +29,10 @@ class PyriteEditor : public QMainWindow
 
 public:
 	PyriteEditor(QWidget* parent = Q_NULLPTR);
+
+	
+
+
 public slots:
 	void AddTransform();
 	void AddCollision();
@@ -52,6 +57,8 @@ public slots:
 
 	void AddWorldTrigger();
 
+	void New();
+	void SaveAs();
 	void Save();
 	void Load();
 
@@ -67,7 +74,8 @@ private:
 	GameObject* selectedObject;
 	bool oneTimeSelect = true;
 	QJsonObject ProjectSave;
-
+	std::string ProjectDirectory = "";
+	std::string ProjectName = "";
 
 
 	Q_ENUM(Direction);

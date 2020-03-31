@@ -79,6 +79,11 @@ void GameObject::SetObjectName(std::string name)
 	ObjectName = name;
 }
 
+void GameObject::SetFileLocation(std::string location)
+{
+	ModelLocation = location;
+}
+
 void GameObject::SetPosition(float x, float y, float z)
 {
 	Model.set_pos(x, y, z);

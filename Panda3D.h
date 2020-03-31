@@ -32,6 +32,7 @@ public:
 	PandaFramework framework;
 
 	std::vector<GameObject> GetVectorOfGameObjects();
+	void addGameObject(GameObject object);
 
 private:
 	WindowFramework* window;
@@ -51,5 +52,6 @@ private:
 	NodePath collisionRay_NodePath;
 	NodePath yupAxis;
 	GameObject* selectedObject;
+	std::string ProjectDirectory;
 };
 

@@ -48,7 +48,10 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="actionNew"/>
+    <addaction name="actionLoad"/>
     <addaction name="actionSave"/>
+    <addaction name="actionSaveAs"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -566,6 +569,21 @@
   <action name="actionSquare">
    <property name="text">
     <string>Square</string>
+   </property>
+  </action>
+  <action name="actionSaveAs">
+   <property name="text">
+    <string>Save Project As..</string>
+   </property>
+  </action>
+  <action name="actionLoad">
+   <property name="text">
+    <string>Load Project</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="text">
+    <string>New Project</string>
    </property>
   </action>
   <action name="actionSave">

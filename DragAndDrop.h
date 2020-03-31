@@ -15,7 +15,11 @@ public:
 
 	void AddItem(QString filename);
 
+	void ChangeDirectory(std::string dir);
+	void LoadFiles();
+
 private:
-	QListWidget* listWidget;
+	std::string ProjectDirectory = "";
+	QListWidget* listWidget = nullptr;
 };
 
