@@ -19,6 +19,7 @@
 #include "Panda3D.h"
 #include "GameObject.h"
 #include "AddAction.h"
+#include "SaveManager.h"
 
 
 extern Panda3D pandaEngine;
@@ -29,10 +30,6 @@ class PyriteEditor : public QMainWindow
 
 public:
 	PyriteEditor(QWidget* parent = Q_NULLPTR);
-
-	
-
-
 public slots:
 	void AddTransform();
 	void AddCollision();
@@ -61,6 +58,7 @@ public slots:
 	void SaveAs();
 	void Save();
 	void Load();
+	void Build();
 
 private:
 
@@ -76,9 +74,9 @@ private:
 	QJsonObject ProjectSave;
 	std::string ProjectDirectory = "";
 	std::string ProjectName = "";
+	SaveManager* saveManager = nullptr;
 
-
-	Q_ENUM(Direction);
+	/*Q_ENUM(Direction);
 	Q_ENUM(Action);
-	Q_ENUM(CollisionType);
+	Q_ENUM(CollisionType);*/
 };

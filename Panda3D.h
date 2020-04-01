@@ -13,7 +13,7 @@
 class Panda3D
 {
 public:
-	bool init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY);
+	bool init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built = false);
 	void closePanda3D();
 	void runLoop();
 	void CameraMovement();
@@ -53,5 +53,7 @@ private:
 	NodePath yupAxis;
 	GameObject* selectedObject;
 	std::string ProjectDirectory;
+
+	bool built = false;
 };
 

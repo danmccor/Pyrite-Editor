@@ -52,6 +52,7 @@
     <addaction name="actionLoad"/>
     <addaction name="actionSave"/>
     <addaction name="actionSaveAs"/>
+    <addaction name="actionBuild"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -589,6 +590,11 @@
   <action name="actionSave">
    <property name="text">
     <string>Save</string>
+   </property>
+  </action>
+  <action name="actionBuild">
+   <property name="text">
+    <string>Build</string>
    </property>
   </action>
   <zorder>Assets</zorder>
