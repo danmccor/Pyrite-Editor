@@ -1,11 +1,14 @@
 #pragma once
 #include <qjsonobject.h>
+#include <qcoreapplication.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qvariant.h>
 #include <qjsonarray.h>
 #include <qjsondocument.h>
 #include <qdebug.h>
+#include <qmessagebox.h>
+#include <qthread.h>
 
 #include "Panda3D.h"
 

@@ -200,14 +200,19 @@ void SaveManager::Load()
 
 void SaveManager::CreateBuild()
 {
-	QDir dir("Resource");
-	QStringList fileList = dir.entryList();
+	QDir* dir = new QDir(QCoreApplication::applicationDirPath() + "/compiler/");
+
+	QStringList fileList = dir->entryList();
+	std::string stringOutput = "Files found: " + std::to_string(fileList.size());
+	QMessageBox* filePathAlert = new QMessageBox{ QMessageBox::Warning, QCoreApplication::applicationDirPath() + "/compiler/", QString::fromStdString(stringOutput), QMessageBox::Ok };
+	filePathAlert->show();
 	for (int i = 0; i < fileList.size(); i++) {
-		QFile file = fileList[i];
-		if (file.fileName() != "PyriteEditor.ui" && file.fileName() != "AddAction.h" && file.fileName() != "AddComponent.h" && file.fileName() != "AssetToScene.h" && file.fileName() != "DragAndDrop.h" && file.fileName() != "PyriteEditor.h" &&
-			file.fileName() != "PyriteEditor.qrc" && file.fileName() != "AddAction.cpp" && file.fileName() != "AddComponent.cpp" && file.fileName() != "AssetToScene.cpp" && file.fileName() != "DragAndDrop.cpp" && file.fileName() != "PyriteEditor.cpp") {
-			qDebug() << file.fileName();
-			file.copy(file.fileName(), QString::fromStdString(ProjectDirectory) + file.fileName());
+		QFile* file = new QFile(fileList[i]);
+		QMessageBox* Failed;
+		file->setPermissions(QFile::ReadOwner | QFile::WriteOwner | QFile::ReadUser | QFile::WriteUser | QFile::ReadOther | QFile::WriteOther);
+		if (!file->copy(dir->path() + QDir::separator() + file->fileName(), QString::fromStdString(ProjectDirectory) + file->fileName())) {
+			Failed = new QMessageBox(QMessageBox::Warning, dir->path() + QDir::separator() + file->fileName(), file->errorString() + QString::fromStdString(ProjectDirectory) + file->fileName(), QMessageBox::Ok);
+			Failed->show();
 		}
 	}
 }
