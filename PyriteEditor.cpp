@@ -485,6 +485,7 @@ void PyriteEditor::Save()
 
 void PyriteEditor::Load()
 {
+	pandaEngine.RemoveAllGameObjects();
 	saveManager->Load();
 	ProjectDirectory = saveManager->GetProjectDirectory();
 	ProjectName = saveManager->GetProjectName();

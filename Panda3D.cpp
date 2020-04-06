@@ -237,3 +237,12 @@ void Panda3D::addGameObject(GameObject object)
 	gameObjects.push_back(object);
 }
 
+void Panda3D::RemoveAllGameObjects()
+{
+	for (int i = 0; i < gameObjects.size(); i++) {
+		gameObjects[i].Delete();
+	}
+	gameObjects.clear();
+	gameObjects.resize(0);
+}
+

@@ -76,6 +76,8 @@ public:
 	TriggerActions& GetTriggerAction(int i);
 	void RunTrigger();
 
+	void Delete();
+
 private:
 	std::string ModelLocation;
 	WindowFramework* window = nullptr;

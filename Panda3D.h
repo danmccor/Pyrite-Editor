@@ -33,6 +33,7 @@ public:
 
 	std::vector<GameObject> GetVectorOfGameObjects();
 	void addGameObject(GameObject object);
+	void RemoveAllGameObjects();
 
 private:
 	WindowFramework* window;

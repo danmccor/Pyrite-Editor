@@ -280,6 +280,17 @@ void GameObject::RunTrigger()
 	//trigger->Run();
 }
 
+void GameObject::Delete()
+{
+	if (HasTrigger()) {
+		TriggerNodePath.remove_node();
+	}
+	if (HasCollision()) {
+		CollisionNodePath.remove_node();
+	}
+	Model.remove_node();
+}
+
 void GameObject::AddTransformAction(Action action, std::string key, float speed, Direction direction)
 {
 	transform->AddAction(action, speed, direction, key);
