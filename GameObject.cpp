@@ -62,6 +62,9 @@ void GameObject::LoadModel(PandaFramework* framework)
 	AttachEditorCollider();
 	AddTriggerInteractor();
 }
+
+
+
 //Run the transform component
 void GameObject::Run(MouseWatcher* mouseWatcher)
 {
@@ -72,6 +75,10 @@ void GameObject::Run(MouseWatcher* mouseWatcher)
 		Model.set_hpr(transform->Rotate(Model.get_hpr(), mouseWatcher));
 	}
 }
+
+
+
+
 //Attach collider to the object so the user can select an object
 void GameObject::AttachEditorCollider()
 {
@@ -246,6 +253,7 @@ void GameObject::AddTransformAction(Action action, std::string key, float speed,
 {
 	transform->AddAction(action, speed, direction, key);
 }
+
 void GameObject::ChangeTransformAction(int id, Action action, std::string key, float speed, Direction direction)
 {
 	transform->GetAction(id).action = action;
@@ -254,9 +262,27 @@ void GameObject::ChangeTransformAction(int id, Action action, std::string key, f
 	transform->GetAction(id).direction = direction;
 
 }
+void GameObject::AddTranformFollowAction(TransformAxis axis, int selectedObject, std::string key, float speed)
+{
+	transform->AddFollowAction(axis, selectedObject, key, speed);
+}
+void GameObject::ChangeTransformFollowAction(int id, TransformAxis axis, int selectedObject, std::string key, float speed)
+{
+	transform->GetAction(id).axis = axis;
+	transform->GetAction(id).ConnectedObject = selectedObject;
+	std::string output = "Inside change Follow Action: " + std::to_string(selectedObject) + "\n";
+	OutputDebugStringA(output.c_str());
+	transform->GetAction(id).Key = key;
+	transform->GetAction(id).Speed = speed;
+
+}
 TransformAction& GameObject::GetTransformAction(int id)
 {
 	return transform->GetAction(id);
+}
+void GameObject::TransformFollowObject(int id, GameObject* object, MouseWatcher* mouseWatcher)
+{
+	Model.set_pos(transform->FollowMove(id, Model.get_pos(), object->GetModelNodePath().get_pos(), mouseWatcher));
 }
 #pragma endregion
 

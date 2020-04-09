@@ -44,6 +44,7 @@ private:
 	Q_ENUM(Direction);
 	Q_ENUM(Action);
 	Q_ENUM(CollisionType);
-
+	Q_ENUM(TransformType);
+	Q_ENUM(TransformAxis);
 };
 

@@ -55,8 +55,11 @@ void SaveManager::Save()
 					//Create an object
 					QJsonObject transformObjects;
 					//Get the transform variables
+					transformObjects["Type"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).type).toInt();
 					transformObjects["Action"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).action).toInt();
 					transformObjects["Direction"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).direction).toInt();
+					transformObjects["Axis"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).axis).toInt();
+					transformObjects["ConnectedID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).ConnectedObject;
 					transformObjects["Speed"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).Speed;
 					transformObjects["Key"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).Key);
 					//Append the transform object to the transform array
@@ -129,8 +132,11 @@ void SaveManager::SaveAs()
 			QJsonArray ObjectTranforms;
 			for (int j = 0; j < pandaEngine.GetVectorOfGameObjects()[i]->GetNumberOfActions(); j++) {
 				QJsonObject transformObjects;
+				transformObjects["Type"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).type).toInt();
 				transformObjects["Action"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).action).toInt();
 				transformObjects["Direction"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).direction).toInt();
+				transformObjects["Axis"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).axis).toInt();
+				transformObjects["ConnectedID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).ConnectedObject;
 				transformObjects["Speed"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).Speed;
 				transformObjects["Key"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetTransformAction(j).Key);
 				ObjectTranforms.append(transformObjects);
@@ -214,7 +220,12 @@ void SaveManager::Load()
 			QJsonArray transformActions = gameObject["Transforms"].toArray();
 			for (int j = 0; j < transformActions.size(); j++) {
 				QJsonObject action = transformActions[j].toObject();
-				object->AddTransformAction(Action(action["Action"].toInt()), action["Key"].toString().toStdString(), action["Speed"].toDouble(), Direction(action["Direction"].toInt()));
+				if (action["Type"] == 0) {
+					object->AddTransformAction(Action(action["Action"].toInt()), action["Key"].toString().toStdString(), action["Speed"].toDouble(), Direction(action["Direction"].toInt()));
+				}
+				if (action["Type"] == 1) {
+					object->AddTranformFollowAction(TransformAxis(action["Axis"].toInt()), action["ConnectedID"].toInt(), action["Key"].toString().toStdString(), action["Speed"].toDouble());
+				}
 			}
 		}
 		if (gameObject["HasCollision"].toBool()) {
@@ -294,7 +305,12 @@ void SaveManager::LoadBuild()
 			QJsonArray transformActions = gameObject["Transforms"].toArray();
 			for (int j = 0; j < transformActions.size(); j++) {
 				QJsonObject action = transformActions[j].toObject();
-				object->AddTransformAction(Action(action["Action"].toInt()), action["Key"].toString().toStdString(), action["Speed"].toDouble(), Direction(action["Direction"].toInt()));
+				if (action["Type"] == 0) {
+					object->AddTransformAction(Action(action["Action"].toInt()), action["Key"].toString().toStdString(), action["Speed"].toDouble(), Direction(action["Direction"].toInt()));
+				}
+				if (action["Type"] == 1) {
+					object->AddTranformFollowAction(TransformAxis(action["Axis"].toInt()), action["ConnectedID"].toInt(), action["Key"].toString().toStdString(), action["Speed"].toDouble());
+				}
 			}
 		}
 		if (gameObject["HasCollision"].toBool()) {

@@ -46,6 +46,10 @@ public:
 public slots:
 	//Add an action box to the transform component
 	void AddActionBox(Action action = Action::Move, std::string key = "", float speed = NULL, Direction direction = Direction::Forward, bool newAction = true);
+
+	//Transform Follow Object
+	void AddFollowObject(TransformAxis axis = TransformAxis::X, int selectedObjectID = 0, std::string key = "", float speed =  0, bool newAction = true);
+
 	//Add a trigger action to the trigger component
 	void AddTriggerAction(int id = 0, int enterID = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
 
@@ -89,6 +93,8 @@ private:
 	//Set the properties of a loaded object
 	void SetObjectProperties(float posX = 0, float posY = 0, float posZ = 0, float rotX = 0, float rotY = 0, float rotZ = 0, float scale = 0);
 
+	void ReloadGameObjectDropDowns(QComboBox* comboBox);
+
 	void ConnectUI();
 
 private:
@@ -116,4 +122,6 @@ private:
 	std::string ProjectName = "";
 	//The save manager which saves and loads the project. 
 	SaveManager* saveManager = nullptr;
+
+	bool updateListOnce = false;
 };

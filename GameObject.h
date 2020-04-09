@@ -65,8 +65,11 @@ public:
 	bool HasTransform();
 	void AddTransformAction(Action action, std::string key, float speed, Direction direction);
 	void ChangeTransformAction(int id, Action action, std::string key, float speed, Direction direction);
+	void AddTranformFollowAction(TransformAxis axis, int selectedObject, std::string key, float speed);
+	void ChangeTransformFollowAction(int id, TransformAxis axis, int selectedObject, std::string key, float speed);
 	TransformAction& GetTransformAction(int id);
 	int GetNumberOfActions() { return transform->GetNumberOfActions(); };
+	void TransformFollowObject(int id, GameObject* object, MouseWatcher* mouseWatcher);
 
 	//Collision component
 	void AddCollision();

@@ -63,7 +63,16 @@ void PyriteEditor::ConnectUI()
 	if (TransformBox != nullptr) {
 		QPushButton* Button = TransformBox->findChild<QPushButton*>("AddMovement");
 		if (Button != nullptr) {
-			connect(Button, SIGNAL(clicked()), this, SLOT(AddActionBox()));
+			AddComponent* transformMenu = new AddComponent(Button, TransformBox);
+
+			QAction* addMovement = transformMenu->addAction("Add Movement");
+			connect(addMovement, SIGNAL(triggered()), this, SLOT(AddActionBox()));
+			
+			QAction* followObject = transformMenu->addAction("Follow Object");
+			connect(followObject, SIGNAL(triggered()), this, SLOT(AddFollowObject()));
+
+
+			Button->setMenu(transformMenu);
 		}
 		TransformBox->hide();
 	}
@@ -117,10 +126,10 @@ void PyriteEditor::LoadSelectedObject()
 		}
 		//If Trigger box exists
 		if (TriggerBox != nullptr) {
-			//Hide the trigger box
-			TriggerBox->hide();
 			//Remove all trigger boxes
 			RemoveTriggerBoxes();
+			//Hide the trigger box
+			TriggerBox->hide();
 		}
 		//Set first loop to false
 		oneTimeSelect = false;
@@ -155,6 +164,7 @@ void PyriteEditor::LoadSelectedObject()
 		else {
 			CollisionBox->hide();
 		}
+
 		//If the object has a trigger component
 		if (selectedObject->HasTrigger()) {
 			//Show the trigger box
@@ -164,6 +174,7 @@ void PyriteEditor::LoadSelectedObject()
 		}
 		//Else make sure the trigger box is hidden
 		else {
+			RemoveTriggerBoxes();
 			TriggerBox->hide();
 		}
 	}
@@ -179,6 +190,13 @@ void PyriteEditor::SetObjectProperties(float posX, float posY, float posZ, float
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotY")->setValue(rotY);
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotZ")->setValue(rotZ);
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("Size")->setValue(scale);
+}
+
+void PyriteEditor::ReloadGameObjectDropDowns(QComboBox* comboBox)
+{
+	for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
+		comboBox->addItem(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetObjectName()), i);
+	}
 }
 
 //Set the property box for a selected object by passing in the gameobject
@@ -215,6 +233,7 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 			//remove the boxes from the old game object
 			RemoveActionBoxes();
 			RemoveTriggerBoxes();
+			updateListOnce = false;
 			oneTimeSelect = true;
 			LoadSelectedObject();
 		}
@@ -270,18 +289,37 @@ void PyriteEditor::UpdateComponents()
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
-
+	QComboBox* TransformObject = TransformBox->findChild<QWidget*>("ActionBox")->findChild<QComboBox*>("objectBox");
 	//Get the widgets attached to the transform box
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
 	for (int i = 0; i < widgets.count(); i++) {
-		//Change the action of the transform to user input
-		selectedObject->ChangeTransformAction(i,
-			Action(widgets[i]->findChild<QComboBox*>("ActionDropDown")->currentData().toInt()),
-			widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
-			widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
-			Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
-		);
+		if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
+			//Change the add action of the transform to user input
+			selectedObject->ChangeTransformAction(i,
+				Action(widgets[i]->findChild<QComboBox*>("ActionDropDown")->currentData().toInt()),
+				widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
+				widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
+				Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
+			);
+		}
 	}
+	widgets = TransformBox->findChildren<QWidget*>("FollowBox");
+	for (int i = 0; i < widgets.count(); i++) {
+		if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
+			int currentObjectID = widgets[i]->findChild<QComboBox*>("objectBox")->currentIndex();
+			if (currentObjectID < 0) currentObjectID = 0;
+
+			qDebug() << QString::fromStdString(std::to_string(currentObjectID));
+
+			selectedObject->ChangeTransformFollowAction(i,
+				TransformAxis(widgets[i]->findChild<QComboBox*>("AxisDropDown")->currentData().toInt()),
+				currentObjectID,
+				widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
+				widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value()
+			);
+		}
+	}
+
 	//Find the widgets of the triggerbox
 	QWidgetList trigWidgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	for (int i = 0; i < trigWidgets.count(); i++) {
@@ -303,20 +341,33 @@ void PyriteEditor::UpdateComponents()
 		QComboBox* CollisionTypeBox = CollisionBox->findChild<QComboBox*>("CollisionType");
 		QCheckBox* CollisionCheckBox = CollisionBox->findChild<QCheckBox*>("CollisionCheckBox");
 		if (selectedObject->HasCollision()) {
-				//Update the collision type to user input
+			//Update the collision type to user input
 			selectedObject->ChangeCollisionType(CollisionType(CollisionTypeBox->currentData().toInt()), CollisionCheckBox->isChecked());
 			lastCollisionType = CollisionTypeBox->currentData().toInt();
 		}
+
+		if (!updateListOnce && selectedObject->HasTransform()) {
+			QWidgetList widgets = TransformBox->findChildren<QWidget*>("FollowBox");
+			QComboBox* objectDropDown = TransformBox->findChild<QComboBox*>("objectBox");
+			if (objectDropDown != nullptr) {
+				objectDropDown->clear();
+			}
+			for (int i = 0; i < widgets.size(); i++) {
+				ReloadGameObjectDropDowns(widgets[i]->findChild<QComboBox*>("objectBox"));
+				widgets[i]->findChild<QComboBox*>("objectBox")->setCurrentIndex(selectedObject->GetTransformAction(i).ConnectedObject);
+			}
+			updateListOnce = true;
+		}
+		
 	}
 	else {
 		//Clear the connected object box
 		ConnectedObjectBox->clear();
 		EnteringObjectBox->clear();
 		//Add all objects to connected object drop down box
-		for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
-			ConnectedObjectBox->addItem(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetObjectName()), i);
-			EnteringObjectBox->addItem(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetObjectName()), i);
-		}
+		ReloadGameObjectDropDowns(ConnectedObjectBox);
+		ReloadGameObjectDropDowns(EnteringObjectBox);
+		updateListOnce = false;
 	}
 }
 #pragma endregion
@@ -427,13 +478,110 @@ void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Dir
 		selectedObject->AddTransformAction(Action(actionBox->currentData().toInt()), lineEditBox->text().toStdString(), speedBox->value(), Direction(directionBox->currentData().toInt()));
 	}
 }
+
+void PyriteEditor::AddFollowObject(TransformAxis axis, int selectedObjectID, std::string key, float speed, bool newAction)
+{
+	qDebug() << "SelectedObjectID in AddFollowObject: " + QString::fromStdString(std::to_string(selectedObjectID));
+	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	//Remove the button and store it (Second to last item, ALWAYS)
+	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
+
+	//Add a new Box 
+	QWidget* widget = new QWidget(TransformBox);
+	//Set box name to ActionBox
+	widget->setObjectName("FollowBox");
+	//Create a new layout for the Actionbox
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	//Set the maximum size of the box
+	QSize maximumsize = widget->size();
+
+	//Add a label for the action
+	QLabel* axisLabel = new QLabel();
+	axisLabel->setText("Axis:");
+	layout->addWidget(axisLabel);
+
+	QComboBox* axisBox = new QComboBox();
+	axisBox->setObjectName("AxisDropDown");
+	axisBox->addItem("X", QVariant::fromValue(TransformAxis::X));
+	axisBox->addItem("Y", QVariant::fromValue(TransformAxis::Y));
+	axisBox->addItem("Z", QVariant::fromValue(TransformAxis::Z));
+	axisBox->setCurrentIndex(QVariant::fromValue(axis).toInt());
+	axisBox->adjustSize();
+	//Add to the layout
+	layout->addWidget(axisBox);
+
+	//Create a label for the object 
+	QLabel* objectLabel = new QLabel();
+	objectLabel->setText("Object:");
+	objectLabel->adjustSize();
+	layout->addWidget(objectLabel);
+
+	QComboBox* objectBox = new QComboBox();
+	objectBox->setObjectName("objectBox");
+	layout->addWidget(objectBox);
+
+	QLabel* speedLabel = new QLabel();
+	speedLabel->setText("Speed:");
+	speedLabel->adjustSize();
+	layout->addWidget(speedLabel);
+
+	//Add a double spin box (box for doubles)
+	QDoubleSpinBox* speedBox = new QDoubleSpinBox();
+	speedBox->setObjectName("SpeedBox");
+	speedBox->setSingleStep(0.1);
+	speedBox->setMaximumSize(80, 20);
+	speedBox->setMinimumSize(80, 20);
+	speedBox->setValue(speed);
+	//Add to layout
+	layout->addWidget(speedBox);
+
+	QLabel* keyLabel = new QLabel();
+	keyLabel->setText("Key:");
+	keyLabel->adjustSize();
+	layout->addWidget(keyLabel);
+
+	//Add a line edit box
+	QLineEdit* lineEditBox = new QLineEdit();
+	lineEditBox->setObjectName("KeyBox");
+	lineEditBox->setMaximumSize(80, 20);
+	//Only allow one character to be entered into the box
+	lineEditBox->setMaxLength(1);
+	lineEditBox->setText(QString::fromStdString(key));
+	//Add it to the layour
+	layout->addWidget(lineEditBox);
+
+	widget->setLayout(layout);
+	//Add the action box to the transform box
+	TransformBox->layout()->addWidget(widget);
+	//Readd the button
+	TransformBox->layout()->addItem(Button);
+
+	ReloadGameObjectDropDowns(objectBox);
+	
+
+	if (newAction) {
+		//Create new transform action for component
+		selectedObject->AddTranformFollowAction(TransformAxis(axisBox->currentData().toInt()), objectBox->currentData().toInt(), lineEditBox->text().toStdString(), speedBox->value());
+	}
+	else {
+		objectBox->setCurrentIndex(selectedObjectID);
+	}
+	qDebug() << "Add Follow Object End";
+}
+
 //Reload the action boxes for selected object
 void PyriteEditor::LoadActionBoxes()
 {
 	//loop through the number of actions attached to an object
 	for (int i = 0; i < selectedObject->GetNumberOfActions(); i++) {
 		//Add the box and set values
-		AddActionBox(selectedObject->GetTransformAction(i).action, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, selectedObject->GetTransformAction(i).direction, false);
+		if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
+			AddActionBox(selectedObject->GetTransformAction(i).action, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, selectedObject->GetTransformAction(i).direction, false);
+		}
+		if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
+			qDebug() << "Inside Load ActionBoxes: " + QString::fromStdString(std::to_string(selectedObject->GetTransformAction(i).ConnectedObject));
+			AddFollowObject(selectedObject->GetTransformAction(i).axis, selectedObject->GetTransformAction(i).ConnectedObject, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, false);
+		}
 	}
 }
 //Remove all the Action boxes
@@ -443,6 +591,7 @@ void PyriteEditor::RemoveActionBoxes()
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	//Get a list of attached ActionBoxes
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
+	widgets.append(TransformBox->findChildren<QWidget*>("FollowBox"));
 	//Loop through actionBoxes
 	for (int i = 0; i < widgets.size(); i++) {
 		//Remove the action boxes
@@ -482,6 +631,8 @@ void PyriteEditor::AddTrigger()
 		selectedObject->AddTrigger();
 	}
 }
+
+
 
 //Add the trigger actions to the trigger box
 ///This is functionally the same as the AddTransformAction
@@ -538,6 +689,8 @@ void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, A
 	}
 
 	directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
+	ReloadGameObjectDropDowns(ConnectedObjectBox);
+	ReloadGameObjectDropDowns(EnteringObjectBox);
 	changeBox->setCurrentIndex(id);
 	widget->setLayout(layout);
 	TriggerBox->layout()->addWidget(widget);

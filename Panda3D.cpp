@@ -76,6 +76,13 @@ void Panda3D::RunLoop()
 		CheckObjectCollisions();
 		CheckObjectTriggers();
 		gameObjects[i]->Run(mouseWatcher);
+		if (gameObjects[i]->HasTransform()) {
+			for (int j = 0; j < gameObjects[i]->GetNumberOfActions(); j++) {
+				if (gameObjects[i]->GetTransformAction(j).type == TransformType::Follow) {
+					gameObjects[i]->TransformFollowObject(j, gameObjects[gameObjects[i]->GetTransformAction(j).ConnectedObject], mouseWatcher);
+				}
+			}
+		}
 	}
 }
 
