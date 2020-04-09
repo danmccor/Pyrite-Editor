@@ -67,12 +67,9 @@ void DragAndDrop::ChangeDirectory(std::string dir)
 {
 
 	ProjectDirectory = dir;
-	qDebug() << "Directory Changed";
 
 	this->clear();
-	qDebug() << "List Cleared";
 	LoadFiles();
-	qDebug() << "Files Loaded";
 }
 
 void DragAndDrop::LoadFiles()

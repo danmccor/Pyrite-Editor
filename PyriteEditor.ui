@@ -64,7 +64,7 @@
      </property>
      <addaction name="actionSquare"/>
     </widget>
-    <addaction name="actionAdd_Object"/>
+    <addaction name="actionCamera"/>
     <addaction name="menuAdd_Trigger"/>
    </widget>
    <widget class="QMenu" name="menuView">
@@ -212,7 +212,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>548</width>
+     <width>572</width>
      <height>761</height>
     </size>
    </property>
@@ -248,7 +248,7 @@
         <item>
          <widget class="QGroupBox" name="ObjectProps">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -265,6 +265,12 @@
           <layout class="QGridLayout" name="gridLayout_3">
            <item row="2" column="6">
             <widget class="QDoubleSpinBox" name="RotZ">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <double>-1000000000.000000000000000</double>
              </property>
@@ -278,6 +284,12 @@
            </item>
            <item row="2" column="2">
             <widget class="QDoubleSpinBox" name="RotX">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <double>-1000000000.000000000000000</double>
              </property>
@@ -298,6 +310,12 @@
            </item>
            <item row="2" column="4">
             <widget class="QDoubleSpinBox" name="RotY">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <double>-1000000000.000000000000000</double>
              </property>
@@ -326,7 +344,7 @@
            <item row="3" column="1" alignment="Qt::AlignRight">
             <widget class="QLabel" name="label_10">
              <property name="text">
-              <string>Size:</string>
+              <string>X:</string>
              </property>
             </widget>
            </item>
@@ -346,6 +364,12 @@
            </item>
            <item row="1" column="4">
             <widget class="QDoubleSpinBox" name="PosY">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <double>-1000000000.000000000000000</double>
              </property>
@@ -373,6 +397,12 @@
            </item>
            <item row="1" column="2">
             <widget class="QDoubleSpinBox" name="PosX">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="decimals">
               <number>2</number>
              </property>
@@ -388,7 +418,13 @@
             </widget>
            </item>
            <item row="3" column="2">
-            <widget class="QDoubleSpinBox" name="Size">
+            <widget class="QDoubleSpinBox" name="ScaleX">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <double>-1000000000.000000000000000</double>
              </property>
@@ -409,6 +445,12 @@
            </item>
            <item row="1" column="6">
             <widget class="QDoubleSpinBox" name="PosZ">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="minimum">
               <double>-1000000000.000000000000000</double>
              </property>
@@ -436,8 +478,61 @@
            </item>
            <item row="0" column="2">
             <widget class="QLineEdit" name="ObjectName">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
              <property name="placeholderText">
               <string>ObjectName</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="3" alignment="Qt::AlignRight">
+            <widget class="QLabel" name="label_14">
+             <property name="text">
+              <string>Y:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="4">
+            <widget class="QDoubleSpinBox" name="ScaleY">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="5" alignment="Qt::AlignRight">
+            <widget class="QLabel" name="label_15">
+             <property name="text">
+              <string>Z:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="6">
+            <widget class="QDoubleSpinBox" name="ScaleZ">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="6">
+            <widget class="QPushButton" name="DeleteObject">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Delete Object</string>
+             </property>
+             <property name="checkable">
+              <bool>false</bool>
              </property>
             </widget>
            </item>
@@ -484,6 +579,9 @@
            <string>Collision</string>
           </property>
           <layout class="QGridLayout" name="gridLayout_2">
+           <item row="0" column="1">
+            <widget class="QComboBox" name="CollisionType"/>
+           </item>
            <item row="0" column="0">
             <widget class="QLabel" name="label_11">
              <property name="text">
@@ -491,8 +589,22 @@
              </property>
             </widget>
            </item>
-           <item row="0" column="1">
-            <widget class="QComboBox" name="CollisionType"/>
+           <item row="1" column="0">
+            <widget class="QLabel" name="label_16">
+             <property name="text">
+              <string>Can't Push Objects:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QCheckBox" name="CollisionCheckBox">
+             <property name="text">
+              <string/>
+             </property>
+             <property name="checked">
+              <bool>false</bool>
+             </property>
+            </widget>
            </item>
           </layout>
          </widget>
@@ -504,9 +616,19 @@
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
+            <widget class="QLabel" name="label_17">
+             <property name="text">
+              <string>Entering Object:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="EnteringObject"/>
+           </item>
+           <item>
             <widget class="QLabel" name="label_12">
              <property name="text">
-              <string>Connected Object:</string>
+              <string>Change Object:</string>
              </property>
             </widget>
            </item>
@@ -562,9 +684,9 @@
     <string>Run Program</string>
    </property>
   </action>
-  <action name="actionAdd_Object">
+  <action name="actionCamera">
    <property name="text">
-    <string>Add Object</string>
+    <string>Add Camera</string>
    </property>
   </action>
   <action name="actionSquare">

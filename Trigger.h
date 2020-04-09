@@ -5,6 +5,7 @@ enum class TriggerType {
 };
 class TriggerActions {
 public:
+	int enteringObjectID;
 	int connectedObjectID;
 	int newDirection;
 	int newAction;
@@ -15,10 +16,8 @@ class Trigger : public Components
 {
 public: 
 	Trigger() {};
-	Trigger(NodePath Model, NodePath collider);
-	Trigger(NodePath render, TriggerType trigger);
 	NodePath& GetNodePath();
-	void AddNewAction(int objectID, int direction, int action, int actionID);
+	void AddNewAction(int enterID, int objectID, int direction, int action, int actionID);
 	int GetNumberOfTriggerActions() { return TriggerActionsList.size(); };
 	TriggerActions& GetTriggerAction(int i);
 

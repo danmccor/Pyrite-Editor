@@ -1,5 +1,6 @@
 #pragma once
 #include "GameObject.h"
+#include "GameCamera.h"
 #include "mouseWatcher.h"
 #include "mouseAndKeyboard.h"
 #include "collisionNode.h"
@@ -10,50 +11,62 @@
 #include "mouseButton.h"
 #include "lvector3.h"
 
+
 class Panda3D
 {
+
+//Public Functions
 public:
-	bool init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built = false);
-	void closePanda3D();
-	void runLoop();
-	void CameraMovement();
+	bool Init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built = false);
+
+	void RunLoop();
 	void MouseCollider();
 
-	void AddCollider(NodePath collider);
+	WindowFramework* GetWindow() { return window; };
 
-	void createObject(std::string modelLocation);
+	void CreateObject(std::string modelLocation);
 	GameObject* GetSelectedObject();
-	void CheckObjectCollisions();
-	void CheckObjectTriggers();
+	std::vector<GameObject*> GetVectorOfGameObjects();
+	void AddGameObject(GameObject* object);
+	void RemoveAllGameObjects();
+	void DeleteGameObject(int id);
 
 	void AddWorldTrigger();
+	void AddGameCamera();
 
-	WindowFramework* GetWindow() { return window; };
+	void ClosePanda3D();
+
+//Public Variables
+public:
 	PandaFramework framework;
 
-	std::vector<GameObject> GetVectorOfGameObjects();
-	void addGameObject(GameObject object);
-	void RemoveAllGameObjects();
+//Private Functions
+private:
+	void CheckObjectTriggers();
+	void CheckObjectCollisions();
 
+//Private Variables
 private:
 	WindowFramework* window;
-	WindowProperties properties;
-	std::vector<GameObject> gameObjects;
+	std::vector<GameObject*> gameObjects;
 	
 	NodePath camera;
-
 	PT(MouseWatcher) mouseWatcher;
 	PT(CollisionRay) collisionRay;
+
 	CollisionTraverser cTrav = CollisionTraverser("cTrav");
 	CollisionTraverser cTriggerTrav = CollisionTraverser("cTrigTrav");
+
 	PT(CollisionHandlerQueue) cHandler;
 	PT(CollisionHandlerQueue) cTravHandler;
 	PT(CollisionHandlerPusher) cPusher;
+
 	CollisionNode* collisionRay_Node;
 	NodePath collisionRay_NodePath;
+
 	NodePath yupAxis;
+
 	GameObject* selectedObject;
-	std::string ProjectDirectory;
 
 	bool built = false;
 };

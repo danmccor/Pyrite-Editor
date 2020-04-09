@@ -39,5 +39,5 @@ void AssetToScene::dragLeaveEvent(QDragLeaveEvent* ev)
 
 void AssetToScene::dropEvent(QDropEvent* ev)
 {
-	pandaEngine.createObject(fileName.toStdString());
+	pandaEngine.CreateObject(fileName.toStdString());
 }

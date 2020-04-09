@@ -1,5 +1,7 @@
 #include "Collision.h"
 
+int Collision::i = 0;
+
 Collision::Collision(NodePath* Model)
 {
 	 this->Model = Model;
@@ -11,11 +13,11 @@ Collision::Collision(NodePath* Model)
 	 gameObject_Node = new CollisionNode("CollisionType");
 }
 
-NodePath Collision::SetCollision(CollisionType collision)
+NodePath Collision::SetCollision(CollisionType collision, bool cantPush)
 {
+	CantPushObjects = cantPush;
 	LPoint3 tmp = Model->get_pos();
 	Model->set_pos(0, 0, 0);
-	static int i = 0;
 	std::ostringstream tag;
 	tag << i; 
 	switch (collision) {
@@ -49,13 +51,12 @@ NodePath Collision::SetCollision(CollisionType collision)
 	Model->set_pos(tmp);
 	i++;
 	return gameObject_nodePath;
-
-	
 }
 
 
-NodePath Collision::ChangeCollision(CollisionType collision)
+NodePath Collision::ChangeCollision(CollisionType collision, bool cantPush)
 {
+	CantPushObjects = cantPush;
 	gameObject_Node->clear_solids();
 
 	switch (collision) {
@@ -79,4 +80,9 @@ NodePath Collision::ChangeCollision(CollisionType collision)
 CollisionType Collision::GetCollisionType()
 {
 	return currentCollisionType;
+}
+
+bool Collision::GetCantPushObjects()
+{
+	return CantPushObjects;
 }

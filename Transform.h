@@ -3,6 +3,7 @@
 #include <vector>
 #include "pandaFramework.h"
 #include "pandaSystem.h"
+#include "mouseWatcher.h"
 
 extern ClockObject globalClock;
 
@@ -32,8 +33,8 @@ public:
 	TransformAction& GetAction(int key);
 	int GetNumberOfActions() { return Actions.size(); };
 	//Position is the Current Objects position, Forward is the direction it is currently facing
-	LPoint3 Move(LPoint3 Position, LPoint3 Forward, LPoint3 Up);
-	LPoint3 Rotate(LPoint3 Rotation);
+	LPoint3 Move(LPoint3 Position, LPoint3 Forward, LPoint3 Up, MouseWatcher* mouseWatcher);
+	LPoint3 Rotate(LPoint3 Rotation, MouseWatcher* mouseWatcher);
 
 private:
 	std::vector<TransformAction*> Actions;

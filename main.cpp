@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
 	QWidget* qw = pyriteEditor.findChild<QWidget*>("RenderZone");
 
 	//Initialise Panda3D and show scene
-	pandaEngine.init((size_t)qw->winId(), argc, argv, qw->size().width(), qw->size().height(), qw->pos().x(), qw->pos().y());
+	pandaEngine.Init((size_t)qw->winId(), argc, argv, qw->size().width(), qw->size().height(), qw->pos().x(), qw->pos().y());
 
 	//Create thread
 	Thread* mainloop = Thread::get_current_thread();
@@ -32,14 +32,14 @@ int main(int argc, char* argv[])
 		pyriteEditor.SetObjectProperties(pandaEngine.GetSelectedObject());
 		pyriteEditor.UpdateComponents();
 		if (!pyriteEditor.IsEditing()) {
-			pandaEngine.runLoop();
+			pandaEngine.RunLoop();
 		}
 
 
 		//check if window is still active
 		if (!pyriteEditor.isVisible()) {
 			//close panda3d
-			pandaEngine.closePanda3D();
+			pandaEngine.ClosePanda3D();
 			//quit application
 			a.quit();
 		}

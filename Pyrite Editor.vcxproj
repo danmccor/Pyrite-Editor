@@ -92,6 +92,7 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="Components.cpp" />
     <ClCompile Include="DragAndDrop.cpp" />
+    <ClCompile Include="GameCamera.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Panda3D.cpp" />
@@ -116,6 +117,7 @@
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Components.h" />
     <ClInclude Include="DragAndDrop.h" />
+    <ClInclude Include="GameCamera.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Panda3D.h" />
     <QtMoc Include="SaveManager.h" />

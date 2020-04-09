@@ -20,9 +20,12 @@ class Collision
 {
 public:
 	Collision(NodePath* Model);
-	NodePath SetCollision(CollisionType collision);
-	NodePath ChangeCollision(CollisionType collision);
+	NodePath SetCollision(CollisionType collision, bool cantPush);
+	NodePath ChangeCollision(CollisionType collision, bool cantPush);
 	CollisionType GetCollisionType();
+	bool GetCantPushObjects();
+	static int i;
+
 
 private:
 	CollisionType currentCollisionType;
@@ -33,8 +36,8 @@ private:
 	PT(BoundingSphere) boundingSphere;
 	PT(CollisionSphere) gameObject_SolidSphere;
 	
-
-
+	bool CantPushObjects = false;
+	
 };
 
 

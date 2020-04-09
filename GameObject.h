@@ -13,37 +13,39 @@
 
 class GameObject
 {
+//Public functions
 public:
+	//Object constructors
 	GameObject() {};
 	GameObject(WindowFramework* window, std::string modelLocation);
 	GameObject(WindowFramework* window, TriggerType triggerType);
-
-	static int objectCount;
-
-	int id;
-
+	//Compare object
 	bool operator==(const GameObject& rhs);
 	bool operator!=(const GameObject& rhs);
 
-	void LoadModel(PandaFramework* framework);
-	void LoadTriggerBox();
-	void AttachEditorCollider();
+	//Load the object model
+	virtual void LoadModel(PandaFramework* framework);
 
-	void ChangePosition(float x, float y, float z);
-
+	//Toggle the heighlight around object
 	void ToggleHighlight();
 
+	//Get object nodepaths
 	NodePath& GetTriggerNodePath();
 	NodePath& GetColNodePath();
 	NodePath& GetModelNodePath();
 
+	//Set the objects name
 	void SetObjectName(std::string name);
-	void SetFileLocation(std::string location);
-	void SetPosition(float x, float y, float z);
-	void SetRotation(float x, float y, float z);
-	void SetScale(float scale);
+
+	//Get the object name and file location
 	std::string GetObjectName();
 	std::string GetFileLocation();
+
+	//Manipulate objects positions
+	void ChangePosition(float x, float y, float z);
+	void SetPosition(float x, float y, float z);
+	void SetRotation(float x, float y, float z);
+	void SetScale(float x, float y, float z);
 	float GetPositionX();
 	float GetPositionY();
 	float GetPositionZ();
@@ -51,9 +53,14 @@ public:
 	float GetRotationY();
 	float GetRotationZ();
 	float GetScale();
+	float GetScaleX();
+	float GetScaleY();
+	float GetScaleZ();
 
-	void Run();
+	//Run components
+	void Run(MouseWatcher* mouseWatcher);
 
+	//Transform Component
 	void AddTransform();
 	bool HasTransform();
 	void AddTransformAction(Action action, std::string key, float speed, Direction direction);
@@ -61,24 +68,44 @@ public:
 	TransformAction& GetTransformAction(int id);
 	int GetNumberOfActions() { return transform->GetNumberOfActions(); };
 
+	//Collision component
 	void AddCollision();
 	bool HasCollision();
-	void SetCollisionType(CollisionType type);
+	void SetCollisionType(CollisionType type, bool cantPush);
 	CollisionType GetCollisionType();
-	void ChangeCollisionType(CollisionType type);
+	void ChangeCollisionType(CollisionType type, bool cantPush);
+	bool GetCollisionPushSetting();
 
+	//Trigger component
 	void AddTrigger();
 	void AddTriggerInteractor();
 	bool HasTrigger();
-	void StoreTriggerActions(int gameObjectID, int direction, int action, int actionID);
-	void ChangeTriggerAction(int id, int selectedObjectID, int direction, int action, int actionID);
+	void StoreTriggerActions(int enterID, int gameObjectID, int direction, int action, int actionID);
+	void ChangeTriggerAction(int id, int enterID, int selectedObjectID, int direction, int action, int actionID);
 	int GetNumberOfTriggerActions() { return trigger->GetNumberOfTriggerActions(); };
 	TriggerActions& GetTriggerAction(int i);
-	void RunTrigger();
 
+	//Camera objects
+	bool IsCamera() { return isCamera; };
+	virtual void ActivateCamera();
+
+	//Delete object
 	void Delete();
+	void ResetTag();
 
-private:
+//Public variables
+public: 
+	static int objectCount;
+	int id;
+
+//Protected functions
+protected:
+	void SetFileLocation(std::string location);
+	void LoadTriggerBox();
+	void AttachEditorCollider();
+
+//Protected variables
+protected:
 	std::string ModelLocation;
 	WindowFramework* window = nullptr;
 	NodePath Model;
@@ -87,10 +114,13 @@ private:
 	PandaNode* triggerBox;
 	bool highlighted = false;
 
+
 	NodePath gameObject_nodePath;
 	Transform* transform = nullptr;
 	Collision* collision = nullptr;
 	Trigger* trigger = nullptr;
+
+	bool isCamera = false;
 
 	std::string ObjectName = "";
 };
