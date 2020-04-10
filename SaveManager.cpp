@@ -81,11 +81,15 @@ void SaveManager::Save()
 				QJsonArray ObjectTriggers;
 				for (int j = 0; j < pandaEngine.GetVectorOfGameObjects()[i]->GetNumberOfTriggerActions(); j++) {
 					QJsonObject triggerAction;
+					triggerAction["Type"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).type).toInt();
 					triggerAction["ActionID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).actionID;
 					triggerAction["EnteringObjectID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).enteringObjectID;
 					triggerAction["ConnectedObjectID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).connectedObjectID;
 					triggerAction["newAction"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).newAction;
 					triggerAction["newDirection"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).newDirection;
+					triggerAction["ToPosX"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_x();
+					triggerAction["ToPosY"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_y();
+					triggerAction["ToPosZ"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_z();
 					ObjectTriggers.append(triggerAction);
 				}
 				gameObject["Triggers"] = ObjectTriggers;
@@ -155,11 +159,15 @@ void SaveManager::SaveAs()
 			QJsonArray ObjectTriggers;
 			for (int j = 0; j < pandaEngine.GetVectorOfGameObjects()[i]->GetNumberOfTriggerActions(); j++) {
 				QJsonObject triggerAction;
+				triggerAction["Type"] = QVariant::fromValue(pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).type).toInt();
 				triggerAction["ActionID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).actionID;
 				triggerAction["EnteringObjectID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).enteringObjectID;
 				triggerAction["ConnectedObjectID"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).connectedObjectID;
 				triggerAction["newAction"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).newAction;
 				triggerAction["newDirection"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).newDirection;
+				triggerAction["ToPosX"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_x();
+				triggerAction["ToPosY"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_y();
+				triggerAction["ToPosZ"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_z();
 				ObjectTriggers.append(triggerAction);
 			}
 			gameObject["Triggers"] = ObjectTriggers;
@@ -237,7 +245,12 @@ void SaveManager::Load()
 			QJsonArray TriggerActions = gameObject["Triggers"].toArray();
 			for (int j = 0; j < TriggerActions.size(); j++) {
 				QJsonObject action = TriggerActions[j].toObject();
-				object->StoreTriggerActions(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), action["newDirection"].toInt(), action["newAction"].toInt(), action["ActionID"].toInt());
+				if (action["Type"] == 0 || action["Type"].isNull()) {
+					object->StoreTriggerActions(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), action["newDirection"].toInt(), action["newAction"].toInt(), action["ActionID"].toInt());
+				}
+				if (action["Type"] == 1) {
+					object->StoreTriggerMoveTo(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), LPoint3(action["ToPosX"].toDouble(), action["ToPosY"].toDouble(), action["ToPosZ"].toDouble()));
+				}
 			}
 		}
 		pandaEngine.AddGameObject(object);
@@ -322,7 +335,12 @@ void SaveManager::LoadBuild()
 			QJsonArray TriggerActions = gameObject["Triggers"].toArray();
 			for (int j = 0; j < TriggerActions.size(); j++) {
 				QJsonObject action = TriggerActions[j].toObject();
-				object->StoreTriggerActions(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), action["newDirection"].toInt(), action["newAction"].toInt(), action["ActionID"].toInt());
+				if (action["Type"] == 0 || action["Type"].isNull()) {
+					object->StoreTriggerActions(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), action["newDirection"].toInt(), action["newAction"].toInt(), action["ActionID"].toInt());
+				}
+				if (action["Type"] == 1) {
+					object->StoreTriggerMoveTo(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), LPoint3(action["ToPosX"].toDouble(), action["ToPosY"].toDouble(), action["ToPosZ"].toDouble()));
+				}
 			}
 		}
 		pandaEngine.AddGameObject(object);

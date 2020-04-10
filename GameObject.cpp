@@ -63,8 +63,6 @@ void GameObject::LoadModel(PandaFramework* framework)
 	AddTriggerInteractor();
 }
 
-
-
 //Run the transform component
 void GameObject::Run(MouseWatcher* mouseWatcher)
 {
@@ -75,8 +73,6 @@ void GameObject::Run(MouseWatcher* mouseWatcher)
 		Model.set_hpr(transform->Rotate(Model.get_hpr(), mouseWatcher));
 	}
 }
-
-
 
 
 //Attach collider to the object so the user can select an object
@@ -365,6 +361,10 @@ void GameObject::StoreTriggerActions(int enterID, int gameObjectID, int directio
 {
 	trigger->AddNewAction(enterID, gameObjectID, direction, action, actionID);
 }
+void GameObject::StoreTriggerMoveTo(int enterID, int gameObjectID, LPoint3 newPos)
+{
+	trigger->MoveObjectAction(enterID, gameObjectID, newPos);
+}
 void GameObject::ChangeTriggerAction(int id, int enterID, int selectedObjectID, int direction, int action, int actionID)
 {
 	trigger->GetTriggerAction(id).enteringObjectID = enterID;
@@ -372,6 +372,12 @@ void GameObject::ChangeTriggerAction(int id, int enterID, int selectedObjectID, 
 	trigger->GetTriggerAction(id).newAction = action;
 	trigger->GetTriggerAction(id).newDirection = direction;
 	trigger->GetTriggerAction(id).actionID = actionID;
+}
+void GameObject::ChangeTriggerMoveAction(int id, int enterID, int selectedObjectID, LPoint3 newPos)
+{
+	trigger->GetTriggerAction(id).enteringObjectID = enterID; 
+	trigger->GetTriggerAction(id).connectedObjectID = selectedObjectID;
+	trigger->GetTriggerAction(id).toPos = newPos;
 }
 TriggerActions& GameObject::GetTriggerAction(int i)
 {

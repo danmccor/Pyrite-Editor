@@ -12,6 +12,7 @@
 #include <QtWidgets/qsizepolicy.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qcheckbox.h>
+#include <qsizepolicy.h>
 #include <qjsonobject.h>
 #include <qfiledialog.h>
 
@@ -52,6 +53,8 @@ public slots:
 
 	//Add a trigger action to the trigger component
 	void AddTriggerAction(int id = 0, int enterID = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
+
+	void AddTriggerMoveAction(int enterID = 0, int selectedObjectID = 0, LPoint3 position = (0, 0, 0), bool newAction = true);
 
 	//Turn the editor into run mode
 	void RunGame();

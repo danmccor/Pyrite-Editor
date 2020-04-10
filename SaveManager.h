@@ -46,5 +46,6 @@ private:
 	Q_ENUM(CollisionType);
 	Q_ENUM(TransformType);
 	Q_ENUM(TransformAxis);
+	Q_ENUM(TriggerType);
 };
 

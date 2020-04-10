@@ -110,7 +110,8 @@ void Panda3D::MouseCollider()
 		//Return out of function
 		return;
 	}
-
+	static int clickedObject = 0;
+	static bool mousePressed = false;
 	//Get the mouse position
 	LPoint2 mpos = mouseWatcher->get_mouse();
 	if (!built) {
@@ -119,13 +120,22 @@ void Panda3D::MouseCollider()
 		//Check any collisions with mouse ray
 		cTrav.traverse(window->get_render());
 		//If there is collisions
+		std::string output = "Clicked Object = " + std::to_string(clickedObject) + "\n";
+		OutputDebugStringA(output.c_str());
+
+		if (!mouseWatcher->is_button_down(MouseButton::one())) {
+			mousePressed = false;
+		}
+
 		if (cHandler->get_num_entries() > 0) {
+			if (clickedObject > cHandler->get_num_entries() - 1) { clickedObject = 0; }
 			//Sort the entries
 			cHandler->sort_entries();
 			//Get the tag from the object as an int
-			int i = atoi(cHandler->get_entry(0)->get_into_node()->get_tag("Object").c_str());
+			int i = atoi(cHandler->get_entry(clickedObject)->get_into_node()->get_tag("Object").c_str());
 			//If the left mouse button is pressed
-			if (mouseWatcher->is_button_down(MouseButton::one())) {
+			if (mouseWatcher->is_button_down(MouseButton::one()) && !mousePressed) {
+				mousePressed = true;
 				//If the selected object is not null
 				if (selectedObject != nullptr) {
 					//Toggle the highlight on the object
@@ -133,21 +143,15 @@ void Panda3D::MouseCollider()
 				}
 				//Set selected object to the object with the tag
 				selectedObject = gameObjects[i];
-
-				std::string output = "Crash here 1, Object tag number is: ";
-				output.append(cHandler->get_entry(0)->get_into_node()->get_tag("Object") + "\n");
-				OutputDebugStringA(output.c_str());
-
 				//Toggle the highlight of the object
 				selectedObject->ToggleHighlight();
-
-				output = "Crash here 2 \n";
-				OutputDebugStringA(output.c_str());
-
 				//Set the position of the axis
 				yupAxis.set_pos(selectedObject->GetModelNodePath().get_pos());
 				//Show the axis
 				yupAxis.show();
+				clickedObject++;
+				output = "Clicked Object Increase \n";
+				OutputDebugStringA(output.c_str());
 			}
 		}
 		//if there is no collisions
@@ -347,13 +351,18 @@ void Panda3D::CheckObjectTriggers()
 				TriggerActions triggerActions = gameObjects[i]->GetTriggerAction(j);
 				//Change the connected objects transform action
 				if (e == triggerActions.enteringObjectID) {
-					gameObjects[triggerActions.connectedObjectID]->ChangeTransformAction(
-						triggerActions.actionID,
-						Action(triggerActions.newAction),
-						gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Key,
-						gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Speed,
-						Direction(triggerActions.newDirection)
-					);
+					if (triggerActions.type == TriggerType::Change) {
+						gameObjects[triggerActions.connectedObjectID]->ChangeTransformAction(
+							triggerActions.actionID,
+							Action(triggerActions.newAction),
+							gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Key,
+							gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Speed,
+							Direction(triggerActions.newDirection)
+						);
+					}
+					if (triggerActions.type == TriggerType::MoveTo) {
+						gameObjects[triggerActions.connectedObjectID]->SetPosition(triggerActions.toPos.get_x(), triggerActions.toPos.get_y(), triggerActions.toPos.get_z());
+					}
 				}
 			}
 		}
