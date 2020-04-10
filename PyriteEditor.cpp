@@ -323,6 +323,7 @@ void PyriteEditor::UpdateComponents()
 	//Find the widgets of the triggerbox
 	QWidgetList trigWidgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	for (int i = 0; i < trigWidgets.count(); i++) {
+		qDebug() << "Update Component Trigger Box: " << i << " Current index: " << selectedObject->GetTriggerAction(i).connectedObjectID;
 		//Update the trigger action to user input
 		selectedObject->ChangeTriggerAction(
 			i,
@@ -334,6 +335,7 @@ void PyriteEditor::UpdateComponents()
 		);
 	}
 
+	
 	//If there is a selected object
 	if (selectedObject != nullptr) {
 		//Fin the collision widget 
@@ -356,7 +358,11 @@ void PyriteEditor::UpdateComponents()
 				ReloadGameObjectDropDowns(widgets[i]->findChild<QComboBox*>("objectBox"));
 				widgets[i]->findChild<QComboBox*>("objectBox")->setCurrentIndex(selectedObject->GetTransformAction(i).ConnectedObject);
 			}
+
+			
 			updateListOnce = true;
+
+
 		}
 		
 	}
@@ -638,9 +644,13 @@ void PyriteEditor::AddTrigger()
 ///This is functionally the same as the AddTransformAction
 void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, Action action, Direction direction, bool newAction)
 {
+
+
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[ConnectedObjectBox->currentData().toInt()];
+	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
+
+	qDebug() << "Connect Object: " << ConnectedObjectBox->currentData().toInt();
 
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
 	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[EnteringObjectBox->currentData().toInt()];
@@ -671,31 +681,36 @@ void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, A
 	directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
 	directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
 	layout->addWidget(directionBox);
-
+	qDebug() << "Checking if connected Object has a transform";
 	if (connectedObject->HasTransform()) {
+		qDebug() << "The Object has a transform";
 		for (int i = 0; i < connectedObject->GetNumberOfActions(); i++) {
 			std::ostringstream tag;
 			tag << i + 1;
 			std::string name;
-			if (connectedObject->GetTransformAction(i).action == Action::Move) {
-				name = tag.str() + ". Move";
-				changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Move));
-			}
-			if (connectedObject->GetTransformAction(i).action == Action::Rotate) {
-				name = tag.str() + ". Rotate";
-				changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Rotate));
+			if (connectedObject->GetTransformAction(i).type == TransformType::Add) {
+				if (i == 0) {
+					qDebug() << "Why is the first box not loading GRR";
+				}
+
+				if (connectedObject->GetTransformAction(i).action == Action::Move) {
+					name = tag.str() + ". Move";
+					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Move));
+				}
+				if (connectedObject->GetTransformAction(i).action == Action::Rotate) {
+					name = tag.str() + ". Rotate";
+					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Rotate));
+				}
 			}
 		}
 	}
 
 	directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
-	ReloadGameObjectDropDowns(ConnectedObjectBox);
-	ReloadGameObjectDropDowns(EnteringObjectBox);
 	changeBox->setCurrentIndex(id);
 	widget->setLayout(layout);
 	TriggerBox->layout()->addWidget(widget);
 	if (newAction) {
-		selectedObject->StoreTriggerActions(connectedObject->id, EnteringObject->id, directionBox->currentData().toInt(), changeBox->currentData().toInt(), changeBox->currentIndex());
+		selectedObject->StoreTriggerActions(EnteringObject->id, connectedObject->id, directionBox->currentData().toInt(), changeBox->currentData().toInt(), changeBox->currentIndex());
 	}
 	else {
 		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
@@ -708,6 +723,8 @@ void PyriteEditor::LoadTriggerBoxes()
 {
 	//for all trigger actions the object has, load it to the editor
 	for (int i = 0; i < selectedObject->GetNumberOfTriggerActions(); i++) {
+		qDebug() << "This should run 7 times for the TestPot " << i;
+
 		AddTriggerAction(selectedObject->GetTriggerAction(i).actionID, selectedObject->GetTriggerAction(i).enteringObjectID, selectedObject->GetTriggerAction(i).connectedObjectID, Action(selectedObject->GetTriggerAction(i).newAction), Direction(selectedObject->GetTriggerAction(i).newDirection), false);
 	}
 }

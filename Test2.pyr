@@ -1,0 +1,147 @@
+{
+    "GameObjects": [
+        {
+            "FileLocation": "teapot",
+            "HasCollision": false,
+            "HasTransform": false,
+            "HasTrigger": true,
+            "IsCamera": false,
+            "ObjectID": 0,
+            "ObjectName": "TestPot",
+            "PositionX": 10,
+            "PositionY": 0,
+            "PositionZ": 0,
+            "RotationX": 0,
+            "RotationY": 0,
+            "RotationZ": 0,
+            "ScaleX": 1,
+            "ScaleY": 1,
+            "ScaleZ": 1,
+            "Triggers": [
+                {
+                    "ActionID": 2,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 2,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 4,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 4,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 0,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 4,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 5,
+                    "ConnectedObjectID": 1,
+                    "EnteringObjectID": 1,
+                    "newAction": 0,
+                    "newDirection": 0
+                }
+            ]
+        },
+        {
+            "FileLocation": "box",
+            "HasCollision": false,
+            "HasTransform": true,
+            "HasTrigger": false,
+            "IsCamera": false,
+            "ObjectID": 1,
+            "ObjectName": "box",
+            "PositionX": -10,
+            "PositionY": 0,
+            "PositionZ": 0,
+            "RotationX": 0,
+            "RotationY": 0,
+            "RotationZ": 0,
+            "ScaleX": 1,
+            "ScaleY": 1,
+            "ScaleZ": 1,
+            "Transforms": [
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                }
+            ]
+        }
+    ]
+}

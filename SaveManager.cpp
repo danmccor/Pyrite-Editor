@@ -207,7 +207,7 @@ void SaveManager::Load()
 			}
 		}
 		else {
-			object = new GameObject(pandaEngine.GetWindow(), TriggerType(0));
+			object = new GameObject(pandaEngine.GetWindow(), TriggerShape(0));
 		}
 		object->id = gameObject["ObjectID"].toInt();
 		object->SetObjectName(gameObject["ObjectName"].toString().toStdString());
@@ -292,7 +292,7 @@ void SaveManager::LoadBuild()
 			}
 		}
 		else {
-			object = new GameObject(pandaEngine.GetWindow(), TriggerType(0));
+			object = new GameObject(pandaEngine.GetWindow(), TriggerShape(0));
 		}
 		object->id = gameObject["ObjectID"].toInt();
 		object->SetObjectName(gameObject["ObjectName"].toString().toStdString());

@@ -17,7 +17,7 @@ GameObject::GameObject(WindowFramework* window, std::string modelLocation)
 	objectCount++;
 }
 //Trigger game object construction
-GameObject::GameObject(WindowFramework* window, TriggerType triggerType)
+GameObject::GameObject(WindowFramework* window, TriggerShape triggerShape)
 {
 	//Set id of object
 	id = objectCount;
@@ -71,7 +71,7 @@ void GameObject::Run(MouseWatcher* mouseWatcher)
 	//If the object has a transform
 	if (transform != nullptr) {
 		//Run the transform actions
-		Model.set_pos(transform->Move(Model.get_pos(), Model.get_net_transform()->get_mat().get_row3(1), Model.get_net_transform()->get_mat().get_row3(2), mouseWatcher));
+		Model.set_fluid_pos(transform->Move(Model.get_pos(), Model.get_net_transform()->get_mat().get_row3(1), Model.get_net_transform()->get_mat().get_row3(2), mouseWatcher));
 		Model.set_hpr(transform->Rotate(Model.get_hpr(), mouseWatcher));
 	}
 }
@@ -108,7 +108,7 @@ void GameObject::Delete()
 		TriggerNodePath.remove_node();
 	}
 	if (HasCollision()) {
-		collision->i;
+		collision->i--;
 		CollisionNodePath.remove_node();
 	}
 	//Remove the model
@@ -146,7 +146,7 @@ void GameObject::ToggleHighlight()
 //Set positions, rotation and scale
 void GameObject::SetPosition(float x, float y, float z)
 {
-	Model.set_fluid_pos(x, y, z);
+	Model.set_pos(x, y, z);
 }
 void GameObject::SetRotation(float x, float y, float z)
 {

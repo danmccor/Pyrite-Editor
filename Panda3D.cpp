@@ -32,7 +32,6 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 	cHandler = new CollisionHandlerQueue();
 	cTravHandler = new CollisionHandlerQueue();
 	cPusher = new CollisionHandlerPusher();
-
 	//If this is the editor version
 	if (!built) {
 		//Get the camera
@@ -73,12 +72,19 @@ void Panda3D::RunLoop()
 {
 	//Loop through gameobjects and run their components
 	for (int i = 0; i < gameObjects.size(); i++) {
+		
 		CheckObjectCollisions();
+
 		CheckObjectTriggers();
+
 		gameObjects[i]->Run(mouseWatcher);
+
 		if (gameObjects[i]->HasTransform()) {
+
 			for (int j = 0; j < gameObjects[i]->GetNumberOfActions(); j++) {
+
 				if (gameObjects[i]->GetTransformAction(j).type == TransformType::Follow) {
+
 					gameObjects[i]->TransformFollowObject(j, gameObjects[gameObjects[i]->GetTransformAction(j).ConnectedObject], mouseWatcher);
 				}
 			}
@@ -127,8 +133,17 @@ void Panda3D::MouseCollider()
 				}
 				//Set selected object to the object with the tag
 				selectedObject = gameObjects[i];
+
+				std::string output = "Crash here 1, Object tag number is: ";
+				output.append(cHandler->get_entry(0)->get_into_node()->get_tag("Object") + "\n");
+				OutputDebugStringA(output.c_str());
+
 				//Toggle the highlight of the object
 				selectedObject->ToggleHighlight();
+
+				output = "Crash here 2 \n";
+				OutputDebugStringA(output.c_str());
+
 				//Set the position of the axis
 				yupAxis.set_pos(selectedObject->GetModelNodePath().get_pos());
 				//Show the axis
@@ -241,7 +256,6 @@ void Panda3D::RemoveAllGameObjects()
 	//Loop through the game objects vector
 	for (int i = 0; i < gameObjects.size(); i++) {
 		//Set the static int, objectcount, to 0
-		gameObjects[i]->objectCount = 0;
 		//delete all game objects
 		gameObjects[i]->Delete();
 	}
@@ -295,6 +309,7 @@ void Panda3D::CheckObjectCollisions()
 					cTrav.add_collider(gameObjects[i]->GetColNodePath(), cPusher);
 				}
 			}
+
 		}
 		//Set first loop to false
 		firstLoop = false;
@@ -322,21 +337,24 @@ void Panda3D::CheckObjectTriggers()
 	//if there are collisions
 	if (cTravHandler->get_num_entries() > 0) {
 		//Get the object tag of trigger interaction
-		int i = atoi(cTravHandler->get_entry(0)->get_from_node()->get_tag("TriggerBox").c_str());
-		int e = atoi(cTravHandler->get_entry(0)->get_into_node()->get_tag("TriggerBox").c_str());
-		//Run through the colliders trigger actions
-		for (int j = 0; j < gameObjects[i]->GetNumberOfTriggerActions(); j++) {
-			//Get the trigger action
-			TriggerActions triggerActions = gameObjects[i]->GetTriggerAction(j);
-			//Change the connected objects transform action
-			if (e == triggerActions.enteringObjectID) {
-				gameObjects[triggerActions.connectedObjectID]->ChangeTransformAction(
-					triggerActions.actionID,
-					Action(triggerActions.newAction),
-					gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Key,
-					gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Speed,
-					Direction(triggerActions.newDirection)
-				);
+		//LOOP THROUGH ENTRIES, NEED TO CHECK ALL INTERACTIONS
+		for (int o = 0; o < cTravHandler->get_num_entries(); o++) {
+			int i = atoi(cTravHandler->get_entry(o)->get_from_node()->get_tag("TriggerBox").c_str());
+			int e = atoi(cTravHandler->get_entry(o)->get_into_node()->get_tag("TriggerBox").c_str());
+			//Run through the colliders trigger actions
+			for (int j = 0; j < gameObjects[i]->GetNumberOfTriggerActions(); j++) {
+				//Get the trigger action
+				TriggerActions triggerActions = gameObjects[i]->GetTriggerAction(j);
+				//Change the connected objects transform action
+				if (e == triggerActions.enteringObjectID) {
+					gameObjects[triggerActions.connectedObjectID]->ChangeTransformAction(
+						triggerActions.actionID,
+						Action(triggerActions.newAction),
+						gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Key,
+						gameObjects[triggerActions.connectedObjectID]->GetTransformAction(triggerActions.actionID).Speed,
+						Direction(triggerActions.newDirection)
+					);
+				}
 			}
 		}
 	}
@@ -348,7 +366,7 @@ void Panda3D::CheckObjectTriggers()
 void Panda3D::AddWorldTrigger()
 {
 	//Create new game object as trigger
-	GameObject* triggerBox = new GameObject(window, TriggerType::Box);
+	GameObject* triggerBox = new GameObject(window, TriggerShape::Box);
 	//Add the gameobject to the vector of gameobjects
 	gameObjects.push_back(triggerBox);
 }

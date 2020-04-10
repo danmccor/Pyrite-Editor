@@ -1,7 +1,12 @@
 #pragma once
 #include "Components.h"
+
 enum class TriggerType {
-	Box = 1, Sphere = 2
+	Change = 0, MoveTo = 1
+};
+
+enum class TriggerShape {
+	Box = 0, Sphere = 1
 };
 class TriggerActions {
 public:

@@ -4,11 +4,11 @@
             "FileLocation": "teapot",
             "HasCollision": false,
             "HasTransform": true,
-            "HasTrigger": false,
+            "HasTrigger": true,
             "IsCamera": false,
             "ObjectID": 0,
             "ObjectName": "teapot",
-            "PositionX": 10,
+            "PositionX": 0,
             "PositionY": 0,
             "PositionZ": 0,
             "RotationX": 0,
@@ -21,85 +21,72 @@
                 {
                     "Action": 0,
                     "Axis": 0,
-                    "ConnectedID": 4,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
                     "Direction": 0,
                     "Key": "",
                     "Speed": 0,
                     "Type": 1
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                },
+                {
+                    "Action": 0,
+                    "Axis": 0,
+                    "ConnectedID": 0,
+                    "Direction": 0,
+                    "Key": "",
+                    "Speed": 0,
+                    "Type": 0
+                }
+            ],
+            "Triggers": [
+                {
+                    "ActionID": 2,
+                    "ConnectedObjectID": 0,
+                    "EnteringObjectID": 0,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 1,
+                    "ConnectedObjectID": 0,
+                    "EnteringObjectID": 0,
+                    "newAction": 0,
+                    "newDirection": 0
+                },
+                {
+                    "ActionID": 1,
+                    "ConnectedObjectID": 0,
+                    "EnteringObjectID": 0,
+                    "newAction": 0,
+                    "newDirection": 0
                 }
             ]
-        },
-        {
-            "FileLocation": "box",
-            "HasCollision": false,
-            "HasTransform": false,
-            "HasTrigger": false,
-            "IsCamera": false,
-            "ObjectID": 1,
-            "ObjectName": "box",
-            "PositionX": 0,
-            "PositionY": 0,
-            "PositionZ": 0,
-            "RotationX": 0,
-            "RotationY": 0,
-            "RotationZ": 0,
-            "ScaleX": 1,
-            "ScaleY": 1,
-            "ScaleZ": 1
-        },
-        {
-            "FileLocation": "box",
-            "HasCollision": false,
-            "HasTransform": false,
-            "HasTrigger": false,
-            "IsCamera": false,
-            "ObjectID": 2,
-            "ObjectName": "box",
-            "PositionX": 0,
-            "PositionY": 0,
-            "PositionZ": 0,
-            "RotationX": 0,
-            "RotationY": 0,
-            "RotationZ": 0,
-            "ScaleX": 1,
-            "ScaleY": 1,
-            "ScaleZ": 1
-        },
-        {
-            "FileLocation": "box",
-            "HasCollision": false,
-            "HasTransform": false,
-            "HasTrigger": false,
-            "IsCamera": false,
-            "ObjectID": 3,
-            "ObjectName": "box",
-            "PositionX": 0,
-            "PositionY": 0,
-            "PositionZ": 0,
-            "RotationX": 0,
-            "RotationY": 0,
-            "RotationZ": 0,
-            "ScaleX": 1,
-            "ScaleY": 1,
-            "ScaleZ": 1
-        },
-        {
-            "FileLocation": "box",
-            "HasCollision": false,
-            "HasTransform": false,
-            "HasTrigger": false,
-            "IsCamera": false,
-            "ObjectID": 4,
-            "ObjectName": "box",
-            "PositionX": 0,
-            "PositionY": 0,
-            "PositionZ": 0,
-            "RotationX": 0,
-            "RotationY": 0,
-            "RotationZ": 0,
-            "ScaleX": 1,
-            "ScaleY": 1,
-            "ScaleZ": 1
         }
     ]
 }

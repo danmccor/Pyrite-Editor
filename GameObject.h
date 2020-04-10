@@ -18,7 +18,7 @@ public:
 	//Object constructors
 	GameObject() {};
 	GameObject(WindowFramework* window, std::string modelLocation);
-	GameObject(WindowFramework* window, TriggerType triggerType);
+	GameObject(WindowFramework* window, TriggerShape triggerShape);
 	//Compare object
 	bool operator==(const GameObject& rhs);
 	bool operator!=(const GameObject& rhs);
