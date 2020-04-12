@@ -342,6 +342,10 @@ void SaveManager::LoadBuild()
 					object->StoreTriggerMoveTo(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), LPoint3(action["ToPosX"].toDouble(), action["ToPosY"].toDouble(), action["ToPosZ"].toDouble()));
 				}
 			}
+			if (gameObject["IsCamera"].toBool()) {
+				object->ActivateCamera();
+				pandaEngine.AttachCamera(object);
+			}
 		}
 		pandaEngine.AddGameObject(object);
 		pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerNodePath().hide();

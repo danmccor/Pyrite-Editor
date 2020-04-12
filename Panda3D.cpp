@@ -318,6 +318,7 @@ void Panda3D::CheckObjectCollisions()
 		//Set first loop to false
 		firstLoop = false;
 	}
+	cTrav.traverse(window->get_render());
 }
 
 //Check the trigger objects
@@ -391,4 +392,8 @@ void Panda3D::AddGameCamera()
 	gameObjects.push_back(camera);
 }
 
+void Panda3D::AttachCamera(GameObject* camera)
+{
+	this->camera = camera->GetCameraNodePath();
+}
 #pragma endregion

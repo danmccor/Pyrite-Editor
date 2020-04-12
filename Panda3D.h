@@ -33,6 +33,7 @@ public:
 
 	void AddWorldTrigger();
 	void AddGameCamera();
+	void AttachCamera(GameObject* camera);
 
 	void ClosePanda3D();
 

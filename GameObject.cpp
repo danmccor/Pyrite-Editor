@@ -92,9 +92,14 @@ void GameObject::AttachEditorCollider()
 //Activate the object camera
 void GameObject::ActivateCamera()
 {
-	//This is for the camera game object class
 	std::string output = "This is not a camera! \n";
 }
+
+NodePath& GameObject::GetCameraNodePath()
+{
+	std::string output = "This is not a camera! \n";
+}
+
 //Delete game Objects
 void GameObject::Delete()
 {

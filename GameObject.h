@@ -93,6 +93,7 @@ public:
 	//Camera objects
 	bool IsCamera() { return isCamera; };
 	virtual void ActivateCamera();
+	virtual NodePath& GetCameraNodePath();
 
 	//Delete object
 	void Delete();
