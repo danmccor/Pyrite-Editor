@@ -10,7 +10,7 @@
 #include "notifyCategory.h"
 #include "mouseButton.h"
 #include "lvector3.h"
-
+#include "audioManager.h"
 
 class Panda3D
 {
@@ -18,6 +18,9 @@ class Panda3D
 //Public Functions
 public:
 	bool Init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built = false);
+
+	void SetFirstScene(std::string scene);
+	std::string GetFirstScene() { return firstScene; };
 
 	void RunLoop();
 	void MouseCollider();
@@ -35,11 +38,14 @@ public:
 	void AddGameCamera();
 	void AttachCamera(GameObject* camera);
 
+	void SetMusic(std::string musicLocation);
 	void ClosePanda3D();
 
 //Public Variables
 public:
 	PandaFramework framework;
+	bool readyToLoadScene = false;
+	std::string SceneToLoad = "";
 
 //Private Functions
 private:
@@ -62,12 +68,19 @@ private:
 	PT(CollisionHandlerQueue) cTravHandler;
 	PT(CollisionHandlerPusher) cPusher;
 
+	PT(AudioManager) audioManager;
+	PT(AudioSound) music;
+	std::string musicLocation;
+
 	CollisionNode* collisionRay_Node;
 	NodePath collisionRay_NodePath;
 
 	NodePath yupAxis;
 
 	GameObject* selectedObject;
+
+	std::string firstScene = "";
+
 
 	bool built = false;
 };

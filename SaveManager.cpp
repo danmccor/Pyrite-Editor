@@ -5,13 +5,54 @@ SaveManager::SaveManager(QWidget* main)
 	mainWindow = main;
 }
 
+void SaveManager::NewProject()
+{
+	QFile saveFile(QFileDialog::getSaveFileName(mainWindow, "Create New Project", "", "Pyrite Project (*.pyrject)"));
+	QUrl projectDirectory = saveFile.fileName();
+	if (!saveFile.open(QIODevice::WriteOnly)) {
+		qWarning("Couldn't open save file.");
+		return;
+	}
+	ProjectName = projectDirectory.fileName().toStdString();
+	ProjectDirectory = projectDirectory.url(QUrl::RemoveFilename).toStdString();
+
+}
+
+void SaveManager::LoadProject()
+{
+	QString fileName = QFileDialog::getOpenFileName(mainWindow, "Open Project", "", "Pyrite Project (*.pyrject)");
+	QFile loadFile(fileName);
+	if (!loadFile.open(QIODevice::ReadOnly)) {
+		qWarning("Couldn't open Load File.");
+		return;
+	}
+
+	QUrl projectDirectory = loadFile.fileName();
+	ProjectDirectory = projectDirectory.url(QUrl::RemoveFilename).toStdString();
+	ProjectName = projectDirectory.fileName().toStdString();
+	QByteArray data = loadFile.readAll();
+	QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+	Load(ProjectDirectory + loadDoc["FirstScene"].toString().toStdString());
+
+}
+
+void SaveManager::SaveProject()
+{
+	if (ProjectName != "") {
+		QFile saveFile(QString::fromStdString(ProjectDirectory + ProjectName));
+		saveFile.open(QIODevice::WriteOnly);
+		QJsonObject ProjectSettings;
+		ProjectSettings["FirstScene"] = QString::fromStdString(pandaEngine.GetFirstScene());
+		QJsonDocument save(ProjectSettings);
+		saveFile.write(save.toJson());
+	}
+}
+
 void SaveManager::New()
 {
 	//Create a new save file
-	QFile saveFile(QFileDialog::getSaveFileName(mainWindow, "Create New Project", "", "Pyrite Project (*.pyr)"));
+	QFile saveFile(QFileDialog::getSaveFileName(mainWindow, "Create New Scene", "", "Pyrite Scene (*.pyr)"));
 	QUrl projectDirectory = saveFile.fileName();
-	ProjectName = projectDirectory.fileName().toStdString();
-	ProjectDirectory = projectDirectory.url(QUrl::RemoveFilename).toStdString();
 	if (!saveFile.open(QIODevice::WriteOnly)) {
 		qWarning("Couldn't open save file.");
 	}
@@ -20,11 +61,12 @@ void SaveManager::New()
 void SaveManager::Save()
 {
 	//if the project directory is not null
-	if (ProjectDirectory != "") {
+	if (OpenScene != "") {
 		//Create the save file
-		QFile saveFile(QString::fromStdString(ProjectDirectory + ProjectName));
+		QFile saveFile(QString::fromStdString(ProjectDirectory + OpenScene));
 		//Open the save file as write only
 		saveFile.open(QIODevice::WriteOnly);
+		
 		//Create a JSON array
 		QJsonArray GameObjectArray;
 		//Loop through all game objects
@@ -103,6 +145,7 @@ void SaveManager::Save()
 		QJsonDocument saveDoc(ProjectSave);
 		//Write to the file
 		saveFile.write(saveDoc.toJson());
+		SaveProject();
 	}
 	//If the project directory is empty
 	else {
@@ -175,25 +218,31 @@ void SaveManager::SaveAs()
 		GameObjectArray.append(gameObject);
 	}
 	ProjectSave["GameObjects"] = GameObjectArray;
-	QFile saveFile(QFileDialog::getSaveFileName(mainWindow, "Save Project", "", "Pyrite Project (*.pyr)"));
+	QFile saveFile(QFileDialog::getSaveFileName(mainWindow, "Save Project", "", "Pyrite Scene (*.pyr)"));
 	if (!saveFile.open(QIODevice::WriteOnly)) {
 		qWarning("Couldn't open save file.");
 	}
 
 	QJsonDocument saveDoc(ProjectSave);
 	saveFile.write(saveDoc.toJson());
+	SaveProject();
 }
 
-void SaveManager::Load()
+void SaveManager::Load(std::string firstScene)
 {
+	QString fileName;
 	//Reverse engineer the save function
-	QString fileName = QFileDialog::getOpenFileName(mainWindow, "Open Project", "", "Pyrite Project (*.pyr)");
+	if (firstScene == "") {
+		fileName = QFileDialog::getOpenFileName(mainWindow, "Open Scene", "", "Pyrite Scene (*.pyr)");
+	}
+	else {
+		fileName = QString::fromStdString(firstScene);
+	}
 	QFile loadFile(fileName);
 	QUrl projectDirectory = loadFile.fileName();
 	ProjectDirectory = projectDirectory.url(QUrl::RemoveFilename).toStdString();
-	ProjectName = projectDirectory.fileName().toStdString();
-
-
+	OpenScene = projectDirectory.fileName().toStdString();
+	
 	if (!loadFile.open(QIODevice::ReadOnly)) {
 		qWarning("Couldn't Open File");
 	}
@@ -257,6 +306,8 @@ void SaveManager::Load()
 	}
 }
 
+
+
 void SaveManager::CreateBuild()
 {
 	QDir* dir = new QDir(QCoreApplication::applicationDirPath() + "/compiler/");
@@ -278,11 +329,21 @@ void SaveManager::CreateBuild()
 
 void SaveManager::LoadBuild()
 {
-	QStringList filter("*.pyr");
-	QDir directory("");
-	QStringList filelist = directory.entryList(filter);
+	QString fileName = QFileDialog::getOpenFileName(mainWindow, "Open Project", "", "Pyrite Project (*.pyrject)");
+	QFile loadFile(fileName);
+	QUrl projectDirectory = loadFile.fileName();
+	ProjectDirectory = projectDirectory.url(QUrl::RemoveFilename).toStdString();
+	ProjectName = projectDirectory.fileName().toStdString();
 
-	QFile loadFile(filelist.first());
+	QByteArray data = loadFile.readAll();
+	QJsonDocument loadDoc(QJsonDocument::fromJson(data));
+	QJsonObject ProjectSettings = loadDoc["ProjectSettings"].toObject();
+	LoadBuildScene(ProjectSettings["FirstScene"].toString().toStdString());
+}
+
+void SaveManager::LoadBuildScene(std::string sceneName)
+{
+	QFile loadFile(QString::fromStdString(sceneName));
 	if (!loadFile.open(QIODevice::ReadOnly)) {
 		qWarning("Couldn't Open File");
 	}
@@ -347,11 +408,12 @@ void SaveManager::LoadBuild()
 				pandaEngine.AttachCamera(object);
 			}
 		}
+		//load_prc_file_data("model-path", ProjectDirectory);
+
 		pandaEngine.AddGameObject(object);
 		pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerNodePath().hide();
 		pandaEngine.GetVectorOfGameObjects()[i]->GetColNodePath().hide();
 	}
-
 }
 
 std::string SaveManager::GetProjectDirectory()

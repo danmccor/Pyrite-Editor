@@ -30,6 +30,14 @@ void Trigger::MoveObjectAction(int enterID, int objectID, LPoint3 pos)
 	TriggerActionsList.push_back(triggerAction);
 }
 
+void Trigger::SetChangeScene(int enterID, std::string newScene)
+{
+	TriggerActions triggerAction;
+	triggerAction.type = TriggerType::Scene;
+	triggerAction.enteringObjectID = enterID;
+	triggerAction.newScene = newScene;
+}
+
 TriggerActions& Trigger::GetTriggerAction(int i)
 {
 	if (i >= 0 && i < TriggerActionsList.size()) {

@@ -9,7 +9,6 @@
 #include <qdebug.h>
 #include <qmessagebox.h>
 #include <qthread.h>
-
 #include "Panda3D.h"
 
 extern Panda3D pandaEngine;
@@ -21,15 +20,19 @@ class SaveManager : QObject
 public:
 	SaveManager(QWidget* main);
 
+	void NewProject();
+	void LoadProject();
+	void SaveProject();
+
 	void New();
 	void Save();
 	void SaveAs();
-	void Load();
+	void Load(std::string firstScene = "");
 
 	void CreateBuild();
 
 	void LoadBuild();
-
+	void LoadBuildScene(std::string sceneName);
 	
 	std::string GetProjectDirectory();
 	std::string GetProjectName();
@@ -40,6 +43,8 @@ private:
 	QJsonObject ProjectSave;
 	std::string ProjectDirectory = "";
 	std::string ProjectName = "";
+
+	std::string OpenScene = "";
 
 	Q_ENUM(Direction);
 	Q_ENUM(Action);

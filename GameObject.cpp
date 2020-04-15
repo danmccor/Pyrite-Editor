@@ -370,6 +370,10 @@ void GameObject::StoreTriggerMoveTo(int enterID, int gameObjectID, LPoint3 newPo
 {
 	trigger->MoveObjectAction(enterID, gameObjectID, newPos);
 }
+void GameObject::StoreTriggerScene(int enterID, std::string sceneName)
+{
+	trigger->SetChangeScene(enterID, sceneName);
+}
 void GameObject::ChangeTriggerAction(int id, int enterID, int selectedObjectID, int direction, int action, int actionID)
 {
 	trigger->GetTriggerAction(id).enteringObjectID = enterID;
@@ -383,6 +387,11 @@ void GameObject::ChangeTriggerMoveAction(int id, int enterID, int selectedObject
 	trigger->GetTriggerAction(id).enteringObjectID = enterID; 
 	trigger->GetTriggerAction(id).connectedObjectID = selectedObjectID;
 	trigger->GetTriggerAction(id).toPos = newPos;
+}
+void GameObject::ChangeTriggerScene(int id, int enterID, std::string sceneName)
+{
+	trigger->GetTriggerAction(id).enteringObjectID = enterID;
+	trigger->GetTriggerAction(id).newScene = sceneName;
 }
 TriggerActions& GameObject::GetTriggerAction(int i)
 {

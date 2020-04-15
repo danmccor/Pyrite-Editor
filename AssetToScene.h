@@ -15,9 +15,13 @@ public:
 	void dragMoveEvent(QDragMoveEvent* ev);
 	void dragLeaveEvent(QDragLeaveEvent* ev);
 	void dropEvent(QDropEvent* ev);
+	void ChangeDirectory(std::string directory);
 
 private:
 	QDockWidget* dockWidget;
 	QString fileName;
+	QString suffix;
+
+	std::string ProjectDirectory = "";
 };
 

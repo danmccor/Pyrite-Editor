@@ -49,7 +49,6 @@ void DragAndDrop::dropEvent(QDropEvent* ev)
 		else {
 			items.takeFirst();
 		}
-
 	}
 }
 

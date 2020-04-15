@@ -12,6 +12,7 @@
 #include <QtWidgets/qsizepolicy.h>
 #include <QtWidgets/qcombobox.h>
 #include <QtWidgets/qcheckbox.h>
+#include <QtWidgets/qradiobutton.h>
 #include <qsizepolicy.h>
 #include <qjsonobject.h>
 #include <qfiledialog.h>
@@ -53,8 +54,8 @@ public slots:
 
 	//Add a trigger action to the trigger component
 	void AddTriggerAction(int id = 0, int enterID = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
-
 	void AddTriggerMoveAction(int enterID = 0, int selectedObjectID = 0, LPoint3 position = (0, 0, 0), bool newAction = true);
+	void AddTriggerChangeScene(int enterID = 0, int selectedObjectID = 0, std::string newScene = "", bool newAction = true);
 
 	//Turn the editor into run mode
 	void RunGame();
@@ -65,12 +66,18 @@ public slots:
 
 	void DeleteObject();
 
+	void LaunchBuildWindow();
+
 	//Add a transform to the selected object
 	void AddTransform();
 	//Add collision to the selected object
 	void AddCollision();
 	//Add a trigger to the selected object
 	void AddTrigger();
+
+
+	void NewProject();
+	void LoadProject();
 
 	//Create a new project
 	void New();
@@ -125,6 +132,8 @@ private:
 	std::string ProjectName = "";
 	//The save manager which saves and loads the project. 
 	SaveManager* saveManager = nullptr;
+
+	QWidget* newWindow = nullptr;
 
 	bool updateListOnce = false;
 };

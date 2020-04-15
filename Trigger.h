@@ -2,7 +2,7 @@
 #include "Components.h"
 
 enum class TriggerType {
-	Change = 0, MoveTo = 1
+	Change = 0, MoveTo = 1, Scene = 2
 };
 
 enum class TriggerShape {
@@ -13,6 +13,7 @@ public:
 	TriggerType type;
 	int enteringObjectID;
 	int connectedObjectID;
+	std::string newScene;
 	int newDirection;
 	int newAction;
 	int actionID;
@@ -27,6 +28,9 @@ public:
 	void AddNewAction(int enterID, int objectID, int direction, int action, int actionID);
 
 	void MoveObjectAction(int enterID, int objectID, LPoint3 pos);
+
+	void SetChangeScene(int enterID, std::string newScene);
+	void ChangeScene();
 
 	int GetNumberOfTriggerActions() { return TriggerActionsList.size(); };
 	TriggerActions& GetTriggerAction(int i);

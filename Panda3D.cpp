@@ -32,6 +32,8 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 	cHandler = new CollisionHandlerQueue();
 	cTravHandler = new CollisionHandlerQueue();
 	cPusher = new CollisionHandlerPusher();
+	audioManager = AudioManager::create_AudioManager();
+
 	//If this is the editor version
 	if (!built) {
 		//Get the camera
@@ -57,6 +59,13 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 	return true;
 }
 
+void Panda3D::SetFirstScene(std::string scene)
+{
+	std::string output = "first scene is: " + scene + "\n";
+	OutputDebugStringA(output.c_str());
+	firstScene = scene;
+}
+
 //Shut down panda3d
 void Panda3D::ClosePanda3D()
 {
@@ -70,9 +79,24 @@ void Panda3D::ClosePanda3D()
 //Run the panda3d loop
 void Panda3D::RunLoop()
 {
+	if (music != nullptr) {
+		if (music->status() == AudioSound::SoundStatus::READY) {
+			music->play();
+		}
+		if (music->status() == AudioSound::SoundStatus::BAD) {
+			std::string output = "Music is bad! \n";
+			OutputDebugStringA(output.c_str());
+		}
+	}
+	else {
+		std::string output = "Music is null \n";
+		OutputDebugStringA(output.c_str());
+	}
 	//Loop through gameobjects and run their components
 	for (int i = 0; i < gameObjects.size(); i++) {
-		
+		if (audioManager != nullptr) {
+			audioManager->update();
+		}
 		CheckObjectCollisions();
 
 		CheckObjectTriggers();
@@ -120,8 +144,7 @@ void Panda3D::MouseCollider()
 		//Check any collisions with mouse ray
 		cTrav.traverse(window->get_render());
 		//If there is collisions
-		std::string output = "Clicked Object = " + std::to_string(clickedObject) + "\n";
-		OutputDebugStringA(output.c_str());
+
 
 		if (!mouseWatcher->is_button_down(MouseButton::one())) {
 			mousePressed = false;
@@ -150,8 +173,6 @@ void Panda3D::MouseCollider()
 				//Show the axis
 				yupAxis.show();
 				clickedObject++;
-				output = "Clicked Object Increase \n";
-				OutputDebugStringA(output.c_str());
 			}
 		}
 		//if there is no collisions
@@ -364,6 +385,9 @@ void Panda3D::CheckObjectTriggers()
 					if (triggerActions.type == TriggerType::MoveTo) {
 						gameObjects[triggerActions.connectedObjectID]->SetPosition(triggerActions.toPos.get_x(), triggerActions.toPos.get_y(), triggerActions.toPos.get_z());
 					}
+					if (triggerActions.type == TriggerType::Scene) {
+						
+					}
 				}
 			}
 		}
@@ -395,5 +419,14 @@ void Panda3D::AddGameCamera()
 void Panda3D::AttachCamera(GameObject* camera)
 {
 	this->camera = camera->GetCameraNodePath();
+}
+
+void Panda3D::SetMusic(std::string musicLocation)
+{
+	/*CString path(musicLocation.c_str());
+	path.Truncate(path.ReverseFind('//'));
+	std::string filePath = path.GetString();*/
+	this->musicLocation = musicLocation;
+	music = audioManager->get_sound(musicLocation);
 }
 #pragma endregion

@@ -14,7 +14,6 @@ int main(int argc, char* argv[])
 	PyriteEditor pyriteEditor;
 	//show window
 	pyriteEditor.show();
-
 	//Find scene widget
 	QWidget* qw = pyriteEditor.findChild<QWidget*>("RenderZone");
 

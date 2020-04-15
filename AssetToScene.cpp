@@ -21,7 +21,11 @@ void AssetToScene::dragEnterEvent(QDragEnterEvent* ev)
 		QString filename = name.join("");
 		QFileInfo file(filename);
 		fileName = file.baseName();
-		if (file.suffix() == "egg" || file.suffix() == "pz") {
+		if (file.suffix() == "egg" || file.suffix() == "pz" || file.suffix() == "mp3" || file.suffix() == "wav") {
+			suffix = file.suffix();
+			if (suffix == "pz") {
+				suffix = "egg.pz";
+			}
 			ev->acceptProposedAction();
 		}
 	}
@@ -39,5 +43,21 @@ void AssetToScene::dragLeaveEvent(QDragLeaveEvent* ev)
 
 void AssetToScene::dropEvent(QDropEvent* ev)
 {
-	pandaEngine.CreateObject(fileName.toStdString());
+	std::string file = ProjectDirectory + "Assets/" + fileName.toStdString() + "." + suffix.toStdString();
+	Filename pandafile = Filename::from_os_specific(file);
+
+
+	if (suffix == "egg" || suffix == "egg.pz") {
+		pandaEngine.CreateObject(pandafile);
+		OutputDebugStringA(pandafile.c_str());
+	}
+	else if (suffix == "mp3" || suffix == "wav") {
+		pandaEngine.SetMusic(pandafile);
+		OutputDebugStringA(pandafile.c_str());
+	}
+}
+
+void AssetToScene::ChangeDirectory(std::string directory)
+{
+	ProjectDirectory = directory;
 }

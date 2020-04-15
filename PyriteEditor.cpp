@@ -21,6 +21,12 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 //Connect all the UI buttons to functions
 void PyriteEditor::ConnectUI()
 {
+	QAction* newProjectAction = findChild<QAction*>("actionNewProject");
+	connect(newProjectAction, SIGNAL(triggered()), this, SLOT(NewProject()));
+
+	QAction* loadProjectAction = findChild<QAction*>("actionLoadProject");
+	connect(loadProjectAction, SIGNAL(triggered()), this, SLOT(LoadProject()));
+
 	//Connect File->New
 	QAction* newAction = findChild<QAction*>("actionNew");
 	connect(newAction, SIGNAL(triggered()), this, SLOT(New()));
@@ -53,6 +59,9 @@ void PyriteEditor::ConnectUI()
 	QAction* action = findChild<QAction*>("actionRun_Program");
 	connect(action, SIGNAL(triggered()), this, SLOT(RunGame()));
 
+	QAction* buildWindow = findChild<QAction*>("actionBuildWindow");
+	connect(buildWindow, SIGNAL(triggered()), this, SLOT(LaunchBuildWindow()));
+
 	//Connect Add Trigger Action 
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
 	QPushButton* AddTriggerButton = TriggerBox->findChild<QPushButton*>("AddTriggerAction");
@@ -65,6 +74,9 @@ void PyriteEditor::ConnectUI()
 
 		QAction* addMoveToMovement = triggerMenu->addAction("Move Position");
 		connect(addMoveToMovement, SIGNAL(triggered()), this, SLOT(AddTriggerMoveAction()));
+
+		QAction* addSceneChange = triggerMenu->addAction("Change Scene");
+		connect(addSceneChange, SIGNAL(triggered()), this, SLOT(AddTriggerChangeScene()));
 
 		AddTriggerButton->setMenu(triggerMenu);
 	}
@@ -300,8 +312,23 @@ void PyriteEditor::UpdateComponents()
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
+	QComboBox* SceneComboBox = TriggerBox->findChild<QComboBox*>("TriggerSceneBox");
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	QComboBox* TransformObject = TransformBox->findChild<QWidget*>("ActionBox")->findChild<QComboBox*>("objectBox");
+	if (newWindow != nullptr) {
+		if (newWindow->isVisible()) {
+			QGroupBox* buildSettings = newWindow->findChild<QGroupBox*>("BuildGroup");
+			if (buildSettings != nullptr) {
+				qDebug() << "Build settings not nullptr";
+				foreach(QRadioButton * button, buildSettings->findChildren<QRadioButton*>()) {
+					qDebug() << "Looping";
+					if (button->isChecked()) {
+						pandaEngine.SetFirstScene(button->text().toStdString());
+					}
+				}
+			}
+		}
+	}
 	//Get the widgets attached to the transform box
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
 	for (int i = 0; i < widgets.count(); i++) {
@@ -355,6 +382,11 @@ void PyriteEditor::UpdateComponents()
 					trigWidgets[i]->findChild<QDoubleSpinBox*>("PosYBox")->value(),
 					trigWidgets[i]->findChild<QDoubleSpinBox*>("PosZBox")->value())
 				);
+		}
+		if (selectedObject->GetTriggerAction(i).type == TriggerType::Scene) {
+			selectedObject->ChangeTriggerScene(i,
+				EnteringObjectBox->currentIndex(),
+				SceneComboBox->currentText().toStdString());
 		}
 	}
 
@@ -657,8 +689,6 @@ void PyriteEditor::AddTrigger()
 	}
 }
 
-
-
 //Add the trigger actions to the trigger box
 ///This is functionally the same as the AddTransformAction
 void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, Action action, Direction direction, bool newAction)
@@ -796,6 +826,47 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 
 }
 
+void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std::string newScene, bool newAction)
+{
+	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
+	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
+	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
+	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[enterID];
+
+	QWidget* widget = new QWidget(TriggerBox);
+	widget->setObjectName("TriggerSceneBox");
+	QHBoxLayout* layout = new QHBoxLayout(widget);
+	QSize maximumsize = widget->size();
+
+	QLabel* moveToLabel = new QLabel();
+	moveToLabel->setText("Move To");
+	layout->addWidget(moveToLabel);
+
+	QComboBox* sceneBox = new QComboBox();
+	QStringList filter("*.pyr");
+	QDir directory(QString::fromStdString(ProjectDirectory));
+	QStringList filelist = directory.entryList(filter);
+	for (int i = 0; i < filelist.size(); i++) {
+		sceneBox->addItem(filelist[i]);
+	}
+	layout->addWidget(sceneBox);
+
+	widget->setLayout(layout);
+	TriggerBox->layout()->addWidget(widget);
+
+	if (newAction) {
+		selectedObject->StoreTriggerScene(EnteringObject->id, sceneBox->currentText().toStdString());
+	}
+	else {
+		int sceneIndex = sceneBox->findText(QString::fromStdString(newScene));
+		if (sceneIndex != -1) {
+			sceneBox->setCurrentIndex(sceneIndex);
+		}
+
+	}
+}
+
 //Load the trigger boxes
 void PyriteEditor::LoadTriggerBoxes()
 {
@@ -846,21 +917,81 @@ void PyriteEditor::DeleteObject()
 {
 	pandaEngine.DeleteGameObject(selectedObject->id);
 }
+void PyriteEditor::LaunchBuildWindow()
+{
+	newWindow = new QWidget();
+	newWindow->setWindowTitle("Build Settings");
+	newWindow->setObjectName("BuildSettings");
+	QVBoxLayout* widgetLayout = new QVBoxLayout(newWindow);
+	newWindow->setLayout(widgetLayout);
+
+	QGroupBox* buildSettings = new QGroupBox(newWindow);
+	buildSettings->setObjectName("BuildGroup");
+	buildSettings->setTitle("Pyrite Scene");
+	QVBoxLayout* layout = new QVBoxLayout(buildSettings);
+
+	QStringList filter("*.pyr");
+	QDir directory(QString::fromStdString(ProjectDirectory));
+	QStringList filelist = directory.entryList(filter);
+
+	for (int i = 0; i < filelist.size(); i++) {
+		QRadioButton* newbutton = new QRadioButton(filelist[i], buildSettings);
+		newbutton->setObjectName("radioButton");
+		layout->addWidget(newbutton);
+	}
+	
+	buildSettings->setLayout(layout);
+	newWindow->layout()->addWidget(buildSettings);
+	newWindow->show();
+}
 #pragma endregion
 
 #pragma region Project Management
 //Create a new project
+
+void PyriteEditor::NewProject()
+{
+	saveManager->NewProject();
+	ProjectDirectory = saveManager->GetProjectDirectory();
+	//Get the project name from the same manager
+	ProjectName = saveManager->GetProjectName();
+	if (ProjectName != "") {
+		//Set the Asset folder creation to the new directory
+		DragAndDrop* AssetDrop = findChild<QWidget*>("Assets")->findChild<DragAndDrop*>("listWidget");
+		AssetDrop->ChangeDirectory(ProjectDirectory);
+		AssetToScene* scene = findChild<AssetToScene*>("RenderZone");
+		scene->ChangeDirectory(ProjectDirectory);
+		QMenu* menuFile = findChild<QMenu*>("menuFile");
+		foreach(QAction* action, menuFile->actions()) {
+			action->setEnabled(true);
+		}
+	}
+}
+
+void PyriteEditor::LoadProject()
+{
+	saveManager->LoadProject();
+	ProjectDirectory = saveManager->GetProjectDirectory();
+	ProjectName = saveManager->GetProjectName();
+	ProjectSave = saveManager->GetProjectSave();
+	if (ProjectName != "") {
+		DragAndDrop* AssetDrop = findChild<QWidget*>("Assets")->findChild<DragAndDrop*>("listWidget");
+		AssetDrop->ChangeDirectory(ProjectDirectory);
+		AssetToScene* scene = findChild<AssetToScene*>("RenderZone");
+		scene->ChangeDirectory(ProjectDirectory);
+		QMenu* menuFile = findChild<QMenu*>("menuFile");
+		foreach(QAction * action, menuFile->actions()) {
+			action->setEnabled(true);
+		}
+	}
+
+}
+
 void PyriteEditor::New()
 {
 	//Run save manager->new()
 	saveManager->New();
 	//Get the project directory from the save manager
-	ProjectDirectory = saveManager->GetProjectDirectory();
-	//Get the project name from the same manager
-	ProjectName = saveManager->GetProjectName();
-	//Set the Asset folder creation to the new directory
-	DragAndDrop* AssetDrop = findChild<QWidget*>("Assets")->findChild<DragAndDrop*>("listWidget");
-	AssetDrop->ChangeDirectory(ProjectDirectory);
 }
 
 //Save the project as..
@@ -892,13 +1023,9 @@ void PyriteEditor::Load()
 	//Remove all game objects from the scene
 	pandaEngine.RemoveAllGameObjects();
 	//Load the project
-	saveManager->Load();
+	saveManager->Load("");
 	//Update project details
-	ProjectDirectory = saveManager->GetProjectDirectory();
-	ProjectName = saveManager->GetProjectName();
-	ProjectSave = saveManager->GetProjectSave();
-	DragAndDrop* AssetDrop = findChild<QWidget*>("Assets")->findChild<DragAndDrop*>("listWidget");
-	AssetDrop->ChangeDirectory(ProjectDirectory);
+	
 }
 
 //Build the project
