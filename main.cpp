@@ -2,10 +2,10 @@
 #include <QtWidgets/QApplication>
 #include "Panda3D.h"
 #include "GameObject.h"
-
+#include "SaveManager.h"
 ClockObject globalClock;
 Panda3D pandaEngine;
-
+SaveManager* saveManager = new SaveManager(nullptr);
 int main(int argc, char* argv[])
 {
 	//Start application

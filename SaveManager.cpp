@@ -32,7 +32,7 @@ void SaveManager::LoadProject()
 	ProjectName = projectDirectory.fileName().toStdString();
 	QByteArray data = loadFile.readAll();
 	QJsonDocument loadDoc(QJsonDocument::fromJson(data));
-	Load(ProjectDirectory + loadDoc["FirstScene"].toString().toStdString());
+	Load(loadDoc["FirstScene"].toString().toStdString());
 
 }
 
@@ -236,7 +236,8 @@ void SaveManager::Load(std::string firstScene)
 		fileName = QFileDialog::getOpenFileName(mainWindow, "Open Scene", "", "Pyrite Scene (*.pyr)");
 	}
 	else {
-		fileName = QString::fromStdString(firstScene);
+		fileName = QString::fromStdString(ProjectDirectory + firstScene);
+		qDebug() << "Filename is: " << fileName;
 	}
 	QFile loadFile(fileName);
 	QUrl projectDirectory = loadFile.fileName();
@@ -247,6 +248,7 @@ void SaveManager::Load(std::string firstScene)
 		qWarning("Couldn't Open File");
 	}
 
+	qDebug() << "Crash point 1";
 	QByteArray data = loadFile.readAll();
 	QJsonDocument loadDoc(QJsonDocument::fromJson(data));
 	QJsonArray GameObjects = loadDoc["GameObjects"].toArray();
@@ -266,6 +268,7 @@ void SaveManager::Load(std::string firstScene)
 		else {
 			object = new GameObject(pandaEngine.GetWindow(), TriggerShape(0));
 		}
+		qDebug() << "Crash point 2";
 		object->id = gameObject["ObjectID"].toInt();
 		object->SetObjectName(gameObject["ObjectName"].toString().toStdString());
 		object->SetPosition(gameObject["PositionX"].toDouble(), gameObject["PositionY"].toDouble(), gameObject["PositionZ"].toDouble());
@@ -302,6 +305,7 @@ void SaveManager::Load(std::string firstScene)
 				}
 			}
 		}
+		qDebug() << "Crash point 3";
 		pandaEngine.AddGameObject(object);
 	}
 }

@@ -1,4 +1,7 @@
 #include "Panda3D.h"
+#include "SaveManager.h"
+
+extern SaveManager* saveManager;
 
 #pragma region Panda Start/Close
 bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built)
@@ -33,6 +36,7 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 	cTravHandler = new CollisionHandlerQueue();
 	cPusher = new CollisionHandlerPusher();
 	audioManager = AudioManager::create_AudioManager();
+	saveManager = new SaveManager(nullptr);
 
 	//If this is the editor version
 	if (!built) {
@@ -87,10 +91,6 @@ void Panda3D::RunLoop()
 			std::string output = "Music is bad! \n";
 			OutputDebugStringA(output.c_str());
 		}
-	}
-	else {
-		std::string output = "Music is null \n";
-		OutputDebugStringA(output.c_str());
 	}
 	//Loop through gameobjects and run their components
 	for (int i = 0; i < gameObjects.size(); i++) {
@@ -386,7 +386,9 @@ void Panda3D::CheckObjectTriggers()
 						gameObjects[triggerActions.connectedObjectID]->SetPosition(triggerActions.toPos.get_x(), triggerActions.toPos.get_y(), triggerActions.toPos.get_z());
 					}
 					if (triggerActions.type == TriggerType::Scene) {
-						
+						RemoveAllGameObjects();
+						saveManager->Load(triggerActions.newScene);
+						break;
 					}
 				}
 			}

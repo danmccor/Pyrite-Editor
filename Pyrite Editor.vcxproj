@@ -98,6 +98,7 @@
     <ClCompile Include="Panda3D.cpp" />
     <ClCompile Include="PyriteEditor.cpp" />
     <ClCompile Include="SaveManager.cpp" />
+    <ClCompile Include="TextOnScreen.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Trigger.cpp" />
   </ItemGroup>
@@ -121,6 +122,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Panda3D.h" />
     <QtMoc Include="SaveManager.h" />
+    <ClInclude Include="TextOnScreen.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Trigger.h" />
   </ItemGroup>

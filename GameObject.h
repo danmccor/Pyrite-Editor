@@ -85,10 +85,10 @@ public:
 	bool HasTrigger();
 	void StoreTriggerActions(int enterID, int gameObjectID, int direction, int action, int actionID);
 	void StoreTriggerMoveTo(int enterID, int gameObjectID, LPoint3 newPos);
-	void StoreTriggerScene(int enterID, std::string sceneName);
+	void StoreTriggerScene(int enterID, int gameObjectID, std::string sceneName);
 	void ChangeTriggerAction(int id, int enterID, int selectedObjectID, int direction, int action, int actionID);
 	void ChangeTriggerMoveAction(int id, int enterID, int gameObjectID, LPoint3 newPos);
-	void ChangeTriggerScene(int id, int enterID, std::string sceneName);
+	void ChangeTriggerScene(int id, int enterID, int selectedObjectID, std::string sceneName);
 	int GetNumberOfTriggerActions() { return trigger->GetNumberOfTriggerActions(); };
 	TriggerActions& GetTriggerAction(int i);
 

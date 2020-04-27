@@ -131,7 +131,7 @@ private:
 	//The project name
 	std::string ProjectName = "";
 	//The save manager which saves and loads the project. 
-	SaveManager* saveManager = nullptr;
+	//SaveManager* saveManager = nullptr;
 
 	QWidget* newWindow = nullptr;
 

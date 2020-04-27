@@ -12,6 +12,8 @@
 #include "lvector3.h"
 #include "audioManager.h"
 
+class SaveManager;
+
 class Panda3D
 {
 
@@ -80,7 +82,6 @@ private:
 	GameObject* selectedObject;
 
 	std::string firstScene = "";
-
 
 	bool built = false;
 };

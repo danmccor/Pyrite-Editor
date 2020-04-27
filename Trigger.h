@@ -29,7 +29,7 @@ public:
 
 	void MoveObjectAction(int enterID, int objectID, LPoint3 pos);
 
-	void SetChangeScene(int enterID, std::string newScene);
+	void SetChangeScene(int enterID, int objectID, std::string newScene);
 	void ChangeScene();
 
 	int GetNumberOfTriggerActions() { return TriggerActionsList.size(); };

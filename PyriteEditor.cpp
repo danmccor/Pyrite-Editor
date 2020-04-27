@@ -1,6 +1,8 @@
 #include "PyriteEditor.h"
 #include "AddComponent.h"
 
+extern SaveManager* saveManager;
+
 PyriteEditor::PyriteEditor(QWidget* parent)
 	: QMainWindow(parent)
 {
@@ -312,7 +314,7 @@ void PyriteEditor::UpdateComponents()
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
-	QComboBox* SceneComboBox = TriggerBox->findChild<QComboBox*>("TriggerSceneBox");
+	
 	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
 	QComboBox* TransformObject = TransformBox->findChild<QWidget*>("ActionBox")->findChild<QComboBox*>("objectBox");
 	if (newWindow != nullptr) {
@@ -362,6 +364,7 @@ void PyriteEditor::UpdateComponents()
 	//Find the widgets of the triggerbox
 	QWidgetList trigWidgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	trigWidgets.append(TriggerBox->findChildren<QWidget*>("TriggerMoveBox"));
+	trigWidgets.append(TriggerBox->findChildren<QWidget*>("TriggerSceneBox"));
 	for (int i = 0; i < trigWidgets.count(); i++) {
 		//Update the trigger action to user input
 		if (selectedObject->GetTriggerAction(i).type == TriggerType::Change) {
@@ -383,9 +386,15 @@ void PyriteEditor::UpdateComponents()
 					trigWidgets[i]->findChild<QDoubleSpinBox*>("PosZBox")->value())
 				);
 		}
+
 		if (selectedObject->GetTriggerAction(i).type == TriggerType::Scene) {
+			QComboBox* SceneComboBox = TriggerBox->findChild<QComboBox*>("SceneComboBox");
+			qDebug() << "Trigger Type: Scene";
+			qDebug() << "Setting EnterID to: " << EnteringObjectBox->currentIndex();
+			qDebug() << "Scene string: " << SceneComboBox->currentText();
 			selectedObject->ChangeTriggerScene(i,
 				EnteringObjectBox->currentIndex(),
+				ConnectedObjectBox->currentIndex(),
 				SceneComboBox->currentText().toStdString());
 		}
 	}
@@ -828,43 +837,55 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 
 void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std::string newScene, bool newAction)
 {
+	qDebug() << "Crashing here? 1";
 	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	qDebug() << "Crashing 1.1: selectedObjectID: " << selectedObjectID;
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
+	qDebug() << "Crashing 1.2";
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
 	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[enterID];
+	qDebug() << "Crashing 1.3";
 
+
+	qDebug() << "Crashing here? 2";
 	QWidget* widget = new QWidget(TriggerBox);
 	widget->setObjectName("TriggerSceneBox");
 	QHBoxLayout* layout = new QHBoxLayout(widget);
 	QSize maximumsize = widget->size();
-
+	qDebug() << "Crashing here? 3";
 	QLabel* moveToLabel = new QLabel();
 	moveToLabel->setText("Move To");
 	layout->addWidget(moveToLabel);
-
+	qDebug() << "Crashing here? 4";
 	QComboBox* sceneBox = new QComboBox();
 	QStringList filter("*.pyr");
+	sceneBox->setObjectName("SceneComboBox");
 	QDir directory(QString::fromStdString(ProjectDirectory));
 	QStringList filelist = directory.entryList(filter);
 	for (int i = 0; i < filelist.size(); i++) {
 		sceneBox->addItem(filelist[i]);
 	}
 	layout->addWidget(sceneBox);
-
+	qDebug() << "Crashing here? 5";
 	widget->setLayout(layout);
 	TriggerBox->layout()->addWidget(widget);
-
+	qDebug() << "Crashing here? 6";
 	if (newAction) {
-		selectedObject->StoreTriggerScene(EnteringObject->id, sceneBox->currentText().toStdString());
+		selectedObject->StoreTriggerScene(EnteringObject->id, connectedObject->id, ProjectDirectory + sceneBox->currentText().toStdString());
 	}
 	else {
+		qDebug() << "Crashing here? 7";
+		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
+		EnteringObjectBox->setCurrentIndex(enterID);
+		qDebug() << "Crashing here? 8";
 		int sceneIndex = sceneBox->findText(QString::fromStdString(newScene));
 		if (sceneIndex != -1) {
 			sceneBox->setCurrentIndex(sceneIndex);
 		}
 
 	}
+	qDebug() << "Nope";
 }
 
 //Load the trigger boxes
@@ -878,6 +899,14 @@ void PyriteEditor::LoadTriggerBoxes()
 		if (selectedObject->GetTriggerAction(i).type == TriggerType::MoveTo) {
 			AddTriggerMoveAction(selectedObject->GetTriggerAction(i).enteringObjectID, selectedObject->GetTriggerAction(i).connectedObjectID, selectedObject->GetTriggerAction(i).toPos, false);
 		}
+
+		if (selectedObject->GetTriggerAction(i).type == TriggerType::Scene) {
+			std::string output = "Entering Object ID is: " + std::to_string(selectedObject->GetTriggerAction(i).enteringObjectID) + "\n";
+			OutputDebugStringA(output.c_str());
+			output = "Selected Object ID is: " + std::to_string(selectedObject->GetTriggerAction(i).connectedObjectID) + "\n";
+			OutputDebugStringA(output.c_str());
+			AddTriggerChangeScene(selectedObject->GetTriggerAction(i).enteringObjectID, selectedObject->GetTriggerAction(i).connectedObjectID, selectedObject->GetTriggerAction(i).newScene, false);
+		}
 	}
 }
 
@@ -889,6 +918,7 @@ void PyriteEditor::RemoveTriggerBoxes()
 	//Get a list of the widgets attached to the trigger box
 	QWidgetList widgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	widgets.append(TriggerBox->findChildren<QWidget*>("TriggerMoveBox"));
+	widgets.append(TriggerBox->findChildren<QWidget*>("TriggerSceneBox"));
 
 	//Remove them all
 	for (int i = 0; i < widgets.size(); i++) {

@@ -43,6 +43,9 @@
     <ClCompile Include="AddAction.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TextOnScreen.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -108,6 +111,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AddAction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TextOnScreen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
