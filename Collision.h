@@ -13,7 +13,7 @@
 
 
 enum class CollisionType {
-	 Box = 0, Sphere = 1, Polygon = 2
+	 Box = 0, Sphere = 1
 };
 
 class Collision

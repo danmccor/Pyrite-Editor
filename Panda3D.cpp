@@ -320,8 +320,7 @@ std::vector<GameObject*> Panda3D::GetVectorOfGameObjects()
 void Panda3D::CheckObjectCollisions()
 {
 	//Check if this is the first loop
-	static bool firstLoop = true;
-	if (firstLoop)
+	if (!collisionsHandled)
 	{
 		//loop through all game objects
 		for (int i = 0; i < gameObjects.size(); i++) {
@@ -337,7 +336,7 @@ void Panda3D::CheckObjectCollisions()
 
 		}
 		//Set first loop to false
-		firstLoop = false;
+		collisionsHandled = false;
 	}
 	cTrav.traverse(window->get_render());
 }
@@ -346,8 +345,7 @@ void Panda3D::CheckObjectCollisions()
 void Panda3D::CheckObjectTriggers()
 {
 	//Only allow triggers to be added once
-	static bool triggersAdded = false;
-	if (!triggersAdded) {
+	if (!triggersHandled) {
 		//Loop through all game objects
 		for (int i = 0; i < gameObjects.size(); i++) {
 			//If the gameobject has a trigger
@@ -356,7 +354,7 @@ void Panda3D::CheckObjectTriggers()
 				cTriggerTrav.add_collider(gameObjects[i]->GetTriggerNodePath(), cTravHandler);
 			}
 		}
-		triggersAdded = true;
+		triggersHandled = true;
 	}
 	//Traverse triggers collisions
 	cTriggerTrav.traverse(window->get_render());
@@ -421,6 +419,12 @@ void Panda3D::AddGameCamera()
 void Panda3D::AttachCamera(GameObject* camera)
 {
 	this->camera = camera->GetCameraNodePath();
+}
+
+void Panda3D::ResetHandlers()
+{
+	collisionsHandled = false;
+	triggersHandled = false;
 }
 
 void Panda3D::SetMusic(std::string musicLocation)

@@ -33,19 +33,13 @@ NodePath Collision::SetCollision(CollisionType collision, bool cantPush)
 		gameObject_Node->add_solid(gameObject_SolidBox);
 		break;
 	}
-	case CollisionType::Polygon:
-		Model->set_collide_mask(BitMask32::bit(2));
-		Model->set_tag("Object", tag.str());
-		currentCollisionType = CollisionType::Polygon;
-		break;
 	}
-	if (collision != CollisionType::Polygon) {
+
 		gameObject_Node->set_collide_mask(BitMask32::bit(2));
 		gameObject_Node->set_tag("Object", tag.str());
 		gameObject_nodePath = Model->attach_new_node(gameObject_Node);
 		//gameObject_nodePath.set_pos(Model->get_pos());
 		gameObject_nodePath.show();
-	}
 	
 	gameObject_nodePath.reparent_to(*Model);
 	Model->set_pos(tmp);
@@ -68,9 +62,6 @@ NodePath Collision::ChangeCollision(CollisionType collision, bool cantPush)
 	case CollisionType::Sphere:
 		currentCollisionType = CollisionType::Sphere;
 		gameObject_Node->add_solid(gameObject_SolidSphere);
-		break;
-	case CollisionType::Polygon:
-		currentCollisionType = CollisionType::Polygon;
 		break;
 	}
 	return gameObject_nodePath;

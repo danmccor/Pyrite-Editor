@@ -40,6 +40,8 @@ public:
 	void AddGameCamera();
 	void AttachCamera(GameObject* camera);
 
+	void ResetHandlers();
+
 	void SetMusic(std::string musicLocation);
 	void ClosePanda3D();
 
@@ -82,6 +84,8 @@ private:
 	GameObject* selectedObject;
 
 	std::string firstScene = "";
+	bool collisionsHandled = false;
+	bool triggersHandled = false;
 
 	bool built = false;
 };

@@ -16,6 +16,7 @@
 #include <qsizepolicy.h>
 #include <qjsonobject.h>
 #include <qfiledialog.h>
+#include <qscrollarea.h>
 
 #include <QtCore/qcoreapplication.h>
 #include "ui_PyriteEditor.h"

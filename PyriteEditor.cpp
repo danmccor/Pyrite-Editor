@@ -9,11 +9,10 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	//Set up the ui 
 	ui.setupUi(this);
 
-	QGroupBox* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("CollisionBox");
+	QGroupBox* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("CollisionBox");
 	QComboBox* CollisionType = CollisionBox->findChild<QComboBox*>("CollisionType");
 	CollisionType->addItem("Box", QVariant::fromValue(CollisionType::Box));
 	CollisionType->addItem("Sphere", QVariant::fromValue(CollisionType::Sphere));
-	CollisionType->addItem("Polygon", QVariant::fromValue(CollisionType::Polygon));
 
 	ConnectUI();
 
@@ -65,7 +64,7 @@ void PyriteEditor::ConnectUI()
 	connect(buildWindow, SIGNAL(triggered()), this, SLOT(LaunchBuildWindow()));
 
 	//Connect Add Trigger Action 
-	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 	QPushButton* AddTriggerButton = TriggerBox->findChild<QPushButton*>("AddTriggerAction");
 
 	if (AddTriggerButton != nullptr) {
@@ -84,7 +83,7 @@ void PyriteEditor::ConnectUI()
 	}
 
 	//Connect Add Transform Action
-	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	if (TransformBox != nullptr) {
 		QPushButton* Button = TransformBox->findChild<QPushButton*>("AddMovement");
 		if (Button != nullptr) {
@@ -130,9 +129,9 @@ void PyriteEditor::ConnectUI()
 void PyriteEditor::LoadSelectedObject()
 {
 	//Find all three components
-	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
-	QWidget* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("CollisionBox");
-	QWidget* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TriggerBox");
+	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
+	QWidget* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("CollisionBox");
+	QWidget* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TriggerBox");
 
 	//If there is no object, and this is the first loop
 	if (selectedObject == nullptr && oneTimeSelect) {
@@ -311,11 +310,11 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 void PyriteEditor::UpdateComponents()
 {
 	//Find all component boxes
-	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
 	
-	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	QComboBox* TransformObject = TransformBox->findChild<QWidget*>("ActionBox")->findChild<QComboBox*>("objectBox");
 	if (newWindow != nullptr) {
 		if (newWindow->isVisible()) {
@@ -403,7 +402,7 @@ void PyriteEditor::UpdateComponents()
 	//If there is a selected object
 	if (selectedObject != nullptr) {
 		//Fin the collision widget 
-		QWidget* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("CollisionBox");
+		QWidget* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("CollisionBox");
 		QComboBox* CollisionTypeBox = CollisionBox->findChild<QComboBox*>("CollisionType");
 		QCheckBox* CollisionCheckBox = CollisionBox->findChild<QCheckBox*>("CollisionCheckBox");
 		if (selectedObject->HasCollision()) {
@@ -442,7 +441,7 @@ void PyriteEditor::UpdateComponents()
 //Add transform box to Component Window
 void PyriteEditor::AddTransform() {
 	if (selectedObject != nullptr && !selectedObject->HasTransform()) {
-		AddAction* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<AddAction*>("TransformBox");
+		AddAction* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<AddAction*>("TransformBox");
 		if (TransformBox != nullptr) {
 			TransformBox->show();
 		}
@@ -453,7 +452,7 @@ void PyriteEditor::AddTransform() {
 void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Direction direction, bool newAction)
 {
 	//Find the transform box
-	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	//Remove the button and store it (Second to last item, ALWAYS)
 	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
 
@@ -548,7 +547,7 @@ void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Dir
 void PyriteEditor::AddFollowObject(TransformAxis axis, int selectedObjectID, std::string key, float speed, bool newAction)
 {
 	qDebug() << "SelectedObjectID in AddFollowObject: " + QString::fromStdString(std::to_string(selectedObjectID));
-	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	//Remove the button and store it (Second to last item, ALWAYS)
 	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
 
@@ -654,7 +653,7 @@ void PyriteEditor::LoadActionBoxes()
 void PyriteEditor::RemoveActionBoxes()
 {
 	//Find the transform box
-	QWidget* TransformBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TransformBox");
+	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	//Get a list of attached ActionBoxes
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
 	widgets.append(TransformBox->findChildren<QWidget*>("FollowBox"));
@@ -675,7 +674,7 @@ void PyriteEditor::RemoveActionBoxes()
 void PyriteEditor::AddCollision()
 {
 	if (selectedObject != nullptr && !selectedObject->HasCollision()) {
-		QGroupBox* CollisionBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("CollisionBox");
+		QGroupBox* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("CollisionBox");
 		if (CollisionBox != nullptr) {
 			CollisionBox->show();
 		}
@@ -690,7 +689,7 @@ void PyriteEditor::AddCollision()
 void PyriteEditor::AddTrigger()
 {
 	if (selectedObject != nullptr && !selectedObject->HasTrigger()) {
-		QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+		QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 		if (TriggerBox != nullptr) {
 			TriggerBox->show();
 		}
@@ -702,7 +701,7 @@ void PyriteEditor::AddTrigger()
 ///This is functionally the same as the AddTransformAction
 void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, Action action, Direction direction, bool newAction)
 {
-	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
@@ -771,7 +770,7 @@ void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, A
 
 void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoint3 position, bool newAction)
 {
-	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
@@ -838,7 +837,7 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std::string newScene, bool newAction)
 {
 	qDebug() << "Crashing here? 1";
-	QGroupBox* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QGroupBox*>("TriggerBox");
+	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 	qDebug() << "Crashing 1.1: selectedObjectID: " << selectedObjectID;
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
@@ -914,7 +913,7 @@ void PyriteEditor::LoadTriggerBoxes()
 void PyriteEditor::RemoveTriggerBoxes()
 {
 	//Find the trigger box
-	QWidget* TriggerBox = findChild<QWidget*>("ComponentWidget")->findChild<QWidget*>("TriggerBox");
+	QWidget* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TriggerBox");
 	//Get a list of the widgets attached to the trigger box
 	QWidgetList widgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	widgets.append(TriggerBox->findChildren<QWidget*>("TriggerMoveBox"));

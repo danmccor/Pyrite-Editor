@@ -132,6 +132,7 @@ void SaveManager::Save()
 					triggerAction["ToPosX"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_x();
 					triggerAction["ToPosY"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_y();
 					triggerAction["ToPosZ"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_z();
+					triggerAction["NewScene"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).newScene);
 					ObjectTriggers.append(triggerAction);
 				}
 				gameObject["Triggers"] = ObjectTriggers;
@@ -211,6 +212,7 @@ void SaveManager::SaveAs()
 				triggerAction["ToPosX"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_x();
 				triggerAction["ToPosY"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_y();
 				triggerAction["ToPosZ"] = pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).toPos.get_z();
+				triggerAction["NewScene"] = QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetTriggerAction(j).newScene);
 				ObjectTriggers.append(triggerAction);
 			}
 			gameObject["Triggers"] = ObjectTriggers;
@@ -230,6 +232,7 @@ void SaveManager::SaveAs()
 
 void SaveManager::Load(std::string firstScene)
 {
+	pandaEngine.ResetHandlers();
 	QString fileName;
 	//Reverse engineer the save function
 	if (firstScene == "") {
@@ -303,6 +306,9 @@ void SaveManager::Load(std::string firstScene)
 				if (action["Type"] == 1) {
 					object->StoreTriggerMoveTo(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), LPoint3(action["ToPosX"].toDouble(), action["ToPosY"].toDouble(), action["ToPosZ"].toDouble()));
 				}
+				if (action["Type"] == 2) {
+					object->StoreTriggerScene(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), action["NewScene"].toString().toStdString());
+				}
 			}
 		}
 		qDebug() << "Crash point 3";
@@ -333,6 +339,7 @@ void SaveManager::CreateBuild()
 
 void SaveManager::LoadBuild()
 {
+	pandaEngine.ResetHandlers();
 	QString fileName = QFileDialog::getOpenFileName(mainWindow, "Open Project", "", "Pyrite Project (*.pyrject)");
 	QFile loadFile(fileName);
 	QUrl projectDirectory = loadFile.fileName();
@@ -347,6 +354,7 @@ void SaveManager::LoadBuild()
 
 void SaveManager::LoadBuildScene(std::string sceneName)
 {
+	pandaEngine.ResetHandlers();
 	QFile loadFile(QString::fromStdString(sceneName));
 	if (!loadFile.open(QIODevice::ReadOnly)) {
 		qWarning("Couldn't Open File");
@@ -405,6 +413,9 @@ void SaveManager::LoadBuildScene(std::string sceneName)
 				}
 				if (action["Type"] == 1) {
 					object->StoreTriggerMoveTo(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), LPoint3(action["ToPosX"].toDouble(), action["ToPosY"].toDouble(), action["ToPosZ"].toDouble()));
+				}
+				if (action["Type"] == 2) {
+					object->StoreTriggerScene(action["EnteringObjectID"].toInt(), action["ConnectedObjectID"].toInt(), action["NewScene"].toString().toStdString());
 				}
 			}
 			if (gameObject["IsCamera"].toBool()) {
