@@ -11,6 +11,7 @@
 #include "mouseButton.h"
 #include "lvector3.h"
 #include "audioManager.h"
+#include "WorldGrid.h"
 
 class SaveManager;
 
@@ -19,6 +20,7 @@ class Panda3D
 
 //Public Functions
 public:
+	WorldGrid grid;
 	bool Init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built = false);
 
 	void SetFirstScene(std::string scene);
@@ -29,8 +31,9 @@ public:
 
 	WindowFramework* GetWindow() { return window; };
 
-	void CreateObject(std::string modelLocation);
+	GameObject* CreateObject(std::string modelLocation, std::string objectName);
 	GameObject* GetSelectedObject();
+	void SetSelectedObject(GameObject* object);
 	std::vector<GameObject*> GetVectorOfGameObjects();
 	void AddGameObject(GameObject* object);
 	void RemoveAllGameObjects();

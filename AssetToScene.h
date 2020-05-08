@@ -4,6 +4,7 @@
 #include <qlist.h>
 #include <qfileiconprovider.h>
 #include "Panda3D.h"
+//#include "ui_PyriteEditor.h"
 
 extern Panda3D pandaEngine;
 
@@ -21,6 +22,7 @@ private:
 	QDockWidget* dockWidget;
 	QString fileName;
 	QString suffix;
+
 
 	std::string ProjectDirectory = "";
 };

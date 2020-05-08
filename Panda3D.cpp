@@ -6,6 +6,7 @@ extern SaveManager* saveManager;
 #pragma region Panda Start/Close
 bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, int originX, int originY, bool built)
 {
+
 	//Open the panda3D framework
 	framework.open_framework(argc, argv);
 	//Create a windows properties variable
@@ -27,7 +28,7 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 	mouseWatcher = DCAST(MouseWatcher, window->get_mouse().node());
 
 	//Create transform model
-	yupAxis = window->load_model(framework.get_models(), "models/yup-axis");
+	yupAxis = window->load_model(framework.get_models(), "models/zup-axis");
 	yupAxis.reparent_to(window->get_render());
 	yupAxis.hide();
 
@@ -40,10 +41,13 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 
 	//If this is the editor version
 	if (!built) {
+		
+
 		//Get the camera
 		camera = window->get_camera_group();
 		//Set the position back
-		camera.set_pos(0, -10, 0);
+		camera.set_pos(0, -10, 3);
+		camera.set_hpr(0, -18, 0);
 
 		//Create a raycast from the camera to detect objects.
 		collisionRay_Node = new CollisionNode("mouseRay");
@@ -55,6 +59,8 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 		cTrav.add_collider(collisionRay_NodePath, cHandler);
 		NodePath render = window->get_render();
 		cTrav.show_collisions(render);
+
+		render.attach_new_node(grid.Create());
 	}
 	//else set built to true;
 	else {
@@ -199,7 +205,7 @@ void Panda3D::MouseCollider()
 		if (!InitialRightClick) {
 			//set the heading and pitch
 			static float heading = 0.0f;
-			static float pitch = 0.0f;
+			static float pitch = -18.0f;
 
 			//Get the mouse coordinates
 			double mouseX = window->get_graphics_window()->get_pointer(0).get_x();
@@ -210,8 +216,8 @@ void Panda3D::MouseCollider()
 			mouseY -= window->get_graphics_window()->get_y_size() / 2;
 
 			//remove the mouse x and y from the heading and pitch
-			heading -= mouseX;
-			pitch -= mouseY;
+			heading -= mouseX / 10;
+			pitch -= mouseY / 10;
 
 			//Set the cameras rotation
 			camera.set_hpr(heading, pitch, 0);
@@ -223,26 +229,26 @@ void Panda3D::MouseCollider()
 				//Normalise forward
 				forward.normalize();
 				//Set the cameras position 
-				camera.set_pos(camera.get_pos() + (forward / 10));
+				camera.set_pos(camera.get_pos() + (forward / 5));
 			}
 			//If keyboard s is pressed
 			if (mouseWatcher->is_button_down(KeyboardButton::ascii_key('s'))) {
 				//Normalise forward
 				forward.normalize();
 				//Remove the forward from camera position
-				camera.set_pos(camera.get_pos() - (forward / 10));
+				camera.set_pos(camera.get_pos() - (forward / 5));
 			}
 			if (mouseWatcher->is_button_down(KeyboardButton::ascii_key('d'))) {
 				//Normalise Right
 				right.normalize();
 				//Add the right to the cameras position
-				camera.set_pos(camera.get_pos() + (right/ 10));
+				camera.set_pos(camera.get_pos() + (right/ 5));
 			}
 			if (mouseWatcher->is_button_down(KeyboardButton::ascii_key('a'))) {
 				//Normalise the right
 				right.normalize();
 				//Take away the right from the cameras position.
-				camera.set_pos(camera.get_pos() - (right / 10));
+				camera.set_pos(camera.get_pos() - (right / 5));
 			}
 		}
 		//Get the mouse and move it to the centre of the screen
@@ -259,14 +265,15 @@ void Panda3D::MouseCollider()
 
 #pragma region GameObject Manipulation
 //Create a gameobject with a model
-void Panda3D::CreateObject(std::string modelLocation)
+GameObject* Panda3D::CreateObject(std::string modelLocation, std::string objectName)
 {
 	//Create new gameobject
-	GameObject* gameObject = new GameObject(window, modelLocation);
+	GameObject* gameObject = new GameObject(window, modelLocation, objectName);
 	//Load the model
 	gameObject->LoadModel(&framework);
 	//Push the model back to the vector
 	gameObjects.push_back(gameObject);
+	return gameObject;
 }
 
 //Add a game object to the vector of objects
@@ -306,6 +313,11 @@ GameObject* Panda3D::GetSelectedObject()
 {
 	//return selected object
 	return selectedObject;
+}
+
+void Panda3D::SetSelectedObject(GameObject* object)
+{
+	selectedObject = object;
 }
 
 //Get the vector of gameObjects

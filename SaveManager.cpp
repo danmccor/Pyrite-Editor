@@ -260,7 +260,7 @@ void SaveManager::Load(std::string firstScene)
 		GameObject* object;
 		if (gameObject["FileLocation"].toString().toStdString() != "") {
 			if (!gameObject["IsCamera"].toBool()) {
-				object = new GameObject(pandaEngine.GetWindow(), gameObject["FileLocation"].toString().toStdString());
+				object = new GameObject(pandaEngine.GetWindow(), gameObject["FileLocation"].toString().toStdString(), gameObject["ObjectName"].toString().toStdString());
 				object->LoadModel(&pandaEngine.framework);
 			}
 			else {
@@ -368,7 +368,7 @@ void SaveManager::LoadBuildScene(std::string sceneName)
 		GameObject* object;
 		if (gameObject["FileLocation"].toString().toStdString() != "") {
 			if (!gameObject["IsCamera"].toBool()) {
-				object = new GameObject(pandaEngine.GetWindow(), gameObject["FileLocation"].toString().toStdString());
+				object = new GameObject(pandaEngine.GetWindow(), gameObject["FileLocation"].toString().toStdString(), gameObject["ObjectName"].toString().toStdString());
 				object->LoadModel(&pandaEngine.framework);
 			}
 			else {

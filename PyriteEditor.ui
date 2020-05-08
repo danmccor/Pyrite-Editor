@@ -91,48 +91,24 @@
    <addaction name="menuDebug"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
-  <widget class="AssetToScene" name="RenderZone">
-   <property name="minimumSize">
-    <size>
-     <width>1366</width>
-     <height>38</height>
-    </size>
-   </property>
-   <property name="maximumSize">
-    <size>
-     <width>1366</width>
-     <height>768</height>
-    </size>
-   </property>
-   <property name="acceptDrops">
-    <bool>true</bool>
-   </property>
-   <property name="accessibleName">
-    <string>RenderZone</string>
-   </property>
-   <property name="windowTitle">
-    <string>Scene</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>1</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents"/>
-  </widget>
   <widget class="QDockWidget" name="Assets">
    <property name="minimumSize">
     <size>
-     <width>1920</width>
+     <width>1371</width>
      <height>259</height>
     </size>
    </property>
    <property name="maximumSize">
     <size>
-     <width>1920</width>
+     <width>1371</width>
      <height>259</height>
     </size>
    </property>
    <property name="accessibleName">
     <string>Assets</string>
+   </property>
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Assets</string>
@@ -144,9 +120,9 @@
     <widget class="DragAndDrop" name="listWidget">
      <property name="geometry">
       <rect>
-       <x>249</x>
+       <x>-1</x>
        <y>0</y>
-       <width>1671</width>
+       <width>1371</width>
        <height>251</height>
       </rect>
      </property>
@@ -187,16 +163,6 @@
       <bool>true</bool>
      </property>
     </widget>
-    <widget class="QTreeView" name="treeView">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>251</width>
-       <height>241</height>
-      </rect>
-     </property>
-    </widget>
    </widget>
   </widget>
   <widget class="QDockWidget" name="Components">
@@ -208,7 +174,7 @@
    </property>
    <property name="minimumSize">
     <size>
-     <width>572</width>
+     <width>553</width>
      <height>761</height>
     </size>
    </property>
@@ -220,6 +186,9 @@
    </property>
    <property name="layoutDirection">
     <enum>Qt::LeftToRight</enum>
+   </property>
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
    </property>
    <property name="windowTitle">
     <string>Components</string>
@@ -235,16 +204,25 @@
      <item>
       <widget class="QScrollArea" name="ComponentScrollWindow">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
+        <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>535</width>
+         <height>16777215</height>
+        </size>
        </property>
        <property name="verticalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOn</enum>
        </property>
        <property name="horizontalScrollBarPolicy">
         <enum>Qt::ScrollBarAlwaysOff</enum>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
        <property name="widgetResizable">
         <bool>true</bool>
@@ -254,7 +232,7 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>535</width>
+          <width>516</width>
           <height>734</height>
          </rect>
         </property>
@@ -267,7 +245,28 @@
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
+           <property name="maximumSize">
+            <size>
+             <width>517</width>
+             <height>16777215</height>
+            </size>
+           </property>
            <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="spacing">
+             <number>3</number>
+            </property>
+            <property name="leftMargin">
+             <number>1</number>
+            </property>
+            <property name="topMargin">
+             <number>1</number>
+            </property>
+            <property name="rightMargin">
+             <number>1</number>
+            </property>
+            <property name="bottomMargin">
+             <number>1</number>
+            </property>
             <item>
              <widget class="QGroupBox" name="ObjectProps">
               <property name="sizePolicy">
@@ -275,6 +274,12 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>499</width>
+                <height>16777215</height>
+               </size>
               </property>
               <property name="accessibleName">
                <string>ObjectProps</string>
@@ -286,6 +291,18 @@
                <set>Qt::AlignBottom|Qt::AlignLeading|Qt::AlignLeft</set>
               </property>
               <layout class="QGridLayout" name="gridLayout_3">
+               <property name="leftMargin">
+                <number>6</number>
+               </property>
+               <property name="topMargin">
+                <number>6</number>
+               </property>
+               <property name="rightMargin">
+                <number>6</number>
+               </property>
+               <property name="bottomMargin">
+                <number>6</number>
+               </property>
                <item row="2" column="6">
                 <widget class="QDoubleSpinBox" name="RotZ">
                  <property name="sizePolicy">
@@ -573,6 +590,12 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="maximumSize">
+               <size>
+                <width>499</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="title">
                <string>Transform</string>
               </property>
@@ -597,6 +620,12 @@
              <widget class="QGroupBox" name="CollisionBox">
               <property name="enabled">
                <bool>true</bool>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>499</width>
+                <height>16777215</height>
+               </size>
               </property>
               <property name="title">
                <string>Collision</string>
@@ -634,6 +663,12 @@
             </item>
             <item>
              <widget class="QGroupBox" name="TriggerBox">
+              <property name="maximumSize">
+               <size>
+                <width>499</width>
+                <height>16777215</height>
+               </size>
+              </property>
               <property name="title">
                <string>Trigger</string>
               </property>
@@ -699,6 +734,68 @@
       </widget>
      </item>
     </layout>
+   </widget>
+  </widget>
+  <widget class="AssetToScene" name="RenderZone">
+   <property name="minimumSize">
+    <size>
+     <width>1366</width>
+     <height>53</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>1366</width>
+     <height>776</height>
+    </size>
+   </property>
+   <property name="acceptDrops">
+    <bool>true</bool>
+   </property>
+   <property name="accessibleName">
+    <string>RenderZone</string>
+   </property>
+   <property name="styleSheet">
+    <string notr="true"/>
+   </property>
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Scene</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
+  </widget>
+  <widget class="QDockWidget" name="dockWidget_6">
+   <property name="features">
+    <set>QDockWidget::NoDockWidgetFeatures</set>
+   </property>
+   <property name="windowTitle">
+    <string>Objects In Scene</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_9">
+    <widget class="QListWidget" name="ObjectList">
+     <property name="geometry">
+      <rect>
+       <x>0</x>
+       <y>0</y>
+       <width>551</width>
+       <height>241</height>
+      </rect>
+     </property>
+     <property name="showDropIndicator" stdset="0">
+      <bool>false</bool>
+     </property>
+     <property name="defaultDropAction">
+      <enum>Qt::MoveAction</enum>
+     </property>
+    </widget>
    </widget>
   </widget>
   <action name="actionHelp">
@@ -793,6 +890,7 @@
    </property>
   </action>
   <zorder>Assets</zorder>
+  <zorder>dockWidget_6</zorder>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>

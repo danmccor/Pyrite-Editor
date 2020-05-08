@@ -58,12 +58,16 @@ public slots:
 	void AddTriggerMoveAction(int enterID = 0, int selectedObjectID = 0, LPoint3 position = (0, 0, 0), bool newAction = true);
 	void AddTriggerChangeScene(int enterID = 0, int selectedObjectID = 0, std::string newScene = "", bool newAction = true);
 
+	void AddObjectToObjectList(GameObject* gameObject);
+
 	//Turn the editor into run mode
 	void RunGame();
 	//Add a world trigger object to the scene
 	void AddWorldTrigger();
 	//Add a camera to the scene
 	void AddCamera();
+
+	void Test() { qDebug() << "The test has worked"; }
 
 	void DeleteObject();
 
@@ -91,6 +95,9 @@ public slots:
 	//Build the project to the directory
 	void Build();
 
+private slots:
+	void SelectObjectFromList(QListWidgetItem* item);
+
 private:
 	//Load the triggers attached to an object to the editor
 	void LoadTriggerBoxes();
@@ -103,6 +110,9 @@ private:
 	void LoadActionBoxes();
 	//Set the properties of a loaded object
 	void SetObjectProperties(float posX = 0, float posY = 0, float posZ = 0, float rotX = 0, float rotY = 0, float rotZ = 0, float scale = 0);
+
+	void RemoveObjectFromList(GameObject* object);
+	void AddAllObjectsToList();
 
 	void ReloadGameObjectDropDowns(QComboBox* comboBox);
 

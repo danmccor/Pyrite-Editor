@@ -17,7 +17,7 @@ class GameObject
 public:
 	//Object constructors
 	GameObject() {};
-	GameObject(WindowFramework* window, std::string modelLocation);
+	GameObject(WindowFramework* window, std::string modelLocation, std::string objectName);
 	GameObject(WindowFramework* window, TriggerShape triggerShape);
 	//Compare object
 	bool operator==(const GameObject& rhs);
@@ -28,6 +28,7 @@ public:
 
 	//Toggle the heighlight around object
 	void ToggleHighlight();
+	void SetHighlight(bool active);
 
 	//Get object nodepaths
 	NodePath& GetTriggerNodePath();

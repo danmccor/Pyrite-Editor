@@ -101,6 +101,7 @@
     <ClCompile Include="TextOnScreen.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Trigger.cpp" />
+    <ClCompile Include="WorldGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="PyriteEditor.h" />
@@ -121,6 +122,7 @@
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Panda3D.h" />
+    <ClInclude Include="WorldGrid.h" />
     <QtMoc Include="SaveManager.h" />
     <ClInclude Include="TextOnScreen.h" />
     <ClInclude Include="Transform.h" />

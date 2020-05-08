@@ -4,14 +4,14 @@
 #pragma region Constructors
 int GameObject::objectCount = 0;
 //Standard gameObject contruction
-GameObject::GameObject(WindowFramework* window, std::string modelLocation)
+GameObject::GameObject(WindowFramework* window, std::string modelLocation, std::string objectName)
 {
 	//Set the id of the object to number of existing objects
 	id = objectCount;
 	//Get the window, model location and name
 	this->window = window;
 	this->ModelLocation = modelLocation;
-	ObjectName = modelLocation;
+	ObjectName = objectName;
 
 	//Increate object count
 	objectCount++;
@@ -140,6 +140,18 @@ void GameObject::ToggleHighlight()
 		gameObject_nodePath.show();
 		highlighted = true;
 	}
+}
+void GameObject::SetHighlight(bool active)
+{
+	if (active) {
+		gameObject_nodePath.show();
+		highlighted = true;
+	}
+	else {
+		gameObject_nodePath.hide();
+		highlighted = false;
+	}
+
 }
 #pragma endregion
 
@@ -271,8 +283,8 @@ void GameObject::ChangeTransformFollowAction(int id, TransformAxis axis, int sel
 {
 	transform->GetAction(id).axis = axis;
 	transform->GetAction(id).ConnectedObject = selectedObject;
-	std::string output = "Inside change Follow Action: " + std::to_string(selectedObject) + "\n";
-	OutputDebugStringA(output.c_str());
+	/*std::string output = "Inside change Follow Action: " + std::to_string(selectedObject) + "\n";
+	OutputDebugStringA(output.c_str());*/
 	transform->GetAction(id).Key = key;
 	transform->GetAction(id).Speed = speed;
 

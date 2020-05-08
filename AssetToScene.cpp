@@ -1,4 +1,5 @@
 #include "AssetToScene.h"
+#include "PyriteEditor.h"
 
 AssetToScene::AssetToScene(QWidget* parent) : QDockWidget(parent)
 {
@@ -46,9 +47,8 @@ void AssetToScene::dropEvent(QDropEvent* ev)
 	std::string file = ProjectDirectory + "Assets/" + fileName.toStdString() + "." + suffix.toStdString();
 	Filename pandafile = Filename::from_os_specific(file);
 
-
 	if (suffix == "egg" || suffix == "egg.pz") {
-		pandaEngine.CreateObject(pandafile);
+		((PyriteEditor*)parentWidget())->AddObjectToObjectList(pandaEngine.CreateObject(pandafile, fileName.toStdString()));
 		OutputDebugStringA(pandafile.c_str());
 	}
 	else if (suffix == "mp3" || suffix == "wav") {
@@ -61,3 +61,4 @@ void AssetToScene::ChangeDirectory(std::string directory)
 {
 	ProjectDirectory = directory;
 }
+

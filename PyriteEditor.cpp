@@ -1,11 +1,13 @@
 #include "PyriteEditor.h"
 #include "AddComponent.h"
-
+#include "qstylefactory.h"
 extern SaveManager* saveManager;
 
 PyriteEditor::PyriteEditor(QWidget* parent)
 	: QMainWindow(parent)
 {
+	QApplication::setStyle(QStyleFactory::create("Fusion"));
+
 	//Set up the ui 
 	ui.setupUi(this);
 
@@ -22,6 +24,10 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 //Connect all the UI buttons to functions
 void PyriteEditor::ConnectUI()
 {
+
+	QListWidget* selectedObjectFromList = findChild<QListWidget*>("ObjectList");
+ 	connect(selectedObjectFromList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(SelectObjectFromList(QListWidgetItem*)));
+
 	QAction* newProjectAction = findChild<QAction*>("actionNewProject");
 	connect(newProjectAction, SIGNAL(triggered()), this, SLOT(NewProject()));
 
@@ -217,6 +223,44 @@ void PyriteEditor::SetObjectProperties(float posX, float posY, float posZ, float
 	this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("Size")->setValue(scale);
 }
 
+void PyriteEditor::RemoveObjectFromList(GameObject* object)
+{
+	QListWidget* list = findChild<QListWidget*>("ObjectList");
+	list->takeItem(object->id);
+	list->clear();
+}
+
+void PyriteEditor::AddAllObjectsToList()
+{
+	QListWidget* objectList = findChild<QListWidget*>("ObjectList");
+
+	for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
+		QListWidgetItem* item = new QListWidgetItem();
+		item->setData(Qt::UserRole, pandaEngine.GetVectorOfGameObjects()[i]->id);
+		item->setText(QString::fromStdString(pandaEngine.GetVectorOfGameObjects()[i]->GetObjectName()));
+		objectList->addItem(item);
+	}
+}
+
+void PyriteEditor::SelectObjectFromList(QListWidgetItem* item)
+{
+	if (pandaEngine.GetSelectedObject() != nullptr) {
+		pandaEngine.GetSelectedObject()->SetHighlight(false);
+	}
+	pandaEngine.SetSelectedObject(pandaEngine.GetVectorOfGameObjects()[item->data(Qt::UserRole).toInt()]);
+	pandaEngine.GetVectorOfGameObjects()[item->data(Qt::UserRole).toInt()]->SetHighlight(true);
+}
+
+void PyriteEditor::AddObjectToObjectList(GameObject* gameObject)
+{
+	QListWidget* objectList = findChild<QListWidget*>("ObjectList");
+
+	QListWidgetItem* item = new QListWidgetItem();
+	item->setData(Qt::UserRole, gameObject->id);
+	item->setText(QString::fromStdString(gameObject->GetObjectName()));
+	objectList->addItem(item);
+}
+
 void PyriteEditor::ReloadGameObjectDropDowns(QComboBox* comboBox)
 {
 	for (int i = 0; i < pandaEngine.GetVectorOfGameObjects().size(); i++) {
@@ -273,6 +317,15 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 				(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotY")->value(),
 				(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("RotZ")->value());
 
+			//Prevent scale from being set to 0. 
+			if((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleX")->value() == 0)
+				this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleX")->setValue(0.01f);
+			if((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleY")->value() == 0)
+				this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleY")->setValue(0.01f);
+			if((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleZ")->value() == 0)
+				this->findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleZ")->setValue(0.01f);
+
+			//Update Scale
 			selectedObject->SetScale((float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleX")->value(),
 				(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleY")->value(),
 				(float)findChild<QGroupBox*>("ObjectProps")->findChild<QDoubleSpinBox*>("ScaleZ")->value());
@@ -320,9 +373,7 @@ void PyriteEditor::UpdateComponents()
 		if (newWindow->isVisible()) {
 			QGroupBox* buildSettings = newWindow->findChild<QGroupBox*>("BuildGroup");
 			if (buildSettings != nullptr) {
-				qDebug() << "Build settings not nullptr";
 				foreach(QRadioButton * button, buildSettings->findChildren<QRadioButton*>()) {
-					qDebug() << "Looping";
 					if (button->isChecked()) {
 						pandaEngine.SetFirstScene(button->text().toStdString());
 					}
@@ -332,34 +383,28 @@ void PyriteEditor::UpdateComponents()
 	}
 	//Get the widgets attached to the transform box
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
-	for (int i = 0; i < widgets.count(); i++) {
-		if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
-			//Change the add action of the transform to user input
-			selectedObject->ChangeTransformAction(i,
-				Action(widgets[i]->findChild<QComboBox*>("ActionDropDown")->currentData().toInt()),
-				widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
-				widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
-				Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
-			);
-		}
+		for (int i = 0; i < widgets.count(); i++) {
+			if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
+				//Change the add action of the transform to user input
+				selectedObject->ChangeTransformAction(i,
+					Action(widgets[i]->findChild<QComboBox*>("ActionDropDown")->currentData().toInt()),
+					widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
+					widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
+					Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
+				);
+			}
+			if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
+				int currentObjectID = widgets[i]->findChild<QComboBox*>("objectBox")->currentIndex();
+				if (currentObjectID < 0) currentObjectID = 0;
+
+				selectedObject->ChangeTransformFollowAction(i,
+					TransformAxis(widgets[i]->findChild<QComboBox*>("AxisDropDown")->currentData().toInt()),
+					currentObjectID,
+					widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
+					widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value()
+				);
+			}
 	}
-	widgets = TransformBox->findChildren<QWidget*>("FollowBox");
-	for (int i = 0; i < widgets.count(); i++) {
-		if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
-			int currentObjectID = widgets[i]->findChild<QComboBox*>("objectBox")->currentIndex();
-			if (currentObjectID < 0) currentObjectID = 0;
-
-			qDebug() << QString::fromStdString(std::to_string(currentObjectID));
-
-			selectedObject->ChangeTransformFollowAction(i,
-				TransformAxis(widgets[i]->findChild<QComboBox*>("AxisDropDown")->currentData().toInt()),
-				currentObjectID,
-				widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
-				widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value()
-			);
-		}
-	}
-
 	//Find the widgets of the triggerbox
 	QWidgetList trigWidgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
 	trigWidgets.append(TriggerBox->findChildren<QWidget*>("TriggerMoveBox"));
@@ -388,9 +433,6 @@ void PyriteEditor::UpdateComponents()
 
 		if (selectedObject->GetTriggerAction(i).type == TriggerType::Scene) {
 			QComboBox* SceneComboBox = TriggerBox->findChild<QComboBox*>("SceneComboBox");
-			qDebug() << "Trigger Type: Scene";
-			qDebug() << "Setting EnterID to: " << EnteringObjectBox->currentIndex();
-			qDebug() << "Scene string: " << SceneComboBox->currentText();
 			selectedObject->ChangeTriggerScene(i,
 				EnteringObjectBox->currentIndex(),
 				ConnectedObjectBox->currentIndex(),
@@ -412,14 +454,17 @@ void PyriteEditor::UpdateComponents()
 		}
 
 		if (!updateListOnce && selectedObject->HasTransform()) {
-			QWidgetList widgets = TransformBox->findChildren<QWidget*>("FollowBox");
+			QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
 			QComboBox* objectDropDown = TransformBox->findChild<QComboBox*>("objectBox");
 			if (objectDropDown != nullptr) {
 				objectDropDown->clear();
-			}
-			for (int i = 0; i < widgets.size(); i++) {
-				ReloadGameObjectDropDowns(widgets[i]->findChild<QComboBox*>("objectBox"));
-				widgets[i]->findChild<QComboBox*>("objectBox")->setCurrentIndex(selectedObject->GetTransformAction(i).ConnectedObject);
+
+				for (int i = 0; i < widgets.size(); i++) {
+					if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
+						ReloadGameObjectDropDowns(widgets[i]->findChild<QComboBox*>("objectBox"));
+						widgets[i]->findChild<QComboBox*>("objectBox")->setCurrentIndex(selectedObject->GetTransformAction(i).ConnectedObject);
+					}
+				}
 			}
 			updateListOnce = true;
 		}
@@ -460,6 +505,8 @@ void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Dir
 	QWidget* widget = new QWidget(TransformBox);
 	//Set box name to ActionBox
 	widget->setObjectName("ActionBox");
+	widget->setMaximumWidth(450);
+	//widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 	//Create a new layout for the Actionbox
 	QHBoxLayout* layout = new QHBoxLayout(widget);
 	//Set the maximum size of the box
@@ -554,7 +601,7 @@ void PyriteEditor::AddFollowObject(TransformAxis axis, int selectedObjectID, std
 	//Add a new Box 
 	QWidget* widget = new QWidget(TransformBox);
 	//Set box name to ActionBox
-	widget->setObjectName("FollowBox");
+	widget->setObjectName("ActionBox");
 	//Create a new layout for the Actionbox
 	QHBoxLayout* layout = new QHBoxLayout(widget);
 	//Set the maximum size of the box
@@ -627,8 +674,14 @@ void PyriteEditor::AddFollowObject(TransformAxis axis, int selectedObjectID, std
 	if (newAction) {
 		//Create new transform action for component
 		selectedObject->AddTranformFollowAction(TransformAxis(axisBox->currentData().toInt()), objectBox->currentData().toInt(), lineEditBox->text().toStdString(), speedBox->value());
+		qDebug() << "New Transform Follow Action: ";
+		qDebug() << axisBox->currentData().toInt();
+		qDebug() << objectBox->currentData().toInt();
+		qDebug() << lineEditBox->text();
+		qDebug() << speedBox->value();
 	}
 	else {
+		qDebug() << "Not new Follow Action: ";
 		objectBox->setCurrentIndex(selectedObjectID);
 	}
 	qDebug() << "Add Follow Object End";
@@ -656,7 +709,6 @@ void PyriteEditor::RemoveActionBoxes()
 	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	//Get a list of attached ActionBoxes
 	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
-	widgets.append(TransformBox->findChildren<QWidget*>("FollowBox"));
 	//Loop through actionBoxes
 	for (int i = 0; i < widgets.size(); i++) {
 		//Remove the action boxes
@@ -836,27 +888,21 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 
 void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std::string newScene, bool newAction)
 {
-	qDebug() << "Crashing here? 1";
 	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-	qDebug() << "Crashing 1.1: selectedObjectID: " << selectedObjectID;
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
 	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
-	qDebug() << "Crashing 1.2";
 	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
 	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[enterID];
-	qDebug() << "Crashing 1.3";
 
-
-	qDebug() << "Crashing here? 2";
 	QWidget* widget = new QWidget(TriggerBox);
 	widget->setObjectName("TriggerSceneBox");
 	QHBoxLayout* layout = new QHBoxLayout(widget);
 	QSize maximumsize = widget->size();
-	qDebug() << "Crashing here? 3";
+
 	QLabel* moveToLabel = new QLabel();
 	moveToLabel->setText("Move To");
 	layout->addWidget(moveToLabel);
-	qDebug() << "Crashing here? 4";
+
 	QComboBox* sceneBox = new QComboBox();
 	QStringList filter("*.pyr");
 	sceneBox->setObjectName("SceneComboBox");
@@ -866,25 +912,22 @@ void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std:
 		sceneBox->addItem(filelist[i]);
 	}
 	layout->addWidget(sceneBox);
-	qDebug() << "Crashing here? 5";
+
 	widget->setLayout(layout);
 	TriggerBox->layout()->addWidget(widget);
-	qDebug() << "Crashing here? 6";
+
 	if (newAction) {
 		selectedObject->StoreTriggerScene(EnteringObject->id, connectedObject->id, ProjectDirectory + sceneBox->currentText().toStdString());
 	}
 	else {
-		qDebug() << "Crashing here? 7";
 		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
 		EnteringObjectBox->setCurrentIndex(enterID);
-		qDebug() << "Crashing here? 8";
 		int sceneIndex = sceneBox->findText(QString::fromStdString(newScene));
 		if (sceneIndex != -1) {
 			sceneBox->setCurrentIndex(sceneIndex);
 		}
 
 	}
-	qDebug() << "Nope";
 }
 
 //Load the trigger boxes
@@ -944,7 +987,9 @@ void PyriteEditor::AddCamera()
 }
 void PyriteEditor::DeleteObject()
 {
+	RemoveObjectFromList(selectedObject);
 	pandaEngine.DeleteGameObject(selectedObject->id);
+	AddAllObjectsToList();
 }
 void PyriteEditor::LaunchBuildWindow()
 {
