@@ -843,6 +843,8 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 	layout->addWidget(posX);
 
 	QDoubleSpinBox* posXBox = new QDoubleSpinBox();
+	posXBox->setMinimum(-1000000);
+	posXBox->setMaximum(1000000);
 	posXBox->setObjectName("PosXBox");
 	posXBox->setMaximumSize(110, 20);
 	posXBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -855,6 +857,8 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 	layout->addWidget(posY);
 
 	QDoubleSpinBox* posYBox = new QDoubleSpinBox();
+	posYBox->setMinimum(-1000000);
+	posYBox->setMaximum(1000000);
 	posYBox->setObjectName("PosYBox");
 	posYBox->setMaximumSize(110, 20);
 	posYBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -867,6 +871,8 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 	layout->addWidget(posZ);
 
 	QDoubleSpinBox* posZBox = new QDoubleSpinBox();
+	posZBox->setMinimum(-1000000);
+	posZBox->setMaximum(1000000);
 	posZBox->setObjectName("PosZBox");
 	posZBox->setMaximumSize(110, 20);
 	posZBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -883,7 +889,6 @@ void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoin
 		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
 		EnteringObjectBox->setCurrentIndex(enterID);
 	}
-
 }
 
 void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std::string newScene, bool newAction)
