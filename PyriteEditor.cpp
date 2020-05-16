@@ -13,12 +13,10 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	findChild<TriggerManager*>("TriggerBox")->show();
 	triggerManager = findChild<TriggerManager*>("TriggerBox");
 	triggerManager->Initialise(ProjectDirectory);
-
-
-	QGroupBox* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("CollisionBox");
-	QComboBox* CollisionType = CollisionBox->findChild<QComboBox*>("CollisionType");
-	CollisionType->addItem("Box", QVariant::fromValue(CollisionType::Box));
-	CollisionType->addItem("Sphere", QVariant::fromValue(CollisionType::Sphere));
+	collisionManager = findChild<CollisionManager*>("CollisionBox");
+	collisionManager->Initialise();
+	transformManager = findChild<TransformManager*>("TransformBox");
+	transformManager->Initialise();
 
 	ConnectUI();
 
@@ -94,34 +92,31 @@ void PyriteEditor::ConnectUI()
 		AddTriggerButton->setMenu(triggerMenu);
 	}
 	//Connect Add Transform Action
-	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
-	if (TransformBox != nullptr) {
-		QPushButton* Button = TransformBox->findChild<QPushButton*>("AddMovement");
+		QPushButton* Button = this->findChild<QPushButton*>("AddMovement");
 		if (Button != nullptr) {
-			AddComponent* transformMenu = new AddComponent(Button, TransformBox);
+			AddComponent* transformMenu = new AddComponent(Button, transformManager);
 
 			QAction* addMovement = transformMenu->addAction("Add Movement");
-			connect(addMovement, SIGNAL(triggered()), this, SLOT(AddActionBox()));
+			connect(addMovement, SIGNAL(triggered()), transformManager, SLOT(AddActionBox()));
 			
 			QAction* followObject = transformMenu->addAction("Follow Object");
-			connect(followObject, SIGNAL(triggered()), this, SLOT(AddFollowObject()));
+			connect(followObject, SIGNAL(triggered()), transformManager, SLOT(AddFollowObject()));
 
 
 			Button->setMenu(transformMenu);
 		}
-		TransformBox->hide();
-	}
+		transformManager->hide();
 
 	//Create menu button
 	AddComponent* menu = new AddComponent(ui.pushButton, this);
 
 	//Connect add Transform
 	QAction* addTransform = menu->addAction("Add Transform");
-	connect(addTransform, SIGNAL(triggered()), this, SLOT(AddTransform()));
+	connect(addTransform, SIGNAL(triggered()), transformManager, SLOT(AddTransform()));
 
 	//Connect add Collision
 	QAction* addCollision = menu->addAction("Add Collision");
-	connect(addCollision, SIGNAL(triggered()), this, SLOT(AddCollision()));
+	connect(addCollision, SIGNAL(triggered()), collisionManager, SLOT(AddCollision()));
 
 	//Connect add Trigger
 	QAction* addTrigger = menu->addAction("Add Trigger");
@@ -132,6 +127,7 @@ void PyriteEditor::ConnectUI()
 
 	//Set Button
 	ui.pushButton->setMenu(menu);
+	qDebug() << "Finished Connecting";
 }
 
 #pragma region Object Manipulation
@@ -139,89 +135,69 @@ void PyriteEditor::ConnectUI()
 //Load the selected Object
 void PyriteEditor::LoadSelectedObject()
 {
-	qDebug() << "Let the crash hunting begin";
-	//Find all three components
-	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
-	QWidget* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("CollisionBox");
-	//QWidget* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TriggerBox");
-
 	//If there is no object, and this is the first loop
-	qDebug() << "Inside no selected object if statement";
 	if (selectedObject == nullptr && oneTimeSelect) {
 		//If transform box exists
-		if (TransformBox != nullptr) {
+		if (transformManager != nullptr) {
 			//Remove all transform action boxes
-			RemoveActionBoxes();
+			transformManager->RemoveActionBoxes();
 			//hide the transform box
-			TransformBox->hide();
+			transformManager->hide();
 		}
 		//If collision box exists
-		if (CollisionBox != nullptr) {
+		if (collisionManager != nullptr) {
 			//Hide the collision box
 			//CollisionBox->findChild<QCheckBox*>("CollisionCheckBox")->setChecked(false);
-			CollisionBox->hide();
+			collisionManager->hide();
 		}
-		qDebug() << "Trigger Remove Trigger Boxes";
-		triggerManager->RemoveTriggerBoxes();
-		triggerManager->hide();
-		qDebug() << "These Worked";
-		//If Trigger box exists
-		/*if (TriggerBox != nullptr) {*/
-			//Remove all trigger boxes
-			/*RemoveTriggerBoxes();*/
-			//Hide the trigger box
-			/*TriggerBox->hide();
-		}*/
+		if (triggerManager != nullptr) {
+			triggerManager->RemoveTriggerBoxes();
+			triggerManager->hide();
+		}
 		//Set first loop to false
 		oneTimeSelect = false;
 	}
+
+
 	//If there is an object Selected
 	else if (selectedObject != nullptr) {
+
 		//if the selected object has a transform component
 		if (selectedObject->HasTransform()) {
 			//If the transform box exists
-			if (TransformBox != nullptr) {
+			if (transformManager != nullptr) {
 				//Show the box
-				TransformBox->show();
+				transformManager->show();
 				//Load all the actions
-				LoadActionBoxes();
+				transformManager->LoadActionBoxes();
 			}
 		}
 		//Else make sure the transform box is hidden
 		else {
-			TransformBox->hide();
+			transformManager->hide();
 		}
+
 		//IF OBJECT HAS COLLISION
 		if (selectedObject->HasCollision()) {
 			collisionManager->show();
 			//Show the collision box
-
 			//Get the collision type of the object
 			CollisionType col = selectedObject->GetCollisionType();
-			//Find the current index the collision box corrisponds to.
 			collisionManager->SetCollisionType(col);
-
-			/*CollisionBox->findChild<QComboBox*>("CollisionType")->setCurrentIndex(QVariant::fromValue(col).toInt());
-			CollisionBox->findChild<QCheckBox*>("CollisionCheckBox")->setChecked(selectedObject->GetCollisionPushSetting());*/
 		}
 		//Else make sure the collision box is hidden
 		else {
-			CollisionBox->hide();
+			collisionManager->hide();
 		}
 
 		//If the object has a trigger component
-		qDebug() << "Checking if has trigger";
 		if (selectedObject->HasTrigger()) {
-			qDebug() << "Showing trigger";
 			triggerManager->show();
-			qDebug() << "Trigman should show";
 			triggerManager->LoadTriggerBoxes();
 		}
 		else {
-			qDebug() << "Removing Trigger Boxes";
 			triggerManager->RemoveTriggerBoxes();
 			triggerManager->hide();
-			qDebug() << "These Passed";
 		}
 	}
 }
@@ -315,9 +291,10 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 			//Set selected object to new game object
 			selectedObject = gameObject;
 			//remove the boxes from the old game object
-			RemoveActionBoxes();
+			transformManager->RemoveActionBoxes();
 			/*RemoveTriggerBoxes();*/
 			triggerManager->RemoveTriggerBoxes();
+			transformManager->UpdateSelectedObject(selectedObject);
 			triggerManager->UpdateSelectedObject(selectedObject);
 			collisionManager->UpdateSelectedObject(selectedObject);
 			qDebug() << "In this Section";
@@ -384,12 +361,10 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 void PyriteEditor::UpdateComponents()
 {
 	//Find all component boxes
-	/*QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");*/
-	
 	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	QComboBox* TransformObject = TransformBox->findChild<QWidget*>("ActionBox")->findChild<QComboBox*>("objectBox");
+	
+	
 	if (newWindow != nullptr) {
 		if (newWindow->isVisible()) {
 			QGroupBox* buildSettings = newWindow->findChild<QGroupBox*>("BuildGroup");
@@ -402,45 +377,42 @@ void PyriteEditor::UpdateComponents()
 			}
 		}
 	}
-	//Get the widgets attached to the transform box
-	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
-		for (int i = 0; i < widgets.count(); i++) {
-			if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
-				//Change the add action of the transform to user input
-				selectedObject->ChangeTransformAction(i,
-					Action(widgets[i]->findChild<QComboBox*>("ActionDropDown")->currentData().toInt()),
-					widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
-					widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
-					Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
-				);
-			}
-			if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
-				int currentObjectID = widgets[i]->findChild<QComboBox*>("objectBox")->currentIndex();
-				if (currentObjectID < 0) currentObjectID = 0;
 
-				selectedObject->ChangeTransformFollowAction(i,
-					TransformAxis(widgets[i]->findChild<QComboBox*>("AxisDropDown")->currentData().toInt()),
-					currentObjectID,
-					widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
-					widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value()
-				);
-			}
-		}
-		triggerManager->UpdateActions();
+
+	//Get the widgets attached to the transform box
+	//QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
+	//	for (int i = 0; i < widgets.count(); i++) {
+	//		if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
+	//			//Change the add action of the transform to user input
+	//			selectedObject->ChangeTransformAction(i,
+	//				Action(widgets[i]->findChild<QComboBox*>("ActionDropDown")->currentData().toInt()),
+	//				widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
+	//				widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value(),
+	//				Direction(widgets[i]->findChild<QComboBox*>("DirectionDropDown")->currentData().toInt())
+	//			);
+	//		}
+	//		if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
+	//			int currentObjectID = widgets[i]->findChild<QComboBox*>("objectBox")->currentIndex();
+	//			if (currentObjectID < 0) currentObjectID = 0;
+
+	//			selectedObject->ChangeTransformFollowAction(i,
+	//				TransformAxis(widgets[i]->findChild<QComboBox*>("AxisDropDown")->currentData().toInt()),
+	//				currentObjectID,
+	//				widgets[i]->findChild<QLineEdit*>("KeyBox")->text().toStdString(),
+	//				widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value()
+	//			);
+	//		}
+	//	}
+
+
+	transformManager->UpdateActions();
+	triggerManager->UpdateActions();
 	//If there is a selected object
 	if (selectedObject != nullptr) {
-		//Fin the collision widget 
-		QWidget* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("CollisionBox");
-		QComboBox* CollisionTypeBox = CollisionBox->findChild<QComboBox*>("CollisionType");
-		QCheckBox* CollisionCheckBox = CollisionBox->findChild<QCheckBox*>("CollisionCheckBox");
 		if (selectedObject->HasCollision()) {
 			//Update the collision type to user input
-			selectedObject->ChangeCollisionType(CollisionType(CollisionTypeBox->currentData().toInt()), CollisionCheckBox->isChecked());
-			lastCollisionType = CollisionTypeBox->currentData().toInt();
+			collisionManager->UpdateCollision();
 		}
-
-
-
 		if (!updateListOnce && selectedObject->HasTransform()) {
 			QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
 			QComboBox* objectDropDown = TransformBox->findChild<QComboBox*>("objectBox");
@@ -465,264 +437,251 @@ void PyriteEditor::UpdateComponents()
 	//	//Add all objects to connected object drop down box
 		ReloadGameObjectDropDowns(findChild<QComboBox*>("EnteringObject"));
 		ReloadGameObjectDropDowns(findChild<QComboBox*>("ConnectedObject"));
-	//	updateListOnce = false;
+		updateListOnce = false;
 	}
 }
 #pragma endregion
 
 #pragma region Transform Component
 //Add transform box to Component Window
-void PyriteEditor::AddTransform() {
-	if (selectedObject != nullptr && !selectedObject->HasTransform()) {
-		AddAction* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<AddAction*>("TransformBox");
-		if (TransformBox != nullptr) {
-			TransformBox->show();
-		}
-		selectedObject->AddTransform();
-	}
-}
+//void PyriteEditor::AddTransform() {
+//	if (selectedObject != nullptr && !selectedObject->HasTransform()) {
+//		AddAction* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<AddAction*>("TransformBox");
+//		if (TransformBox != nullptr) {
+//			TransformBox->show();
+//		}
+//		selectedObject->AddTransform();
+//	}
+//}
+
 //Add action boxes to transform
-void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Direction direction, bool newAction)
-{
-	//Find the transform box
-	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
-	//Remove the button and store it (Second to last item, ALWAYS)
-	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
+//void PyriteEditor::AddActionBox(Action action, std::string key, float speed, Direction direction, bool newAction)
+//{
+//	Find the transform box
+//	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
+//	Remove the button and store it (Second to last item, ALWAYS)
+//	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
+//
+//	//Add a new Box 
+//	QWidget* widget = new QWidget(TransformBox);
+//	//Set box name to ActionBox
+//	widget->setObjectName("ActionBox");
+//	widget->setMaximumWidth(450);
+//	//widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+//	//Create a new layout for the Actionbox
+//	QHBoxLayout* layout = new QHBoxLayout(widget);
+//	//Set the maximum size of the box
+//	QSize maximumsize = widget->size();
+//
+//	//Add a label for the action
+//	QLabel* actionLabel = new QLabel();
+//	actionLabel->setText("Action:");
+//	layout->addWidget(actionLabel);
+//
+//	//Add a combo box for different actions
+//	QComboBox* actionBox = new QComboBox();
+//	actionBox->setObjectName("ActionDropDown");
+//	actionBox->addItem("Move", QVariant::fromValue(Action::Move));
+//	actionBox->addItem("Rotate", QVariant::fromValue(Action::Rotate));
+//	actionBox->setCurrentIndex(QVariant::fromValue(action).toInt());
+//	actionBox->adjustSize();
+//	//Add to the layout
+//	layout->addWidget(actionBox);
+//
+//	//Create a label for the direction
+//	QLabel* directionLabel = new QLabel();
+//	directionLabel->setText("Direction:");
+//	layout->addWidget(directionLabel);
+//
+//	//Add a combobox for different directions
+//	QComboBox* directionBox = new QComboBox();
+//	directionBox->setObjectName("DirectionDropDown");
+//	directionBox->addItem("Forward", QVariant::fromValue(Direction::Forward));
+//	directionBox->addItem("Backward", QVariant::fromValue(Direction::Backward));
+//	directionBox->addItem("Left", QVariant::fromValue(Direction::Left));
+//	directionBox->addItem("Right", QVariant::fromValue(Direction::Right));
+//	directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
+//	directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
+//	directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
+//	directionBox->adjustSize();
+//	//Add to the layout
+//	layout->addWidget(directionBox);
+//
+//	//Create a label for the speed 
+//	QLabel* speedLabel = new QLabel();
+//	speedLabel->setText("Speed:");
+//	speedLabel->adjustSize();
+//	layout->addWidget(speedLabel);
+//
+//	//Add a double spin box (box for doubles)
+//	QDoubleSpinBox* speedBox = new QDoubleSpinBox();
+//	speedBox->setObjectName("SpeedBox");
+//	speedBox->setSingleStep(0.1);
+//	speedBox->setMaximumSize(80, 20);
+//	speedBox->setMinimumSize(80, 20);
+//	speedBox->setValue(speed);
+//	//Add to layout
+//	layout->addWidget(speedBox);
+//
+//	//Add a label for the key
+//	QLabel* keyLabel = new QLabel();
+//	keyLabel->setText("Key:");
+//	keyLabel->adjustSize();
+//	layout->addWidget(keyLabel);
+//
+//	//Add a line edit box
+//	QLineEdit* lineEditBox = new QLineEdit();
+//	lineEditBox->setObjectName("KeyBox");
+//	lineEditBox->setMaximumSize(80, 20);
+//	//Only allow one character to be entered into the box
+//	lineEditBox->setMaxLength(1);
+//	lineEditBox->setText(QString::fromStdString(key));
+//	//Add it to the layour
+//	layout->addWidget(lineEditBox);
+//
+//	//Set the layout to the new Action box
+//	widget->setLayout(layout);
+//	//Add the action box to the transform box
+//	TransformBox->layout()->addWidget(widget);
+//	//Readd the button
+//	TransformBox->layout()->addItem(Button);
+//	//If this is a new action (not just readding the boxes)
+//	if (newAction) {
+//		//Create new transform action for component
+//		selectedObject->AddTransformAction(Action(actionBox->currentData().toInt()), lineEditBox->text().toStdString(), speedBox->value(), Direction(directionBox->currentData().toInt()));
+//	}
+//}
 
-	//Add a new Box 
-	QWidget* widget = new QWidget(TransformBox);
-	//Set box name to ActionBox
-	widget->setObjectName("ActionBox");
-	widget->setMaximumWidth(450);
-	//widget->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-	//Create a new layout for the Actionbox
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	//Set the maximum size of the box
-	QSize maximumsize = widget->size();
-
-	//Add a label for the action
-	QLabel* actionLabel = new QLabel();
-	actionLabel->setText("Action:");
-	layout->addWidget(actionLabel);
-
-	//Add a combo box for different actions
-	QComboBox* actionBox = new QComboBox();
-	actionBox->setObjectName("ActionDropDown");
-	actionBox->addItem("Move", QVariant::fromValue(Action::Move));
-	actionBox->addItem("Rotate", QVariant::fromValue(Action::Rotate));
-	actionBox->setCurrentIndex(QVariant::fromValue(action).toInt());
-	actionBox->adjustSize();
-	//Add to the layout
-	layout->addWidget(actionBox);
-
-	//Create a label for the direction
-	QLabel* directionLabel = new QLabel();
-	directionLabel->setText("Direction:");
-	layout->addWidget(directionLabel);
-
-	//Add a combobox for different directions
-	QComboBox* directionBox = new QComboBox();
-	directionBox->setObjectName("DirectionDropDown");
-	directionBox->addItem("Forward", QVariant::fromValue(Direction::Forward));
-	directionBox->addItem("Backward", QVariant::fromValue(Direction::Backward));
-	directionBox->addItem("Left", QVariant::fromValue(Direction::Left));
-	directionBox->addItem("Right", QVariant::fromValue(Direction::Right));
-	directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
-	directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
-	directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
-	directionBox->adjustSize();
-	//Add to the layout
-	layout->addWidget(directionBox);
-
-	//Create a label for the speed 
-	QLabel* speedLabel = new QLabel();
-	speedLabel->setText("Speed:");
-	speedLabel->adjustSize();
-	layout->addWidget(speedLabel);
-
-	//Add a double spin box (box for doubles)
-	QDoubleSpinBox* speedBox = new QDoubleSpinBox();
-	speedBox->setObjectName("SpeedBox");
-	speedBox->setSingleStep(0.1);
-	speedBox->setMaximumSize(80, 20);
-	speedBox->setMinimumSize(80, 20);
-	speedBox->setValue(speed);
-	//Add to layout
-	layout->addWidget(speedBox);
-
-	//Add a label for the key
-	QLabel* keyLabel = new QLabel();
-	keyLabel->setText("Key:");
-	keyLabel->adjustSize();
-	layout->addWidget(keyLabel);
-
-	//Add a line edit box
-	QLineEdit* lineEditBox = new QLineEdit();
-	lineEditBox->setObjectName("KeyBox");
-	lineEditBox->setMaximumSize(80, 20);
-	//Only allow one character to be entered into the box
-	lineEditBox->setMaxLength(1);
-	lineEditBox->setText(QString::fromStdString(key));
-	//Add it to the layour
-	layout->addWidget(lineEditBox);
-
-	//Set the layout to the new Action box
-	widget->setLayout(layout);
-	//Add the action box to the transform box
-	TransformBox->layout()->addWidget(widget);
-	//Readd the button
-	TransformBox->layout()->addItem(Button);
-	//If this is a new action (not just readding the boxes)
-	if (newAction) {
-		//Create new transform action for component
-		selectedObject->AddTransformAction(Action(actionBox->currentData().toInt()), lineEditBox->text().toStdString(), speedBox->value(), Direction(directionBox->currentData().toInt()));
-	}
-}
-
-void PyriteEditor::AddFollowObject(TransformAxis axis, int selectedObjectID, std::string key, float speed, bool newAction)
-{
-	qDebug() << "SelectedObjectID in AddFollowObject: " + QString::fromStdString(std::to_string(selectedObjectID));
-	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
-	//Remove the button and store it (Second to last item, ALWAYS)
-	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
-
-	//Add a new Box 
-	QWidget* widget = new QWidget(TransformBox);
-	//Set box name to ActionBox
-	widget->setObjectName("ActionBox");
-	//Create a new layout for the Actionbox
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	//Set the maximum size of the box
-	QSize maximumsize = widget->size();
-
-	//Add a label for the action
-	QLabel* axisLabel = new QLabel();
-	axisLabel->setText("Axis:");
-	layout->addWidget(axisLabel);
-
-	QComboBox* axisBox = new QComboBox();
-	axisBox->setObjectName("AxisDropDown");
-	axisBox->addItem("X", QVariant::fromValue(TransformAxis::X));
-	axisBox->addItem("Y", QVariant::fromValue(TransformAxis::Y));
-	axisBox->addItem("Z", QVariant::fromValue(TransformAxis::Z));
-	axisBox->setCurrentIndex(QVariant::fromValue(axis).toInt());
-	axisBox->adjustSize();
-	//Add to the layout
-	layout->addWidget(axisBox);
-
-	//Create a label for the object 
-	QLabel* objectLabel = new QLabel();
-	objectLabel->setText("Object:");
-	objectLabel->adjustSize();
-	layout->addWidget(objectLabel);
-
-	QComboBox* objectBox = new QComboBox();
-	objectBox->setObjectName("objectBox");
-	layout->addWidget(objectBox);
-
-	QLabel* speedLabel = new QLabel();
-	speedLabel->setText("Speed:");
-	speedLabel->adjustSize();
-	layout->addWidget(speedLabel);
-
-	//Add a double spin box (box for doubles)
-	QDoubleSpinBox* speedBox = new QDoubleSpinBox();
-	speedBox->setObjectName("SpeedBox");
-	speedBox->setSingleStep(0.1);
-	speedBox->setMaximumSize(80, 20);
-	speedBox->setMinimumSize(80, 20);
-	speedBox->setValue(speed);
-	//Add to layout
-	layout->addWidget(speedBox);
-
-	QLabel* keyLabel = new QLabel();
-	keyLabel->setText("Key:");
-	keyLabel->adjustSize();
-	layout->addWidget(keyLabel);
-
-	//Add a line edit box
-	QLineEdit* lineEditBox = new QLineEdit();
-	lineEditBox->setObjectName("KeyBox");
-	lineEditBox->setMaximumSize(80, 20);
-	//Only allow one character to be entered into the box
-	lineEditBox->setMaxLength(1);
-	lineEditBox->setText(QString::fromStdString(key));
-	//Add it to the layour
-	layout->addWidget(lineEditBox);
-
-	widget->setLayout(layout);
-	//Add the action box to the transform box
-	TransformBox->layout()->addWidget(widget);
-	//Readd the button
-	TransformBox->layout()->addItem(Button);
-
-	ReloadGameObjectDropDowns(objectBox);
-	
-
-	if (newAction) {
-		//Create new transform action for component
-		selectedObject->AddTranformFollowAction(TransformAxis(axisBox->currentData().toInt()), objectBox->currentData().toInt(), lineEditBox->text().toStdString(), speedBox->value());
-		qDebug() << "New Transform Follow Action: ";
-		qDebug() << axisBox->currentData().toInt();
-		qDebug() << objectBox->currentData().toInt();
-		qDebug() << lineEditBox->text();
-		qDebug() << speedBox->value();
-	}
-	else {
-		qDebug() << "Not new Follow Action: ";
-		objectBox->setCurrentIndex(selectedObjectID);
-	}
-	qDebug() << "Add Follow Object End";
-}
-
-//Reload the action boxes for selected object
-void PyriteEditor::LoadActionBoxes()
-{
-	//loop through the number of actions attached to an object
-	for (int i = 0; i < selectedObject->GetNumberOfActions(); i++) {
-		//Add the box and set values
-		if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
-			AddActionBox(selectedObject->GetTransformAction(i).action, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, selectedObject->GetTransformAction(i).direction, false);
-		}
-		if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
-			qDebug() << "Inside Load ActionBoxes: " + QString::fromStdString(std::to_string(selectedObject->GetTransformAction(i).ConnectedObject));
-			AddFollowObject(selectedObject->GetTransformAction(i).axis, selectedObject->GetTransformAction(i).ConnectedObject, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, false);
-		}
-	}
-}
+//void PyriteEditor::AddFollowObject(TransformAxis axis, int selectedObjectID, std::string key, float speed, bool newAction)
+//{
+//	qDebug() << "SelectedObjectID in AddFollowObject: " + QString::fromStdString(std::to_string(selectedObjectID));
+//	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
+//	//Remove the button and store it (Second to last item, ALWAYS)
+//	QLayoutItem* Button = TransformBox->layout()->takeAt(TransformBox->layout()->count() - 1);
+//
+//	//Add a new Box 
+//	QWidget* widget = new QWidget(TransformBox);
+//	//Set box name to ActionBox
+//	widget->setObjectName("ActionBox");
+//	//Create a new layout for the Actionbox
+//	QHBoxLayout* layout = new QHBoxLayout(widget);
+//	//Set the maximum size of the box
+//	QSize maximumsize = widget->size();
+//
+//	//Add a label for the action
+//	QLabel* axisLabel = new QLabel();
+//	axisLabel->setText("Axis:");
+//	layout->addWidget(axisLabel);
+//
+//	QComboBox* axisBox = new QComboBox();
+//	axisBox->setObjectName("AxisDropDown");
+//	axisBox->addItem("X", QVariant::fromValue(TransformAxis::X));
+//	axisBox->addItem("Y", QVariant::fromValue(TransformAxis::Y));
+//	axisBox->addItem("Z", QVariant::fromValue(TransformAxis::Z));
+//	axisBox->setCurrentIndex(QVariant::fromValue(axis).toInt());
+//	axisBox->adjustSize();
+//	//Add to the layout
+//	layout->addWidget(axisBox);
+//
+//	//Create a label for the object 
+//	QLabel* objectLabel = new QLabel();
+//	objectLabel->setText("Object:");
+//	objectLabel->adjustSize();
+//	layout->addWidget(objectLabel);
+//
+//	QComboBox* objectBox = new QComboBox();
+//	objectBox->setObjectName("objectBox");
+//	layout->addWidget(objectBox);
+//
+//	QLabel* speedLabel = new QLabel();
+//	speedLabel->setText("Speed:");
+//	speedLabel->adjustSize();
+//	layout->addWidget(speedLabel);
+//
+//	//Add a double spin box (box for doubles)
+//	QDoubleSpinBox* speedBox = new QDoubleSpinBox();
+//	speedBox->setObjectName("SpeedBox");
+//	speedBox->setSingleStep(0.1);
+//	speedBox->setMaximumSize(80, 20);
+//	speedBox->setMinimumSize(80, 20);
+//	speedBox->setValue(speed);
+//	//Add to layout
+//	layout->addWidget(speedBox);
+//
+//	QLabel* keyLabel = new QLabel();
+//	keyLabel->setText("Key:");
+//	keyLabel->adjustSize();
+//	layout->addWidget(keyLabel);
+//
+//	//Add a line edit box
+//	QLineEdit* lineEditBox = new QLineEdit();
+//	lineEditBox->setObjectName("KeyBox");
+//	lineEditBox->setMaximumSize(80, 20);
+//	//Only allow one character to be entered into the box
+//	lineEditBox->setMaxLength(1);
+//	lineEditBox->setText(QString::fromStdString(key));
+//	//Add it to the layour
+//	layout->addWidget(lineEditBox);
+//
+//	widget->setLayout(layout);
+//	//Add the action box to the transform box
+//	TransformBox->layout()->addWidget(widget);
+//	//Readd the button
+//	TransformBox->layout()->addItem(Button);
+//
+//	ReloadGameObjectDropDowns(objectBox);
+//	
+//
+//	if (newAction) {
+//		//Create new transform action for component
+//		selectedObject->AddTranformFollowAction(TransformAxis(axisBox->currentData().toInt()), objectBox->currentData().toInt(), lineEditBox->text().toStdString(), speedBox->value());
+//		qDebug() << "New Transform Follow Action: ";
+//		qDebug() << axisBox->currentData().toInt();
+//		qDebug() << objectBox->currentData().toInt();
+//		qDebug() << lineEditBox->text();
+//		qDebug() << speedBox->value();
+//	}
+//	else {
+//		qDebug() << "Not new Follow Action: ";
+//		objectBox->setCurrentIndex(selectedObjectID);
+//	}
+//	qDebug() << "Add Follow Object End";
+//}
+//
+////Reload the action boxes for selected object
+//void PyriteEditor::LoadActionBoxes()
+//{
+//	//loop through the number of actions attached to an object
+//	for (int i = 0; i < selectedObject->GetNumberOfActions(); i++) {
+//		//Add the box and set values
+//		if (selectedObject->GetTransformAction(i).type == TransformType::Add) {
+//			AddActionBox(selectedObject->GetTransformAction(i).action, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, selectedObject->GetTransformAction(i).direction, false);
+//		}
+//		if (selectedObject->GetTransformAction(i).type == TransformType::Follow) {
+//			qDebug() << "Inside Load ActionBoxes: " + QString::fromStdString(std::to_string(selectedObject->GetTransformAction(i).ConnectedObject));
+//			AddFollowObject(selectedObject->GetTransformAction(i).axis, selectedObject->GetTransformAction(i).ConnectedObject, selectedObject->GetTransformAction(i).Key, selectedObject->GetTransformAction(i).Speed, false);
+//		}
+//	}
+//}
 //Remove all the Action boxes
-void PyriteEditor::RemoveActionBoxes()
-{
-	//Find the transform box
-	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
-	//Get a list of attached ActionBoxes
-	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
-	//Loop through actionBoxes
-	for (int i = 0; i < widgets.size(); i++) {
-		//Remove the action boxes
-		TransformBox->layout()->removeWidget(widgets[i]);
-		widgets[i]->hide();
-		widgets[i]->setDisabled(true);
-		widgets[i]->deleteLater();
-		delete widgets[i];
-	}
-}
+//void PyriteEditor::RemoveActionBoxes()
+//{
+//	//Find the transform box
+//	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
+//	//Get a list of attached ActionBoxes
+//	QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
+//	//Loop through actionBoxes
+//	for (int i = 0; i < widgets.size(); i++) {
+//		//Remove the action boxes
+//		TransformBox->layout()->removeWidget(widgets[i]);
+//		widgets[i]->hide();
+//		widgets[i]->setDisabled(true);
+//		widgets[i]->deleteLater();
+//		delete widgets[i];
+//	}
+//}
 #pragma endregion
 
-#pragma region Collision Component
-//Add collision box to Component Window
-void PyriteEditor::AddCollision()
-{
-	if (selectedObject != nullptr && !selectedObject->HasCollision()) {
-		QGroupBox* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("CollisionBox");
-		if (CollisionBox != nullptr) {
-			CollisionBox->show();
-		}
-		selectedObject->AddCollision();
-		selectedObject->SetCollisionType(CollisionType::Box, false);
-	}
-}
-#pragma endregion
 
 #pragma region Add to Scene
 //Add a trigger to the world

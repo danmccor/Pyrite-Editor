@@ -6,6 +6,7 @@
 #include "GameObject.h"
 #include "TriggerManager.h"
 #include "CollisionManager.h"
+#include "TransformManager.h"
 
 extern Panda3D pandaEngine;
 
@@ -30,16 +31,6 @@ public:
 	bool IsEditing() { return isEditing; };
 
 public slots:
-	//Add an action box to the transform component
-	void AddActionBox(Action action = Action::Move, std::string key = "", float speed = NULL, Direction direction = Direction::Forward, bool newAction = true);
-
-	//Transform Follow Object
-	void AddFollowObject(TransformAxis axis = TransformAxis::X, int selectedObjectID = 0, std::string key = "", float speed =  0, bool newAction = true);
-
-	//Add a trigger action to the trigger component
-	/*void AddTriggerAction(int id = 0, int enterID = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
-	void AddTriggerMoveAction(int enterID = 0, int selectedObjectID = 0, LPoint3 position = (0, 0, 0), bool newAction = true);
-	void AddTriggerChangeScene(int enterID = 0, int selectedObjectID = 0, std::string newScene = "", bool newAction = true);*/
 
 	void AddObjectToObjectList(GameObject* gameObject);
 
@@ -55,14 +46,6 @@ public slots:
 	void DeleteObject();
 
 	void LaunchBuildWindow();
-
-	//Add a transform to the selected object
-	void AddTransform();
-	//Add collision to the selected object
-	void AddCollision();
-	//Add a trigger to the selected object
-	//void AddTrigger();
-
 
 	void NewProject();
 	void LoadProject();
@@ -84,16 +67,8 @@ private slots:
 private:
 	TriggerManager* triggerManager = nullptr;
 	CollisionManager* collisionManager = nullptr;
+	TransformManager* transformManager = nullptr;
 
-	//Load the triggers attached to an object to the editor
-	//void LoadTriggerBoxes();
-	//Remove the trigger boxes attached to an object from the editor
-	//void RemoveTriggerBoxes();
-	//Load the transforms attached to an object to the editor
-	void RemoveActionBoxes();
-	//Remove the transform boxes attached to an object from the editor
-	void LoadActionBoxes();
-	//Set the properties of a loaded object
 	void SetObjectProperties(float posX = 0, float posY = 0, float posZ = 0, float rotX = 0, float rotY = 0, float rotZ = 0, float scale = 0);
 
 	void RemoveObjectFromList(GameObject* object);
@@ -126,8 +101,6 @@ private:
 	std::string ProjectDirectory = "";
 	//The project name
 	std::string ProjectName = "";
-	//The save manager which saves and loads the project. 
-	//SaveManager* saveManager = nullptr;
 
 	QWidget* newWindow = nullptr;
 

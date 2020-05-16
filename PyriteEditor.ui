@@ -580,7 +580,7 @@
              </widget>
             </item>
             <item>
-             <widget class="AddAction" name="TransformBox">
+             <widget class="TransformManager" name="TransformBox">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -617,7 +617,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="CollisionBox">
+             <widget class="CollisionManager" name="CollisionBox">
               <property name="enabled">
                <bool>true</bool>
               </property>
@@ -644,7 +644,7 @@
                <item row="1" column="0">
                 <widget class="QLabel" name="label_16">
                  <property name="text">
-                  <string>Moving Object:</string>
+                  <string>Stationary Object:</string>
                  </property>
                 </widget>
                </item>
@@ -906,18 +906,21 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>AddAction</class>
-   <extends>QGroupBox</extends>
-   <header>addaction.h</header>
-   <container>1</container>
-   <slots>
-    <slot>addToBox()</slot>
-   </slots>
-  </customwidget>
-  <customwidget>
    <class>TriggerManager</class>
    <extends>QGroupBox</extends>
-   <header location="global">triggermanager.h</header>
+   <header>triggermanager.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>CollisionManager</class>
+   <extends>QGroupBox</extends>
+   <header>collisionmanager.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>TransformManager</class>
+   <extends>QGroupBox</extends>
+   <header>transformmanager.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

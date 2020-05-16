@@ -4,9 +4,20 @@ CollisionManager::CollisionManager(QWidget* parent) : QGroupBox(parent) {
 
 }
 
-void CollisionManager::AddCollision() 
+void CollisionManager::Initialise()
 {
-	selectedObject->AddCollision();
+	QComboBox* CollisionType = findChild<QComboBox*>("CollisionType");
+	CollisionType->addItem("Box", QVariant::fromValue(CollisionType::Box));
+	CollisionType->addItem("Sphere", QVariant::fromValue(CollisionType::Sphere));
+}
+
+void CollisionManager::AddCollision()
+{
+	if (selectedObject != nullptr && !selectedObject->HasCollision()) {
+		this->show();
+		selectedObject->AddCollision();
+		selectedObject->SetCollisionType(CollisionType::Box, false);
+	}
 }
 
 void CollisionManager::UpdateCollision()

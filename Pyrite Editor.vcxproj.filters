@@ -55,6 +55,9 @@
     <ClCompile Include="CollisionManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TransformManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Resource Files">
@@ -143,6 +146,9 @@
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="CollisionManager.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="TransformManager.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

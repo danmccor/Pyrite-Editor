@@ -101,6 +101,7 @@
     <ClCompile Include="SaveManager.cpp" />
     <ClCompile Include="TextOnScreen.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="TransformManager.cpp" />
     <ClCompile Include="Trigger.cpp" />
     <ClCompile Include="TriggerManager.cpp" />
     <ClCompile Include="WorldGrid.cpp" />
@@ -127,6 +128,7 @@
     <ClInclude Include="Panda3D.h" />
     <ClInclude Include="QtIncludes.h" />
     <QtMoc Include="TriggerManager.h" />
+    <QtMoc Include="TransformManager.h" />
     <ClInclude Include="WorldGrid.h" />
     <QtMoc Include="SaveManager.h" />
     <ClInclude Include="TextOnScreen.h" />
