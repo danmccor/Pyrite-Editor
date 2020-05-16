@@ -35,6 +35,7 @@ public:
 	GameObject* GetSelectedObject();
 	void SetSelectedObject(GameObject* object);
 	std::vector<GameObject*> GetVectorOfGameObjects();
+	GameObject* GetObjectByID(int id);
 	void AddGameObject(GameObject* object);
 	void RemoveAllGameObjects();
 	void DeleteGameObject(int id);

@@ -6,6 +6,7 @@
 
 ClockObject globalClock;
 Panda3D pandaEngine;
+
 SaveManager* saveManager = new SaveManager(nullptr);
 int main(int argc, char* argv[])
 {

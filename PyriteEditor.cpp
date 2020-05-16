@@ -7,9 +7,13 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	: QMainWindow(parent)
 {
 	QApplication::setStyle(QStyleFactory::create("Fusion"));
-
 	//Set up the ui 
 	ui.setupUi(this);
+
+	findChild<TriggerManager*>("TriggerBox")->show();
+	triggerManager = findChild<TriggerManager*>("TriggerBox");
+	triggerManager->Initialise(ProjectDirectory);
+
 
 	QGroupBox* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("CollisionBox");
 	QComboBox* CollisionType = CollisionBox->findChild<QComboBox*>("CollisionType");
@@ -19,12 +23,12 @@ PyriteEditor::PyriteEditor(QWidget* parent)
 	ConnectUI();
 
 	saveManager = new SaveManager(this);
+
 }
 
 //Connect all the UI buttons to functions
 void PyriteEditor::ConnectUI()
 {
-
 	QListWidget* selectedObjectFromList = findChild<QListWidget*>("ObjectList");
  	connect(selectedObjectFromList, SIGNAL(itemDoubleClicked(QListWidgetItem*)), this, SLOT(SelectObjectFromList(QListWidgetItem*)));
 
@@ -70,24 +74,25 @@ void PyriteEditor::ConnectUI()
 	connect(buildWindow, SIGNAL(triggered()), this, SLOT(LaunchBuildWindow()));
 
 	//Connect Add Trigger Action 
-	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-	QPushButton* AddTriggerButton = TriggerBox->findChild<QPushButton*>("AddTriggerAction");
+	/*QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");*/
+	QPushButton* AddTriggerButton = this->findChild<QPushButton*>("AddTriggerAction");
 
 	if (AddTriggerButton != nullptr) {
-		AddComponent* triggerMenu = new AddComponent(AddTriggerButton, TriggerBox);
+		AddComponent* triggerMenu = new AddComponent(AddTriggerButton, triggerManager);
 
 		QAction* addChangeMovement = triggerMenu->addAction("Change Transform");
-		connect(addChangeMovement, SIGNAL(triggered()), this, SLOT(AddTriggerAction()));
+		connect(addChangeMovement, SIGNAL(triggered()), triggerManager, SLOT(AddTriggerAction()));
 
 		QAction* addMoveToMovement = triggerMenu->addAction("Move Position");
-		connect(addMoveToMovement, SIGNAL(triggered()), this, SLOT(AddTriggerMoveAction()));
+		connect(addMoveToMovement, SIGNAL(triggered()), triggerManager, SLOT(AddTriggerMoveAction()));
 
 		QAction* addSceneChange = triggerMenu->addAction("Change Scene");
-		connect(addSceneChange, SIGNAL(triggered()), this, SLOT(AddTriggerChangeScene()));
+		connect(addSceneChange, SIGNAL(triggered()), triggerManager, SLOT(AddTriggerChangeScene()));
+
+		qDebug() << "These Have Connected>!>!";
 
 		AddTriggerButton->setMenu(triggerMenu);
 	}
-
 	//Connect Add Transform Action
 	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	if (TransformBox != nullptr) {
@@ -120,7 +125,7 @@ void PyriteEditor::ConnectUI()
 
 	//Connect add Trigger
 	QAction* addTrigger = menu->addAction("Add Trigger");
-	connect(addTrigger, SIGNAL(triggered()), this, SLOT(AddTrigger()));
+	connect(addTrigger, SIGNAL(triggered()), triggerManager, SLOT(AddTrigger()));
 
 	QPushButton* deleteObject = this->findChild<QGroupBox*>("ObjectProps")->findChild<QPushButton*>("DeleteObject");
 	connect(deleteObject, SIGNAL(clicked()), this, SLOT(DeleteObject()));
@@ -134,12 +139,14 @@ void PyriteEditor::ConnectUI()
 //Load the selected Object
 void PyriteEditor::LoadSelectedObject()
 {
+	qDebug() << "Let the crash hunting begin";
 	//Find all three components
 	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	QWidget* CollisionBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("CollisionBox");
-	QWidget* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TriggerBox");
+	//QWidget* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TriggerBox");
 
 	//If there is no object, and this is the first loop
+	qDebug() << "Inside no selected object if statement";
 	if (selectedObject == nullptr && oneTimeSelect) {
 		//If transform box exists
 		if (TransformBox != nullptr) {
@@ -154,13 +161,17 @@ void PyriteEditor::LoadSelectedObject()
 			//CollisionBox->findChild<QCheckBox*>("CollisionCheckBox")->setChecked(false);
 			CollisionBox->hide();
 		}
+		qDebug() << "Trigger Remove Trigger Boxes";
+		triggerManager->RemoveTriggerBoxes();
+		triggerManager->hide();
+		qDebug() << "These Worked";
 		//If Trigger box exists
-		if (TriggerBox != nullptr) {
+		/*if (TriggerBox != nullptr) {*/
 			//Remove all trigger boxes
-			RemoveTriggerBoxes();
+			/*RemoveTriggerBoxes();*/
 			//Hide the trigger box
-			TriggerBox->hide();
-		}
+			/*TriggerBox->hide();
+		}*/
 		//Set first loop to false
 		oneTimeSelect = false;
 	}
@@ -182,13 +193,16 @@ void PyriteEditor::LoadSelectedObject()
 		}
 		//IF OBJECT HAS COLLISION
 		if (selectedObject->HasCollision()) {
+			collisionManager->show();
 			//Show the collision box
-			CollisionBox->show();
+
 			//Get the collision type of the object
 			CollisionType col = selectedObject->GetCollisionType();
 			//Find the current index the collision box corrisponds to.
-			CollisionBox->findChild<QComboBox*>("CollisionType")->setCurrentIndex(QVariant::fromValue(col).toInt());
-			CollisionBox->findChild<QCheckBox*>("CollisionCheckBox")->setChecked(selectedObject->GetCollisionPushSetting());
+			collisionManager->SetCollisionType(col);
+
+			/*CollisionBox->findChild<QComboBox*>("CollisionType")->setCurrentIndex(QVariant::fromValue(col).toInt());
+			CollisionBox->findChild<QCheckBox*>("CollisionCheckBox")->setChecked(selectedObject->GetCollisionPushSetting());*/
 		}
 		//Else make sure the collision box is hidden
 		else {
@@ -196,17 +210,18 @@ void PyriteEditor::LoadSelectedObject()
 		}
 
 		//If the object has a trigger component
+		qDebug() << "Checking if has trigger";
 		if (selectedObject->HasTrigger()) {
-
-			//Show the trigger box
-			TriggerBox->show();
-			//Load the trigger actions
-			LoadTriggerBoxes();
+			qDebug() << "Showing trigger";
+			triggerManager->show();
+			qDebug() << "Trigman should show";
+			triggerManager->LoadTriggerBoxes();
 		}
-		//Else make sure the trigger box is hidden
 		else {
-			RemoveTriggerBoxes();
-			TriggerBox->hide();
+			qDebug() << "Removing Trigger Boxes";
+			triggerManager->RemoveTriggerBoxes();
+			triggerManager->hide();
+			qDebug() << "These Passed";
 		}
 	}
 }
@@ -301,10 +316,16 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 			selectedObject = gameObject;
 			//remove the boxes from the old game object
 			RemoveActionBoxes();
-			RemoveTriggerBoxes();
+			/*RemoveTriggerBoxes();*/
+			triggerManager->RemoveTriggerBoxes();
+			triggerManager->UpdateSelectedObject(selectedObject);
+			collisionManager->UpdateSelectedObject(selectedObject);
+			qDebug() << "In this Section";
 			updateListOnce = false;
 			oneTimeSelect = true;
 			LoadSelectedObject();
+			qDebug() << "Selected Object Loaded";
+			
 		}
 		else {
 			//Use variables to update the game objects
@@ -363,9 +384,9 @@ void PyriteEditor::SetObjectProperties(GameObject* gameObject)
 void PyriteEditor::UpdateComponents()
 {
 	//Find all component boxes
-	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
+	/*QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
 	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
+	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");*/
 	
 	QWidget* TransformBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TransformBox");
 	QComboBox* TransformObject = TransformBox->findChild<QWidget*>("ActionBox")->findChild<QComboBox*>("objectBox");
@@ -404,43 +425,8 @@ void PyriteEditor::UpdateComponents()
 					widgets[i]->findChild<QDoubleSpinBox*>("SpeedBox")->value()
 				);
 			}
-	}
-	//Find the widgets of the triggerbox
-	QWidgetList trigWidgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
-	trigWidgets.append(TriggerBox->findChildren<QWidget*>("TriggerMoveBox"));
-	trigWidgets.append(TriggerBox->findChildren<QWidget*>("TriggerSceneBox"));
-	for (int i = 0; i < trigWidgets.count(); i++) {
-		//Update the trigger action to user input
-		if (selectedObject->GetTriggerAction(i).type == TriggerType::Change) {
-			selectedObject->ChangeTriggerAction(
-				i,
-				EnteringObjectBox->currentIndex(),
-				ConnectedObjectBox->currentIndex(),
-				trigWidgets[i]->findChild<QComboBox*>("DirectionBox")->currentData().toInt(),
-				trigWidgets[i]->findChild<QComboBox*>("ChangeBox")->currentData().toInt(),
-				trigWidgets[i]->findChild<QComboBox*>("ChangeBox")->currentIndex()
-			);
 		}
-		if (selectedObject->GetTriggerAction(i).type == TriggerType::MoveTo) {
-			selectedObject->ChangeTriggerMoveAction(i,
-				EnteringObjectBox->currentIndex(),
-				ConnectedObjectBox->currentIndex(),
-				LPoint3(trigWidgets[i]->findChild<QDoubleSpinBox*>("PosXBox")->value(),
-					trigWidgets[i]->findChild<QDoubleSpinBox*>("PosYBox")->value(),
-					trigWidgets[i]->findChild<QDoubleSpinBox*>("PosZBox")->value())
-				);
-		}
-
-		if (selectedObject->GetTriggerAction(i).type == TriggerType::Scene) {
-			QComboBox* SceneComboBox = TriggerBox->findChild<QComboBox*>("SceneComboBox");
-			selectedObject->ChangeTriggerScene(i,
-				EnteringObjectBox->currentIndex(),
-				ConnectedObjectBox->currentIndex(),
-				SceneComboBox->currentText().toStdString());
-		}
-	}
-
-	
+		triggerManager->UpdateActions();
 	//If there is a selected object
 	if (selectedObject != nullptr) {
 		//Fin the collision widget 
@@ -452,6 +438,8 @@ void PyriteEditor::UpdateComponents()
 			selectedObject->ChangeCollisionType(CollisionType(CollisionTypeBox->currentData().toInt()), CollisionCheckBox->isChecked());
 			lastCollisionType = CollisionTypeBox->currentData().toInt();
 		}
+
+
 
 		if (!updateListOnce && selectedObject->HasTransform()) {
 			QWidgetList widgets = TransformBox->findChildren<QWidget*>("ActionBox");
@@ -471,13 +459,13 @@ void PyriteEditor::UpdateComponents()
 		
 	}
 	else {
-		//Clear the connected object box
-		ConnectedObjectBox->clear();
-		EnteringObjectBox->clear();
-		//Add all objects to connected object drop down box
-		ReloadGameObjectDropDowns(ConnectedObjectBox);
-		ReloadGameObjectDropDowns(EnteringObjectBox);
-		updateListOnce = false;
+	//	//Clear the connected object box
+		findChild<QComboBox*>("ConnectedObject")->clear();
+		findChild<QComboBox*>("EnteringObject")->clear();
+	//	//Add all objects to connected object drop down box
+		ReloadGameObjectDropDowns(findChild<QComboBox*>("EnteringObject"));
+		ReloadGameObjectDropDowns(findChild<QComboBox*>("ConnectedObject"));
+	//	updateListOnce = false;
 	}
 }
 #pragma endregion
@@ -736,248 +724,6 @@ void PyriteEditor::AddCollision()
 }
 #pragma endregion
 
-#pragma region Trigger Component
-//Add trigger box to Component Window
-void PyriteEditor::AddTrigger()
-{
-	if (selectedObject != nullptr && !selectedObject->HasTrigger()) {
-		QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-		if (TriggerBox != nullptr) {
-			TriggerBox->show();
-		}
-		selectedObject->AddTrigger();
-	}
-}
-
-//Add the trigger actions to the trigger box
-///This is functionally the same as the AddTransformAction
-void PyriteEditor::AddTriggerAction(int id, int enterID, int selectedObjectID, Action action, Direction direction, bool newAction)
-{
-	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
-	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
-	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[EnteringObjectBox->currentData().toInt()];
-
-	QWidget* widget = new QWidget(TriggerBox);
-	widget->setObjectName("TriggerChangeBox");
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	QSize maximumsize = widget->size();
-
-	QLabel* changeLabel = new QLabel();
-	changeLabel->setText("Change:");
-	layout->addWidget(changeLabel);
-
-	QComboBox* changeBox = new QComboBox();
-	changeBox->setObjectName("ChangeBox");
-	layout->addWidget(changeBox);
-
-	QLabel* toLabel = new QLabel();
-	toLabel->setText("to:");
-	layout->addWidget(toLabel);
-
-	QComboBox* directionBox = new QComboBox();
-	directionBox->setObjectName("DirectionBox");
-	directionBox->addItem("Forward", QVariant::fromValue(Direction::Forward));
-	directionBox->addItem("Backward", QVariant::fromValue(Direction::Backward));
-	directionBox->addItem("Left", QVariant::fromValue(Direction::Left));
-	directionBox->addItem("Right", QVariant::fromValue(Direction::Right));
-	directionBox->addItem("Up", QVariant::fromValue(Direction::Up));
-	directionBox->addItem("Down", QVariant::fromValue(Direction::Down));
-	layout->addWidget(directionBox);
-	qDebug() << "Checking if connected Object has a transform";
-	if (connectedObject->HasTransform()) {
-		qDebug() << "The Object has a transform";
-		for (int i = 0; i < connectedObject->GetNumberOfActions(); i++) {
-			std::ostringstream tag;
-			tag << i + 1;
-			std::string name;
-			if (connectedObject->GetTransformAction(i).type == TransformType::Add) {
-				if (connectedObject->GetTransformAction(i).action == Action::Move) {
-					name = tag.str() + ". Move";
-					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Move));
-				}
-				if (connectedObject->GetTransformAction(i).action == Action::Rotate) {
-					name = tag.str() + ". Rotate";
-					changeBox->addItem(QString::fromStdString(name), QVariant::fromValue(Action::Rotate));
-				}
-			}
-		}
-	}
-
-	directionBox->setCurrentIndex(QVariant::fromValue(direction).toInt());
-	directionBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	changeBox->setCurrentIndex(id);
-	changeBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	widget->setLayout(layout);
-	TriggerBox->layout()->addWidget(widget);
-	if (newAction) {
-		selectedObject->StoreTriggerActions(EnteringObject->id, connectedObject->id, directionBox->currentData().toInt(), changeBox->currentData().toInt(), changeBox->currentIndex());
-	}
-	else {
-		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
-		EnteringObjectBox->setCurrentIndex(enterID);
-	}
-}
-
-void PyriteEditor::AddTriggerMoveAction(int enterID, int selectedObjectID, LPoint3 position, bool newAction)
-{
-	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
-	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
-	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[enterID];
-
-	QWidget* widget = new QWidget(TriggerBox);
-	widget->setObjectName("TriggerMoveBox");
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	QSize maximumsize = widget->size();
-
-	QLabel* moveToLabel = new QLabel();
-	moveToLabel->setText("Move To");
-	layout->addWidget(moveToLabel);
-
-	QLabel* posX = new QLabel();
-	posX->setText("X:");
-	posX->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	layout->addWidget(posX);
-
-	QDoubleSpinBox* posXBox = new QDoubleSpinBox();
-	posXBox->setMinimum(-1000000);
-	posXBox->setMaximum(1000000);
-	posXBox->setObjectName("PosXBox");
-	posXBox->setMaximumSize(110, 20);
-	posXBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	posXBox->setValue(position.get_x());
-	layout->addWidget(posXBox);
-
-	QLabel* posY = new QLabel();
-	posY->setText("Y:");
-	posY->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	layout->addWidget(posY);
-
-	QDoubleSpinBox* posYBox = new QDoubleSpinBox();
-	posYBox->setMinimum(-1000000);
-	posYBox->setMaximum(1000000);
-	posYBox->setObjectName("PosYBox");
-	posYBox->setMaximumSize(110, 20);
-	posYBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	posYBox->setValue(position.get_y());
-	layout->addWidget(posYBox);
-
-	QLabel* posZ = new QLabel();
-	posZ->setText("Z:");
-	posZ->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-	layout->addWidget(posZ);
-
-	QDoubleSpinBox* posZBox = new QDoubleSpinBox();
-	posZBox->setMinimum(-1000000);
-	posZBox->setMaximum(1000000);
-	posZBox->setObjectName("PosZBox");
-	posZBox->setMaximumSize(110, 20);
-	posZBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
-	posZBox->setValue(position.get_z());
-	layout->addWidget(posZBox);
-
-	widget->setLayout(layout);
-	TriggerBox->layout()->addWidget(widget);
-
-	if (newAction) {
-		selectedObject->StoreTriggerMoveTo(EnteringObject->id, connectedObject->id, position);
-	}
-	else {
-		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
-		EnteringObjectBox->setCurrentIndex(enterID);
-	}
-}
-
-void PyriteEditor::AddTriggerChangeScene(int enterID, int selectedObjectID, std::string newScene, bool newAction)
-{
-	QGroupBox* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QGroupBox*>("TriggerBox");
-	QComboBox* ConnectedObjectBox = TriggerBox->findChild<QComboBox*>("ConnectedObject");
-	GameObject* connectedObject = pandaEngine.GetVectorOfGameObjects()[selectedObjectID];
-	QComboBox* EnteringObjectBox = TriggerBox->findChild<QComboBox*>("EnteringObject");
-	GameObject* EnteringObject = pandaEngine.GetVectorOfGameObjects()[enterID];
-
-	QWidget* widget = new QWidget(TriggerBox);
-	widget->setObjectName("TriggerSceneBox");
-	QHBoxLayout* layout = new QHBoxLayout(widget);
-	QSize maximumsize = widget->size();
-
-	QLabel* moveToLabel = new QLabel();
-	moveToLabel->setText("Move To");
-	layout->addWidget(moveToLabel);
-
-	QComboBox* sceneBox = new QComboBox();
-	QStringList filter("*.pyr");
-	sceneBox->setObjectName("SceneComboBox");
-	QDir directory(QString::fromStdString(ProjectDirectory));
-	QStringList filelist = directory.entryList(filter);
-	for (int i = 0; i < filelist.size(); i++) {
-		sceneBox->addItem(filelist[i]);
-	}
-	layout->addWidget(sceneBox);
-
-	widget->setLayout(layout);
-	TriggerBox->layout()->addWidget(widget);
-
-	if (newAction) {
-		selectedObject->StoreTriggerScene(EnteringObject->id, connectedObject->id, ProjectDirectory + sceneBox->currentText().toStdString());
-	}
-	else {
-		ConnectedObjectBox->setCurrentIndex(selectedObjectID);
-		EnteringObjectBox->setCurrentIndex(enterID);
-		int sceneIndex = sceneBox->findText(QString::fromStdString(newScene));
-		if (sceneIndex != -1) {
-			sceneBox->setCurrentIndex(sceneIndex);
-		}
-
-	}
-}
-
-//Load the trigger boxes
-void PyriteEditor::LoadTriggerBoxes()
-{
-	//for all trigger actions the object has, load it to the editor
-	for (int i = 0; i < selectedObject->GetNumberOfTriggerActions(); i++) {
-		if (selectedObject->GetTriggerAction(i).type == TriggerType::Change) {
-			AddTriggerAction(selectedObject->GetTriggerAction(i).actionID, selectedObject->GetTriggerAction(i).enteringObjectID, selectedObject->GetTriggerAction(i).connectedObjectID, Action(selectedObject->GetTriggerAction(i).newAction), Direction(selectedObject->GetTriggerAction(i).newDirection), false);
-		}
-		if (selectedObject->GetTriggerAction(i).type == TriggerType::MoveTo) {
-			AddTriggerMoveAction(selectedObject->GetTriggerAction(i).enteringObjectID, selectedObject->GetTriggerAction(i).connectedObjectID, selectedObject->GetTriggerAction(i).toPos, false);
-		}
-
-		if (selectedObject->GetTriggerAction(i).type == TriggerType::Scene) {
-			std::string output = "Entering Object ID is: " + std::to_string(selectedObject->GetTriggerAction(i).enteringObjectID) + "\n";
-			OutputDebugStringA(output.c_str());
-			output = "Selected Object ID is: " + std::to_string(selectedObject->GetTriggerAction(i).connectedObjectID) + "\n";
-			OutputDebugStringA(output.c_str());
-			AddTriggerChangeScene(selectedObject->GetTriggerAction(i).enteringObjectID, selectedObject->GetTriggerAction(i).connectedObjectID, selectedObject->GetTriggerAction(i).newScene, false);
-		}
-	}
-}
-
-//Remove all trigger boxes
-void PyriteEditor::RemoveTriggerBoxes()
-{
-	//Find the trigger box
-	QWidget* TriggerBox = findChild<QScrollArea*>("ComponentScrollWindow")->findChild<QWidget*>("TriggerBox");
-	//Get a list of the widgets attached to the trigger box
-	QWidgetList widgets = TriggerBox->findChildren<QWidget*>("TriggerChangeBox");
-	widgets.append(TriggerBox->findChildren<QWidget*>("TriggerMoveBox"));
-	widgets.append(TriggerBox->findChildren<QWidget*>("TriggerSceneBox"));
-
-	//Remove them all
-	for (int i = 0; i < widgets.size(); i++) {
-		TriggerBox->layout()->removeWidget(widgets[i]);
-		widgets[i]->hide();
-		widgets[i]->setDisabled(true);
-		widgets[i]->deleteLater();
-		delete widgets[i];
-	}
-}
-#pragma endregion
-
 #pragma region Add to Scene
 //Add a trigger to the world
 void PyriteEditor::AddWorldTrigger()
@@ -1034,6 +780,7 @@ void PyriteEditor::NewProject()
 	ProjectDirectory = saveManager->GetProjectDirectory();
 	//Get the project name from the same manager
 	ProjectName = saveManager->GetProjectName();
+	triggerManager->UpdateDirectory(ProjectDirectory);
 	if (ProjectName != "") {
 		//Set the Asset folder creation to the new directory
 		DragAndDrop* AssetDrop = findChild<QWidget*>("Assets")->findChild<DragAndDrop*>("listWidget");
@@ -1053,6 +800,7 @@ void PyriteEditor::LoadProject()
 	ProjectDirectory = saveManager->GetProjectDirectory();
 	ProjectName = saveManager->GetProjectName();
 	ProjectSave = saveManager->GetProjectSave();
+	triggerManager->UpdateDirectory(ProjectDirectory);
 	if (ProjectName != "") {
 		DragAndDrop* AssetDrop = findChild<QWidget*>("Assets")->findChild<DragAndDrop*>("listWidget");
 		AssetDrop->ChangeDirectory(ProjectDirectory);
@@ -1071,6 +819,7 @@ void PyriteEditor::New()
 	//Run save manager->new()
 	saveManager->New();
 	//Get the project directory from the save manager
+	triggerManager->UpdateDirectory(ProjectDirectory);
 }
 
 //Save the project as..
@@ -1084,6 +833,7 @@ void PyriteEditor::SaveAs()
 	ProjectName = saveManager->GetProjectName();
 	//Get the project save object
 	ProjectSave = saveManager->GetProjectSave();
+	triggerManager->UpdateDirectory(ProjectDirectory);
 }
 
 //Save the project
@@ -1094,6 +844,7 @@ void PyriteEditor::Save()
 	ProjectDirectory = saveManager->GetProjectDirectory();
 	ProjectName = saveManager->GetProjectName();
 	ProjectSave = saveManager->GetProjectSave();
+	triggerManager->UpdateDirectory(ProjectDirectory);
 }
 
 //Load the project
@@ -1104,7 +855,7 @@ void PyriteEditor::Load()
 	//Load the project
 	saveManager->Load("");
 	//Update project details
-	
+	triggerManager->UpdateDirectory(ProjectDirectory);
 }
 
 //Build the project

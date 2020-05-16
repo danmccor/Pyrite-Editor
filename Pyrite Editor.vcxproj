@@ -90,6 +90,7 @@
     <ClCompile Include="AddComponent.cpp" />
     <ClCompile Include="AssetToScene.cpp" />
     <ClCompile Include="Collision.cpp" />
+    <ClCompile Include="CollisionManager.cpp" />
     <ClCompile Include="Components.cpp" />
     <ClCompile Include="DragAndDrop.cpp" />
     <ClCompile Include="GameCamera.cpp" />
@@ -101,6 +102,7 @@
     <ClCompile Include="TextOnScreen.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="Trigger.cpp" />
+    <ClCompile Include="TriggerManager.cpp" />
     <ClCompile Include="WorldGrid.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -117,16 +119,22 @@
     <ClInclude Include="AddComponent.h" />
     <ClInclude Include="AssetToScene.h" />
     <ClInclude Include="Collision.h" />
+    <QtMoc Include="CollisionManager.h" />
     <ClInclude Include="Components.h" />
     <ClInclude Include="DragAndDrop.h" />
     <ClInclude Include="GameCamera.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Panda3D.h" />
+    <ClInclude Include="QtIncludes.h" />
+    <QtMoc Include="TriggerManager.h" />
     <ClInclude Include="WorldGrid.h" />
     <QtMoc Include="SaveManager.h" />
     <ClInclude Include="TextOnScreen.h" />
     <ClInclude Include="Transform.h" />
     <ClInclude Include="Trigger.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

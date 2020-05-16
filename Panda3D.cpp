@@ -325,6 +325,10 @@ std::vector<GameObject*> Panda3D::GetVectorOfGameObjects()
 {
 	return gameObjects;
 }
+GameObject* Panda3D::GetObjectByID(int id)
+{
+	return gameObjects[id];
+}
 #pragma endregion
 
 #pragma region Checkers

@@ -662,7 +662,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QGroupBox" name="TriggerBox">
+             <widget class="TriggerManager" name="TriggerBox">
               <property name="maximumSize">
                <size>
                 <width>499</width>
@@ -913,6 +913,12 @@
    <slots>
     <slot>addToBox()</slot>
    </slots>
+  </customwidget>
+  <customwidget>
+   <class>TriggerManager</class>
+   <extends>QGroupBox</extends>
+   <header location="global">triggermanager.h</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>

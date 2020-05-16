@@ -11,7 +11,6 @@
 #include "boundingBox.h"
 #include "geometricBoundingVolume.h"
 
-
 enum class CollisionType {
 	 Box = 0, Sphere = 1
 };

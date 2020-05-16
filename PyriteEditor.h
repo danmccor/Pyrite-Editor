@@ -1,28 +1,11 @@
 #pragma once
 
-#include <QtWidgets/QMainWindow>
-#include <QtWidgets/qlistwidget.h>
-#include <QtWidgets/qgroupbox.h>
-#include <QtWidgets/qdockwidget.h>
-#include <QtWidgets/qformlayout.h>
-#include <QtWidgets/qboxlayout.h>
-#include <QtWidgets/qspinbox.h>
-#include <QtWidgets/qpushbutton.h>
-#include <QtWidgets/QLineEdit.h>
-#include <QtWidgets/qsizepolicy.h>
-#include <QtWidgets/qcombobox.h>
-#include <QtWidgets/qcheckbox.h>
-#include <QtWidgets/qradiobutton.h>
-#include <qsizepolicy.h>
-#include <qjsonobject.h>
-#include <qfiledialog.h>
-#include <qscrollarea.h>
-
 #include <QtCore/qcoreapplication.h>
 #include "ui_PyriteEditor.h"
 #include "Panda3D.h"
 #include "GameObject.h"
-#include "SaveManager.h"
+#include "TriggerManager.h"
+#include "CollisionManager.h"
 
 extern Panda3D pandaEngine;
 
@@ -54,9 +37,9 @@ public slots:
 	void AddFollowObject(TransformAxis axis = TransformAxis::X, int selectedObjectID = 0, std::string key = "", float speed =  0, bool newAction = true);
 
 	//Add a trigger action to the trigger component
-	void AddTriggerAction(int id = 0, int enterID = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
+	/*void AddTriggerAction(int id = 0, int enterID = 0, int selectedObjectID = 0, Action action = Action::Move, Direction direction = Direction::Forward, bool newAction = true);
 	void AddTriggerMoveAction(int enterID = 0, int selectedObjectID = 0, LPoint3 position = (0, 0, 0), bool newAction = true);
-	void AddTriggerChangeScene(int enterID = 0, int selectedObjectID = 0, std::string newScene = "", bool newAction = true);
+	void AddTriggerChangeScene(int enterID = 0, int selectedObjectID = 0, std::string newScene = "", bool newAction = true);*/
 
 	void AddObjectToObjectList(GameObject* gameObject);
 
@@ -78,7 +61,7 @@ public slots:
 	//Add collision to the selected object
 	void AddCollision();
 	//Add a trigger to the selected object
-	void AddTrigger();
+	//void AddTrigger();
 
 
 	void NewProject();
@@ -99,11 +82,13 @@ private slots:
 	void SelectObjectFromList(QListWidgetItem* item);
 
 private:
-	//Load the triggers attached to an object to the editor
-	void LoadTriggerBoxes();
-	//Remove the trigger boxes attached to an object from the editor
-	void RemoveTriggerBoxes();
+	TriggerManager* triggerManager = nullptr;
+	CollisionManager* collisionManager = nullptr;
 
+	//Load the triggers attached to an object to the editor
+	//void LoadTriggerBoxes();
+	//Remove the trigger boxes attached to an object from the editor
+	//void RemoveTriggerBoxes();
 	//Load the transforms attached to an object to the editor
 	void RemoveActionBoxes();
 	//Remove the transform boxes attached to an object from the editor
