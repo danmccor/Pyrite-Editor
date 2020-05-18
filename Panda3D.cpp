@@ -41,8 +41,6 @@ bool Panda3D::Init(size_t hwnd, int argc, char* argv[], int width, int height, i
 
 	//If this is the editor version
 	if (!built) {
-		
-
 		//Get the camera
 		camera = window->get_camera_group();
 		//Set the position back

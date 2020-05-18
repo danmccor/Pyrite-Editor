@@ -7,6 +7,7 @@ AddComponent::AddComponent(QPushButton* button, QWidget* parent) : QMenu(parent)
 
 void AddComponent::showEvent(QShowEvent* ev)
 {
+	//Show Button Menu
 	QPoint p = this->pos();
 	QRect geo = Button->geometry();
 	this->move(p.x() + geo.width() - this->geometry().width(), p.y());

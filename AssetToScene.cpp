@@ -8,7 +8,7 @@ AssetToScene::AssetToScene(QWidget* parent) : QDockWidget(parent)
 
 void AssetToScene::dragEnterEvent(QDragEnterEvent* ev)
 {
-	bool allEGG = true;
+	//Get Format for models
 	if (ev->mimeData()->hasFormat("application/x-qabstractitemmodeldatalist")) {
 		QByteArray data = ev->mimeData()->data("application/x-qabstractitemmodeldatalist");
 		QDataStream stream(&data, QIODevice::ReadOnly);
@@ -22,11 +22,13 @@ void AssetToScene::dragEnterEvent(QDragEnterEvent* ev)
 		QString filename = name.join("");
 		QFileInfo file(filename);
 		fileName = file.baseName();
+		//Check if file is .egg, pz, mp3 or wav
 		if (file.suffix() == "egg" || file.suffix() == "pz" || file.suffix() == "mp3" || file.suffix() == "wav") {
 			suffix = file.suffix();
 			if (suffix == "pz") {
 				suffix = "egg.pz";
 			}
+			//Accept drop if it is
 			ev->acceptProposedAction();
 		}
 	}
@@ -44,16 +46,19 @@ void AssetToScene::dragLeaveEvent(QDragLeaveEvent* ev)
 
 void AssetToScene::dropEvent(QDropEvent* ev)
 {
+	//Reconstruct file name
 	std::string file = ProjectDirectory + "Assets/" + fileName.toStdString() + "." + suffix.toStdString();
 	Filename pandafile = Filename::from_os_specific(file);
 
+	//If the file ended in egg or egg.pz
 	if (suffix == "egg" || suffix == "egg.pz") {
+		//Add Object to list of objects
 		((PyriteEditor*)parentWidget())->AddObjectToObjectList(pandaEngine.CreateObject(pandafile, fileName.toStdString()));
-		OutputDebugStringA(pandafile.c_str());
 	}
+	//if mp3 or wav
 	else if (suffix == "mp3" || suffix == "wav") {
+		//Set the music of the level
 		pandaEngine.SetMusic(pandafile);
-		OutputDebugStringA(pandafile.c_str());
 	}
 }
 

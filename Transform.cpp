@@ -2,6 +2,7 @@
 
 void Transform::AddAction(Action action, float speed, Direction direction, std::string key)
 {
+	//Set the transform Action
 	TransformAction* movement = new TransformAction();
 	movement->type = TransformType::Add;
 	movement->action = action;
@@ -13,6 +14,7 @@ void Transform::AddAction(Action action, float speed, Direction direction, std::
 
 void Transform::AddFollowAction(TransformAxis axis, int selectedObjectID, std::string key, float speed)
 {
+	//Set the transform action
 	TransformAction* movement = new TransformAction();
 	movement->type = TransformType::Follow;
 	movement->axis = axis;
@@ -24,6 +26,7 @@ void Transform::AddFollowAction(TransformAxis axis, int selectedObjectID, std::s
 
 TransformAction& Transform::GetAction(int key)
 {
+	//Get the transform action
 	if (key >= 0 && key < Actions.size()) {
 		return *Actions[key];
 	}
@@ -31,35 +34,42 @@ TransformAction& Transform::GetAction(int key)
 
 LPoint3 Transform::Move(LPoint3 Position, LPoint3 Forward, LPoint3 Up, MouseWatcher* mouseWatcher)
 {
+	//Get the objects position
 	LPoint3 newPos = Position;
+	//Get the objects right vector
 	LPoint3 Right = cross(Forward, Up);
 	for (int i = 0; i < Actions.size(); i++) {
+		//If the transform type is add
 		if (Actions[i]->type == TransformType::Add) {
 			if (Actions[i]->action == Action::Move) {
 				char key;
 				strcpy(&key, &Actions[i]->Key[0]);
+				//If key is not set or if the button is being held down
 				if (mouseWatcher->is_button_down(KeyboardButton::ascii_key(key)) || Actions[i]->Key == "") {
 					if (Actions[i]->direction == Direction::Forward) {
-
+						//Move forward
 						newPos += (Forward * Actions[i]->Speed) * globalClock.get_dt();
 					}
 					if (Actions[i]->direction == Direction::Backward) {
+						//Move Backward
 						newPos -= (Forward * Actions[i]->Speed) * globalClock.get_dt();
 					}
 					if (Actions[i]->direction == Direction::Right) {
+						//Move Right
 						newPos += (Right * Actions[i]->Speed) * globalClock.get_dt();
 					}
-
 					if (Actions[i]->direction == Direction::Left) {
+						//move Left
 						newPos += (-Right * Actions[i]->Speed) * globalClock.get_dt();
-
 					}
 					if (Actions[i]->direction == Direction::Up) {
+						//Move Up
 						newPos += (Up * Actions[i]->Speed) * globalClock.get_dt();
 					}
-				}
-				if (Actions[i]->direction == Direction::Down) {
-					newPos += (-Up * Actions[i]->Speed) * globalClock.get_dt();
+					if (Actions[i]->direction == Direction::Down) {
+						//Move Down
+						newPos += (-Up * Actions[i]->Speed) * globalClock.get_dt();
+					}
 				}
 			}
 		}
@@ -78,12 +88,20 @@ LPoint3 Transform::Rotate(LPoint3 Rotation, MouseWatcher* mouseWatcher)
 				strcpy(&key, &Actions[i]->Key[0]);
 				if (mouseWatcher->is_button_down(KeyboardButton::ascii_key(key)) || Actions[i]->Key == "") {
 					if (Actions[i]->direction == Direction::Left) {
-
+						//Rotate Left
 						newRot.set_x(newRot.get_x() - (Actions[i]->Speed * globalClock.get_dt()));
-
 					}
 					if (Actions[i]->direction == Direction::Right) {
+						//Rotate Right
 						newRot.set_x(newRot.get_x() + (Actions[i]->Speed * globalClock.get_dt()));
+					}
+					if (Actions[i]->direction == Direction::Down) {
+						//Rotate Left
+						newRot.set_y(newRot.get_y() - (Actions[i]->Speed * globalClock.get_dt()));
+					}
+					if (Actions[i]->direction == Direction::Up) {
+						//Rotate Right
+						newRot.set_y(newRot.get_y() + (Actions[i]->Speed * globalClock.get_dt()));
 					}
 				}
 			}

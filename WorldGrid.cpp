@@ -4,7 +4,7 @@ GeomNode* WorldGrid::Create()
 {
 	lines.set_thickness(1);
 	lines.set_color(LColor(0.6f, 0.6f, 0.6f, 1));
-
+	//Set Positions for lines
 	for (int i = 0; i < 1000; i++) {
 		if (i == 0) {
 			//Draw Along Y

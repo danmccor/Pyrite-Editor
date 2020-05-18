@@ -107,6 +107,10 @@ public:
 	static int objectCount;
 	int id;
 
+	Transform* transform = nullptr;
+	Collision* collision = nullptr;
+	Trigger* trigger = nullptr;
+
 //Protected functions
 protected:
 	void SetFileLocation(std::string location);
@@ -122,13 +126,7 @@ protected:
 	NodePath TriggerNodePath;
 	PandaNode* triggerBox;
 	bool highlighted = false;
-
-
 	NodePath gameObject_nodePath;
-	Transform* transform = nullptr;
-	Collision* collision = nullptr;
-	Trigger* trigger = nullptr;
-
 	bool isCamera = false;
 
 	std::string ObjectName = "";

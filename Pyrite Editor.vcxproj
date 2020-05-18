@@ -86,7 +86,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="AddAction.cpp" />
     <ClCompile Include="AddComponent.cpp" />
     <ClCompile Include="AssetToScene.cpp" />
     <ClCompile Include="Collision.cpp" />
@@ -99,7 +98,6 @@
     <ClCompile Include="Panda3D.cpp" />
     <ClCompile Include="PyriteEditor.cpp" />
     <ClCompile Include="SaveManager.cpp" />
-    <ClCompile Include="TextOnScreen.cpp" />
     <ClCompile Include="Transform.cpp" />
     <ClCompile Include="TransformManager.cpp" />
     <ClCompile Include="Trigger.cpp" />
@@ -116,7 +114,6 @@
     <QtRcc Include="PyriteEditor.qrc" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AddAction.h" />
     <ClInclude Include="AddComponent.h" />
     <ClInclude Include="AssetToScene.h" />
     <ClInclude Include="Collision.h" />

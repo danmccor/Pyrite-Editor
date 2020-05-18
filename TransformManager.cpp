@@ -12,7 +12,7 @@ void TransformManager::AddTransform()
 {
 	if (selectedObject != nullptr && !selectedObject->HasTransform()) {
 		this->show();
-		selectedObject->AddTransform();
+		selectedObject->transform = new Transform();
 	}
 }
 
